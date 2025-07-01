@@ -93,19 +93,108 @@ class CTGANCableHealthGenerator:
             status = ['🔵 Healthy', '🟠 At Risk', '🔴 Critical'][i]
             print(f"  Class {i} ({status}): {count} samples ({count/len(df)*100:.1f}%)")
         
-        # FIXED: Analyze feature correlations with target
+        # ENHANCED: Robust feature-target correlation analysis with multiple fallback strategies
         print(f"\n🔍 Feature-Target Correlations:")
-        if len(self.numerical_columns) > 0:  # Check if we have numerical features
-            correlations = df[self.numerical_columns + ['CableHealthScore']].corr()['CableHealthScore'].drop('CableHealthScore')
-            
-            # FIXED: For Series, use sort_values() without 'by' parameter
-            top_corr = correlations.abs().sort_values(ascending=False).head(10)
-            
-            for feature, corr in top_corr.items():
-                direction = "↗️" if correlations[feature] > 0 else "↘️"
-                print(f"  {direction} {feature}: {corr:.3f}")
+        if len(self.numerical_columns) > 0:
+            try:
+                # Strategy 1: Standard correlation approach
+                correlations = df[self.numerical_columns + ['CableHealthScore']].corr()['CableHealthScore'].drop('CableHealthScore')
+                
+                # Debug: Check what type correlations is
+                print(f"  Debug: correlations type = {type(correlations)}")
+                print(f"  Debug: correlations shape = {getattr(correlations, 'shape', 'No shape attribute')}")
+                
+                # Handle different data types
+                if isinstance(correlations, pd.DataFrame):
+                    print("  ⚠️  Correlations returned as DataFrame, converting to Series...")
+                    # If it's a DataFrame, try to squeeze it to Series
+                    correlations = correlations.squeeze()
+                    
+                    # If still DataFrame, take the first column
+                    if isinstance(correlations, pd.DataFrame):
+                        correlations = correlations.iloc[:, 0]
+                
+                elif isinstance(correlations, pd.Series):
+                    print("  ✅ Correlations is a Series (expected)")
+                else:
+                    print(f"  ⚠️  Unexpected correlations type: {type(correlations)}")
+                    raise TypeError(f"Unexpected correlations type: {type(correlations)}")
+                
+                # Now safely sort the Series
+                if isinstance(correlations, pd.Series):
+                    top_corr = correlations.abs().sort_values(ascending=False).head(10)
+                    
+                    for feature, corr in top_corr.items():
+                        direction = "↗️" if correlations[feature] > 0 else "↘️"
+                        print(f"  {direction} {feature}: {corr:.3f}")
+                else:
+                    raise TypeError("Could not convert correlations to Series")
+                    
+            except Exception as e:
+                print(f"  ⚠️  Standard correlation failed: {e}")
+                print("  🔧 Trying fallback correlation methods...")
+                
+                # Fallback Strategy 1: Manual correlation calculation
+                try:
+                    print("  Fallback 1: Manual correlation calculation...")
+                    correlations_manual = {}
+                    target_values = df['CableHealthScore']
+                    
+                    for feature in self.numerical_columns:
+                        feature_values = df[feature]
+                        # Calculate Pearson correlation manually
+                        corr_coef = np.corrcoef(feature_values, target_values)[0, 1]
+                        if not np.isnan(corr_coef):
+                            correlations_manual[feature] = corr_coef
+                    
+                    # Sort by absolute correlation
+                    sorted_correlations = sorted(correlations_manual.items(), 
+                                            key=lambda x: abs(x[1]), reverse=True)
+                    
+                    print("  ✅ Manual correlation calculation successful:")
+                    for feature, corr in sorted_correlations[:10]:
+                        direction = "↗️" if corr > 0 else "↘️"
+                        print(f"    {direction} {feature}: {abs(corr):.3f}")
+                        
+                except Exception as e2:
+                    print(f"  ⚠️  Manual correlation failed: {e2}")
+                    
+                    # Fallback Strategy 2: Individual feature correlations
+                    try:
+                        print("  Fallback 2: Individual feature correlations...")
+                        individual_correlations = {}
+                        
+                        for feature in self.numerical_columns:
+                            try:
+                                corr_val = df[feature].corr(df['CableHealthScore'])
+                                if not np.isnan(corr_val):
+                                    individual_correlations[feature] = corr_val
+                            except Exception:
+                                continue
+                        
+                        if individual_correlations:
+                            # Sort by absolute correlation
+                            sorted_individual = sorted(individual_correlations.items(), 
+                                                    key=lambda x: abs(x[1]), reverse=True)
+                            
+                            print("  ✅ Individual correlation calculation successful:")
+                            for feature, corr in sorted_individual[:10]:
+                                direction = "↗️" if corr > 0 else "↘️"
+                                print(f"    {direction} {feature}: {abs(corr):.3f}")
+                        else:
+                            print("  ❌ No valid correlations found")
+                            
+                    except Exception as e3:
+                        print(f"  ❌ All correlation methods failed: {e3}")
+                        print("  📊 Showing basic feature statistics instead:")
+                        
+                        # Fallback Strategy 3: Basic statistics
+                        for feature in self.numerical_columns[:10]:
+                            mean_val = df[feature].mean()
+                            std_val = df[feature].std()
+                            print(f"    📈 {feature}: mean={mean_val:.3f}, std={std_val:.3f}")
         else:
-            print("  No numerical features available for correlation analysis")
+            print("  ⚠️  No numerical features available for correlation analysis")
         
         return df
     
@@ -154,25 +243,67 @@ class CTGANCableHealthGenerator:
         # Preprocess data
         df_processed = self.preprocess_for_ctgan(df)
         
+        # FIXED: Calculate optimal batch_size and pac for small datasets
+        n_samples = len(df_processed)
+        
+        # Adjust batch size for small datasets
+        if n_samples < batch_size:
+            batch_size = n_samples
+            print(f"⚠️  Adjusted batch_size to {batch_size} (dataset size)")
+        
+        # FIXED: Calculate pac that divides evenly into batch_size
+        # Find the largest divisor of batch_size that's <= 10
+        possible_pac_values = [i for i in range(1, 11) if batch_size % i == 0]
+        optimal_pac = max(possible_pac_values) if possible_pac_values else 1
+        
+        print(f"🔧 Optimal PAC value: {optimal_pac} (batch_size {batch_size} is divisible)")
+        
         # Configure CTGAN with optimized parameters for small datasets
-        self.ctgan_model = CTGAN(
-            epochs=epochs,
-            batch_size=min(batch_size, len(df_processed)),  # Adjust batch size for small data
-            generator_dim=(256, 256),  # Generator architecture
-            discriminator_dim=(256, 256),  # Discriminator architecture
-            generator_lr=2e-4,  # Learning rate for generator
-            discriminator_lr=2e-4,  # Learning rate for discriminator
-            discriminator_steps=1,  # Discriminator steps per generator step
-            log_frequency=True,
-            verbose=True,
-            pac=10  # PacGAN parameter for mode collapse prevention
-        )
+        try:
+            self.ctgan_model = CTGAN(
+                epochs=epochs,
+                batch_size=batch_size,
+                generator_dim=(128, 128),  # Reduced for small data
+                discriminator_dim=(128, 128),  # Reduced for small data
+                generator_lr=2e-4,
+                discriminator_lr=2e-4,
+                discriminator_steps=1,
+                log_frequency=True,
+                verbose=True,
+                pac=optimal_pac,  # FIXED: Use calculated optimal pac
+                embedding_dim=64  # Reduced for small data
+            )
+            print(f"✅ CTGAN model configured successfully")
+        except Exception as e:
+            print(f"⚠️  Standard CTGAN configuration failed: {e}")
+            print("🔧 Trying minimal configuration...")
+            
+            # Fallback with minimal configuration
+            minimal_pac = 1  # Most conservative pac value
+            minimal_batch_size = min(batch_size, n_samples)
+            
+            self.ctgan_model = CTGAN(
+                epochs=epochs//2,  # Reduced epochs
+                batch_size=minimal_batch_size,
+                generator_dim=(64, 64),  # Very small architecture
+                discriminator_dim=(64, 64),
+                generator_lr=1e-3,  # Higher learning rate for faster convergence
+                discriminator_lr=1e-3,
+                discriminator_steps=1,
+                log_frequency=True,
+                verbose=True,
+                pac=minimal_pac,  # FIXED: Use pac=1 for maximum compatibility
+                embedding_dim=32  # Minimal embedding
+            )
+            print(f"✅ CTGAN model configured with minimal settings")
         
         # Identify categorical columns for CTGAN
         categorical_columns_for_ctgan = [col for col in self.categorical_columns if col in df_processed.columns]
         
         print(f"Training on {len(df_processed)} samples...")
         print(f"Categorical columns for CTGAN: {categorical_columns_for_ctgan}")
+        print(f"Final batch_size: {self.ctgan_model._batch_size}")
+        print(f"Final pac: {self.ctgan_model.pac}")
         
         # Train the model
         try:
@@ -180,20 +311,34 @@ class CTGANCableHealthGenerator:
             print("✅ CTGAN model trained successfully!")
         except Exception as e:
             print(f"❌ CTGAN training failed: {e}")
-            print("🔧 Trying with reduced complexity...")
+            print("🔧 Trying with ultra-minimal configuration...")
             
-            # Fallback with simpler configuration
-            self.ctgan_model = CTGAN(
-                epochs=epochs//2,
-                batch_size=min(64, len(df_processed)),
-                generator_dim=(128, 128),
-                discriminator_dim=(128, 128),
-                verbose=True
-            )
-            self.ctgan_model.fit(df_processed, categorical_columns_for_ctgan)
-            print("✅ CTGAN model trained with reduced complexity!")
+            # Ultra-minimal fallback
+            try:
+                self.ctgan_model = CTGAN(
+                    epochs=50,  # Very few epochs
+                    batch_size=n_samples,  # Use full dataset as batch
+                    generator_dim=(32,),  # Single layer
+                    discriminator_dim=(32,),  # Single layer
+                    generator_lr=1e-2,  # High learning rate
+                    discriminator_lr=1e-2,
+                    discriminator_steps=1,
+                    log_frequency=False,
+                    verbose=True,
+                    pac=1,  # Minimal pac
+                    embedding_dim=16  # Very small embedding
+                )
+                
+                self.ctgan_model.fit(df_processed, categorical_columns_for_ctgan)
+                print("✅ CTGAN model trained with ultra-minimal configuration!")
+                
+            except Exception as e2:
+                print(f"❌ All CTGAN configurations failed: {e2}")
+                print("🔧 Consider using a larger sample dataset (>50 rows) for better CTGAN performance")
+                raise e2
         
         return self.ctgan_model
+
     
     def generate_synthetic_data(self, num_samples=20000, validate_quality=True):
         """
