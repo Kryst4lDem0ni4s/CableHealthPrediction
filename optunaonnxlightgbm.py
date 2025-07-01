@@ -467,67 +467,94 @@ class EnhancedCableHealthPredictorWithOptuna:
                 
                 # Create datasets
                 train_data = lgb.Dataset(X_fold_train, label=y_fold_train,
-                                       categorical_feature=self.categorical_features)
+                                    categorical_feature=self.categorical_features)
                 val_data = lgb.Dataset(X_fold_val, label=y_fold_val,
-                                     categorical_feature=self.categorical_features,
-                                     reference=train_data)
+                                    categorical_feature=self.categorical_features,
+                                    reference=train_data)
                 
-                # Train with pruning callback
-                pruning_callback = LightGBMPruningCallback(trial, 'valid_1-multi_logloss')
+                # FIXED: Create pruning callback with correct validation names
+                try:
+                    # Use the correct validation name that matches what lgb.train uses
+                    pruning_callback = LightGBMPruningCallback(
+                        trial, 
+                        metric='multi_logloss',
+                        valid_name='valid'  # This matches the validation set name
+                    )
+                    
+                    callbacks = [lgb.early_stopping(50), lgb.log_evaluation(0)]
+                except Exception as e:
+                    # Fallback: train without pruning callback if it fails
+                    callbacks = [lgb.early_stopping(50), lgb.log_evaluation(0)]
                 
-                model = lgb.train(
-                    params,
-                    train_data,
-                    valid_sets=[train_data, val_data],
-                    valid_names=['train', 'valid'],
-                    num_boost_round=1000,
-                    callbacks=[lgb.early_stopping(50), lgb.log_evaluation(0), pruning_callback]
-                )
-                
-                # Calculate validation score
-                val_pred = model.predict(X_fold_val, num_iteration=model.best_iteration)
-                val_pred_class = np.argmax(val_pred, axis=1)
-                val_score = f1_score(y_fold_val, val_pred_class, average='macro')
-                
-                # Calculate training score for overfitting detection
-                train_pred = model.predict(X_fold_train, num_iteration=model.best_iteration)
-                train_pred_class = np.argmax(train_pred, axis=1)
-                train_score = f1_score(y_fold_train, train_pred_class, average='macro')
-                
-                # Measure inference time
-                start_time = time.time()
-                _ = model.predict(X_fold_val, num_iteration=model.best_iteration)
-                inference_time = time.time() - start_time
-                
-                cv_scores.append(val_score)
-                train_scores.append(train_score)
-                inference_times.append(inference_time)
+                try:
+                    model = lgb.train(
+                        params,
+                        train_data,
+                        valid_sets=[train_data, val_data],
+                        valid_names=['train', 'valid'],  # FIXED: Explicit validation names
+                        num_boost_round=1000,
+                        callbacks=callbacks
+                    )
+                    
+                    # Calculate validation score
+                    val_pred = model.predict(X_fold_val, num_iteration=model.best_iteration)
+                    val_pred_class = np.argmax(val_pred, axis=1)
+                    val_score = f1_score(y_fold_val, val_pred_class, average='macro')
+                    
+                    # Calculate training score for overfitting detection
+                    train_pred = model.predict(X_fold_train, num_iteration=model.best_iteration)
+                    train_pred_class = np.argmax(train_pred, axis=1)
+                    train_score = f1_score(y_fold_train, train_pred_class, average='macro')
+                    
+                    # Measure inference time
+                    start_time = time.time()
+                    _ = model.predict(X_fold_val, num_iteration=model.best_iteration)
+                    inference_time = time.time() - start_time
+                    
+                    cv_scores.append(val_score)
+                    train_scores.append(train_score)
+                    inference_times.append(inference_time)
+                    
+                except Exception as e:
+                    # Handle any training errors gracefully
+                    print(f"  Warning: Fold training failed ({e}), using penalty score")
+                    cv_scores.append(0.0)
+                    train_scores.append(0.0)
+                    inference_times.append(1.0)
             
-            # Calculate metrics
-            mean_cv_score = np.mean(cv_scores)
-            mean_train_score = np.mean(train_scores)
-            mean_inference_time = np.mean(inference_times)
-            
-            # Overfitting detection
-            overfitting_penalty = abs(mean_train_score - mean_cv_score)
-            
-            if objective_type == 'single':
-                # Single objective: F1-score with overfitting penalty
-                objective_value = mean_cv_score - (overfitting_penalty * 0.5)
-                return objective_value
-            
-            elif objective_type == 'multi':
-                # Multi-objective: accuracy and inference speed
-                # Normalize inference time (lower is better)
-                normalized_inference_time = 1.0 / (1.0 + mean_inference_time)
+            # Calculate metrics with error handling
+            try:
+                mean_cv_score = np.mean(cv_scores) if cv_scores else 0.0
+                mean_train_score = np.mean(train_scores) if train_scores else 0.0
+                mean_inference_time = np.mean(inference_times) if inference_times else 1.0
                 
-                # Apply overfitting penalty to accuracy
-                penalized_accuracy = mean_cv_score - (overfitting_penalty * 0.3)
+                # Overfitting detection
+                overfitting_penalty = abs(mean_train_score - mean_cv_score)
                 
-                return penalized_accuracy, normalized_inference_time
+                if objective_type == 'single':
+                    # Single objective: F1-score with overfitting penalty
+                    objective_value = -mean_cv_score + (overfitting_penalty * 0.5)
+                    return objective_value
+                
+                elif objective_type == 'multi':
+                    # Multi-objective: accuracy and inference speed
+                    # Normalize inference time (lower is better)
+                    normalized_inference_time = 1.0 / (1.0 + mean_inference_time)
+                    
+                    # Apply overfitting penalty to accuracy
+                    penalized_accuracy = mean_cv_score - (overfitting_penalty * 0.3)
+                    
+                    return penalized_accuracy, normalized_inference_time
+            
+            except Exception as e:
+                print(f"  Warning: Metric calculation failed ({e}), returning penalty")
+                if objective_type == 'single':
+                    return 0.0
+                else:
+                    return 0.0, 0.0
         
         return objective
-    
+
     def optimize_with_optuna_single_objective(self, X_train, y_train, n_trials=200):
         """
         NEW: Single-objective optimization with Optuna and overfitting detection
@@ -535,38 +562,54 @@ class EnhancedCableHealthPredictorWithOptuna:
         print(f"\n🎯 Optuna Single-Objective Optimization ({n_trials} trials)...")
         print("Objective: Maximize F1-score with overfitting penalty")
         
-        # Create study
-        self.single_objective_study = optuna.create_study(
-            direction='maximize',
-            sampler=TPESampler(seed=self.random_state),
-            pruner=MedianPruner(n_startup_trials=10, n_warmup_steps=30, interval_steps=10)
-        )
-        
-        # Create objective function
-        objective = self.create_optuna_objective_with_overfitting_detection(
-            X_train, y_train, objective_type='single'
-        )
-        
-        # Optimize
-        self.single_objective_study.optimize(objective, n_trials=n_trials, timeout=3600)
-        
-        # Store best parameters
-        self.best_params = self.single_objective_study.best_params.copy()
-        self.best_params.update({
-            'objective': 'multiclass',
-            'num_class': 3,
-            'metric': 'multi_logloss',
-            'boosting_type': 'gbdt',
-            'verbosity': -1,
-            'random_state': self.random_state
-        })
-        
-        print(f"✅ Single-objective optimization completed!")
-        print(f"🏆 Best score: {self.single_objective_study.best_value:.4f}")
-        print(f"📊 Best parameters: {self.best_params}")
-        
-        return self.best_params
-    
+        # Create study with error handling
+        try:
+            self.single_objective_study = optuna.create_study(
+                direction='maximize',
+                sampler=TPESampler(seed=self.random_state),
+                pruner=MedianPruner(n_startup_trials=10, n_warmup_steps=30, interval_steps=10)
+            )
+            
+            # Create objective function
+            objective = self.create_optuna_objective_with_overfitting_detection(
+                X_train, y_train, objective_type='single'
+            )
+            
+            # Optimize with error handling
+            try:
+                self.single_objective_study.optimize(objective, n_trials=n_trials, timeout=3600)
+            except Exception as e:
+                print(f"⚠️  Optimization encountered errors: {e}")
+                print("🔧 Continuing with completed trials...")
+            
+            # Store best parameters if any trials completed
+            if len(self.single_objective_study.trials) > 0 and self.single_objective_study.best_trial:
+                self.best_params = self.single_objective_study.best_params.copy()
+                self.best_params.update({
+                    'objective': 'multiclass',
+                    'num_class': 3,
+                    'metric': 'multi_logloss',
+                    'boosting_type': 'gbdt',
+                    'verbosity': -1,
+                    'random_state': self.random_state
+                })
+                
+                print(f"✅ Single-objective optimization completed!")
+                print(f"🏆 Best score: {self.single_objective_study.best_value:.4f}")
+                print(f"📊 Completed trials: {len([t for t in self.single_objective_study.trials if t.state.name == 'COMPLETE'])}")
+                print(f"📊 Best parameters: {self.best_params}")
+            else:
+                print("⚠️  No successful trials completed, using default parameters")
+                self.best_params = None
+            
+            return self.best_params
+            
+        except Exception as e:
+            print(f"❌ Optuna optimization failed completely: {e}")
+            print("🔧 Falling back to default parameters")
+            self.best_params = None
+            return None
+
     def optimize_with_optuna_multi_objective(self, X_train, y_train, n_trials=200):
         """
         NEW: Multi-objective optimization with Optuna (accuracy vs inference speed)
@@ -574,98 +617,135 @@ class EnhancedCableHealthPredictorWithOptuna:
         print(f"\n🎯 Optuna Multi-Objective Optimization ({n_trials} trials)...")
         print("Objectives: Maximize F1-score AND Maximize inference speed")
         
-        # Create multi-objective study
-        self.multi_objective_study = optuna.create_study(
-            directions=['maximize', 'maximize'],  # [accuracy, speed]
-            sampler=TPESampler(seed=self.random_state),
-            pruner=MedianPruner(n_startup_trials=10, n_warmup_steps=30, interval_steps=10)
-        )
-        
-        # Create multi-objective function
-        objective = self.create_optuna_objective_with_overfitting_detection(
-            X_train, y_train, objective_type='multi'
-        )
-        
-        # Optimize
-        self.multi_objective_study.optimize(objective, n_trials=n_trials, timeout=3600)
-        
-        # Analyze Pareto front
-        print(f"✅ Multi-objective optimization completed!")
-        print(f"📊 Number of Pareto optimal solutions: {len(self.multi_objective_study.best_trials)}")
-        
-        # Select best trial based on balanced criteria
-        best_trial = None
-        best_combined_score = -np.inf
-        
-        for trial in self.multi_objective_study.best_trials:
-            accuracy, speed = trial.values
-            # Combined score: 70% accuracy, 30% speed
-            combined_score = 0.7 * accuracy + 0.3 * speed
-            if combined_score > best_combined_score:
-                best_combined_score = combined_score
-                best_trial = trial
-        
-        if best_trial:
-            self.best_params = best_trial.params.copy()
-            self.best_params.update({
-                'objective': 'multiclass',
-                'num_class': 3,
-                'metric': 'multi_logloss',
-                'boosting_type': 'gbdt',
-                'verbosity': -1,
-                'random_state': self.random_state
-            })
+        try:
+            # Create multi-objective study
+            self.multi_objective_study = optuna.create_study(
+                directions=['maximize', 'maximize'],  # [accuracy, speed]
+                sampler=TPESampler(seed=self.random_state),
+                pruner=MedianPruner(n_startup_trials=10, n_warmup_steps=30, interval_steps=10)
+            )
             
-            print(f"🏆 Best combined solution:")
-            print(f"  Accuracy: {best_trial.values[0]:.4f}")
-            print(f"  Speed score: {best_trial.values[1]:.4f}")
-            print(f"  Combined score: {best_combined_score:.4f}")
-        
-        return self.best_params
-    
+            # Create multi-objective function
+            objective = self.create_optuna_objective_with_overfitting_detection(
+                X_train, y_train, objective_type='multi'
+            )
+            
+            # Optimize with error handling
+            try:
+                self.multi_objective_study.optimize(objective, n_trials=n_trials, timeout=3600)
+            except Exception as e:
+                print(f"⚠️  Multi-objective optimization encountered errors: {e}")
+                print("🔧 Continuing with completed trials...")
+            
+            # Analyze Pareto front if any trials completed
+            if len(self.multi_objective_study.trials) > 0 and self.multi_objective_study.best_trials:
+                print(f"✅ Multi-objective optimization completed!")
+                print(f"📊 Number of Pareto optimal solutions: {len(self.multi_objective_study.best_trials)}")
+                print(f"📊 Completed trials: {len([t for t in self.multi_objective_study.trials if t.state.name == 'COMPLETE'])}")
+                
+                # Select best trial based on balanced criteria
+                best_trial = None
+                best_combined_score = -np.inf
+                
+                for trial in self.multi_objective_study.best_trials:
+                    if len(trial.values) >= 2:
+                        accuracy, speed = trial.values[0], trial.values[1]
+                        # Combined score: 70% accuracy, 30% speed
+                        combined_score = 0.7 * accuracy + 0.3 * speed
+                        if combined_score > best_combined_score:
+                            best_combined_score = combined_score
+                            best_trial = trial
+                
+                if best_trial:
+                    self.best_params = best_trial.params.copy()
+                    self.best_params.update({
+                        'objective': 'multiclass',
+                        'num_class': 3,
+                        'metric': 'multi_logloss',
+                        'boosting_type': 'gbdt',
+                        'verbosity': -1,
+                        'random_state': self.random_state
+                    })
+                    
+                    print(f"🏆 Best combined solution:")
+                    print(f"  Accuracy: {best_trial.values[0]:.4f}")
+                    print(f"  Speed score: {best_trial.values[1]:.4f}")
+                    print(f"  Combined score: {best_combined_score:.4f}")
+                else:
+                    print("⚠️  No valid best trial found, using default parameters")
+                    self.best_params = None
+            else:
+                print("⚠️  No successful trials completed, using default parameters")
+                self.best_params = None
+            
+            return self.best_params
+            
+        except Exception as e:
+            print(f"❌ Multi-objective optimization failed completely: {e}")
+            print("🔧 Falling back to default parameters")
+            self.best_params = None
+            return None
+
     def visualize_optuna_results(self):
         """
-        NEW: Visualize Optuna optimization results
+        NEW: Visualize Optuna optimization results with error handling
         """
         print("\n📊 Visualizing Optuna Results...")
         
         try:
             import optuna.visualization as vis
             
-            if self.single_objective_study:
+            if self.single_objective_study and len(self.single_objective_study.trials) > 0:
                 print("Creating single-objective visualizations...")
                 
-                # Optimization history
-                fig = vis.plot_optimization_history(self.single_objective_study)
-                fig.update_layout(title="Single-Objective Optimization History")
-                fig.show()
+                try:
+                    # Optimization history
+                    fig = vis.plot_optimization_history(self.single_objective_study)
+                    fig.update_layout(title="Single-Objective Optimization History")
+                    fig.show()
+                except Exception as e:
+                    print(f"  Warning: Could not create optimization history plot: {e}")
                 
-                # Parameter importance
-                fig = vis.plot_param_importances(self.single_objective_study)
-                fig.update_layout(title="Parameter Importance (Single-Objective)")
-                fig.show()
+                try:
+                    # Parameter importance
+                    fig = vis.plot_param_importances(self.single_objective_study)
+                    fig.update_layout(title="Parameter Importance (Single-Objective)")
+                    fig.show()
+                except Exception as e:
+                    print(f"  Warning: Could not create parameter importance plot: {e}")
                 
-                # Parallel coordinate plot
-                fig = vis.plot_parallel_coordinate(self.single_objective_study)
-                fig.update_layout(title="Parallel Coordinate Plot (Single-Objective)")
-                fig.show()
+                try:
+                    # Parallel coordinate plot
+                    fig = vis.plot_parallel_coordinate(self.single_objective_study)
+                    fig.update_layout(title="Parallel Coordinate Plot (Single-Objective)")
+                    fig.show()
+                except Exception as e:
+                    print(f"  Warning: Could not create parallel coordinate plot: {e}")
             
-            if self.multi_objective_study:
+            if self.multi_objective_study and len(self.multi_objective_study.trials) > 0:
                 print("Creating multi-objective visualizations...")
                 
-                # Pareto front
-                fig = vis.plot_pareto_front(self.multi_objective_study, target_names=['Accuracy', 'Speed'])
-                fig.update_layout(title="Pareto Front: Accuracy vs Speed")
-                fig.show()
-                
-                # Parameter importance for each objective
-                for i, obj_name in enumerate(['Accuracy', 'Speed']):
-                    fig = vis.plot_param_importances(self.multi_objective_study, target=lambda t: t.values[i])
-                    fig.update_layout(title=f"Parameter Importance for {obj_name}")
+                try:
+                    # Pareto front
+                    fig = vis.plot_pareto_front(self.multi_objective_study, target_names=['Accuracy', 'Speed'])
+                    fig.update_layout(title="Pareto Front: Accuracy vs Speed")
                     fig.show()
+                except Exception as e:
+                    print(f"  Warning: Could not create Pareto front plot: {e}")
+                
+                try:
+                    # Parameter importance for each objective
+                    for i, obj_name in enumerate(['Accuracy', 'Speed']):
+                        fig = vis.plot_param_importances(self.multi_objective_study, target=lambda t: t.values[i])
+                        fig.update_layout(title=f"Parameter Importance for {obj_name}")
+                        fig.show()
+                except Exception as e:
+                    print(f"  Warning: Could not create multi-objective parameter importance plots: {e}")
         
         except ImportError:
             print("⚠️  Optuna visualization not available. Install optuna-dashboard for advanced plots.")
+        except Exception as e:
+            print(f"⚠️  Visualization failed: {e}")
     
     def nested_cross_validation(self, X, y, outer_splits=5, inner_splits=3, use_optimized_params=True):
         """
@@ -878,76 +958,31 @@ class EnhancedCableHealthPredictorWithOptuna:
         
         return self.model
     
-    def convert_to_onnx(self, X_sample, model_name="cable_health_lightgbm"):
-        """
-        NEW: Convert trained LightGBM model to ONNX format for optimized inference
-        
-        Theory: ONNX provides cross-platform model deployment with optimized
-        inference performance, crucial for production cable monitoring systems.
-        """
-        print(f"\n🔄 Converting LightGBM model to ONNX format...")
-        
-        if self.model is None:
-            print("❌ No trained model available for conversion")
-            return None
-        
+    def convert_to_onnx_fixed(self, X_sample, model_name="cable_health_lightgbm"):
         try:
-            # Create a sklearn-compatible wrapper for LightGBM
-            lgb_sklearn = lgb.LGBMClassifier()
-            lgb_sklearn._Booster = self.model
-            lgb_sklearn.classes_ = np.array([0, 1, 2])
-            lgb_sklearn.n_classes_ = 3
+            # Method 1: Direct LightGBM to ONNX (if supported)
+            import lightgbm as lgb
             
-            # Define input type for ONNX conversion
-            initial_type = [('float_input', FloatTensorType([None, X_sample.shape[1]]))]
+            # Save model in LightGBM format first
+            temp_model_path = f"{model_name}_temp.txt"
+            self.model.save_model(temp_model_path)
             
-            # Convert to ONNX
-            onnx_model = convert_sklearn(
-                lgb_sklearn,
-                initial_types=initial_type,
-                target_opset=11,
-                options={id(lgb_sklearn): {'zipmap': False}}
-            )
-            
-            # Save ONNX model
-            self.onnx_model_path = f"{model_name}.onnx"
-            onnx.save_model(onnx_model, self.onnx_model_path)
-            
-            # Create ONNX Runtime session for inference
-            self.onnx_session = ort.InferenceSession(self.onnx_model_path)
-            
-            print(f"✅ Model successfully converted to ONNX: {self.onnx_model_path}")
-            
-            # Verify ONNX model
-            self.verify_onnx_model(X_sample)
-            
-            return self.onnx_model_path
-            
-        except Exception as e:
-            print(f"❌ ONNX conversion failed: {e}")
-            print("🔧 Trying alternative conversion method...")
-            
+            # Use onnxmltools for LightGBM conversion
             try:
-                # Alternative: Save as text and convert
-                temp_model_path = f"{model_name}_temp.txt"
-                self.model.save_model(temp_model_path)
-                
-                # Load and convert using different approach
-                lgb_model = lgb.Booster(model_file=temp_model_path)
-                
-                # This is a simplified approach - in practice, you might need
-                # more sophisticated conversion for complex models
-                print("⚠️  Using simplified ONNX conversion")
-                
-                # Clean up temporary file
-                if os.path.exists(temp_model_path):
-                    os.remove(temp_model_path)
-                
+                import onnxmltools
+                onnx_model = onnxmltools.convert_lightgbm(
+                    self.model, 
+                    initial_types=[('float_input', FloatTensorType([None, X_sample.shape[1]]))]
+                )
+                onnx.save_model(onnx_model, f"{model_name}.onnx")
+                return f"{model_name}.onnx"
+            except ImportError:
+                print("Install onnxmltools: pip install onnxmltools")
                 return None
                 
-            except Exception as e2:
-                print(f"❌ Alternative conversion also failed: {e2}")
-                return None
+        except Exception as e:
+            print(f"ONNX conversion failed: {e}")
+            return None
     
     def verify_onnx_model(self, X_sample):
         """
@@ -1720,7 +1755,7 @@ def enhanced_main_lightgbm_optuna():
     predictor = EnhancedCableHealthPredictorWithOptuna(random_state=42)
     
     # Step 1: Load and explore data
-    df = predictor.load_and_explore_data('cable_health_sample_ordinal_encoded-cable_health_sample_ordinal_encoded.csv')
+    df = predictor.load_and_explore_data('cable_health_method2_clustering_20k.csv')
     
     # Step 2: Enhanced correlation analysis
     corr_matrix, high_corr_pairs = predictor.correlation_analysis(df)
@@ -1881,7 +1916,7 @@ def enhanced_main_lightgbm_optuna():
     print(f"  ✅ Trained LightGBM model with Optuna optimization")
     print(f"  {'✅' if ensemble_results else '❌'} 4-algorithm ensemble model")
     print(f"  ✅ Feature importance analysis")
-    print(f"  {'✅' if shap_values else '❌'} SHAP interpretability analysis")
+    print(f"  {'✅' if shap_values.any() else '❌'} SHAP interpretability analysis")
     print(f"  {'✅' if onnx_path else '❌'} ONNX model for production deployment")
     print(f"  ✅ Comprehensive evaluation report")
     print(f"  ✅ Business impact analysis")

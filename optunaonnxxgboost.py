@@ -2048,7 +2048,7 @@ def enhanced_main_xgboost_optuna():
     predictor = EnhancedCableHealthPredictorXGBoostOptuna(random_state=42)
     
     # Step 1: Load and explore data
-    df = predictor.load_and_explore_data('cable_health_sample_ordinal_encoded-cable_health_sample_ordinal_encoded.csv')
+    df = predictor.load_and_explore_data('cable_health_method2_clustering_20k.csv')
     
     # Step 2: Enhanced correlation analysis
     corr_matrix, feature_clusters, significant_features = predictor.correlation_analysis(df)
