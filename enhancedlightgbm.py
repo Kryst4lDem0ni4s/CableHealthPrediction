@@ -367,7 +367,7 @@ class EnhancedCableHealthPredictor:
     
     def adaptive_search_space(self, X_train):
         """
-        NEW: Adaptive hyperparameter search space based on dataset characteristics
+        FIXED: Adaptive hyperparameter search space with proper range validation
         
         Theory: Search space should adapt to dataset size, feature count, and complexity
         to ensure efficient optimization and prevent overfitting.
@@ -400,17 +400,25 @@ class EnhancedCableHealthPredictor:
         else:
             lr_min, lr_max = 0.1, 0.3  # Higher learning rate for small datasets
         
-        # Adjust regularization based on sample-to-feature ratio
+        # FIXED: Adjust regularization based on sample-to-feature ratio with proper range validation
         sample_feature_ratio = n_samples / n_features
         if sample_feature_ratio < 5:
             reg_min, reg_max = 0.5, 2.0  # Strong regularization
-            min_data_leaf_min = max(10, n_samples // 10)
+            min_data_leaf_min = max(1, n_samples // 20)  # More conservative minimum
         elif sample_feature_ratio < 10:
             reg_min, reg_max = 0.1, 1.0  # Moderate regularization
-            min_data_leaf_min = max(5, n_samples // 20)
+            min_data_leaf_min = max(1, n_samples // 30)  # More conservative minimum
         else:
             reg_min, reg_max = 0.0, 0.5  # Light regularization
             min_data_leaf_min = max(1, n_samples // 50)
+        
+        # FIXED: Ensure min_data_in_leaf range is valid
+        min_data_leaf_max = max(min_data_leaf_min + 1, min(200, n_samples // 3))  # Ensure max > min
+        
+        # Additional validation to prevent invalid ranges
+        if min_data_leaf_min >= min_data_leaf_max:
+            min_data_leaf_min = 1
+            min_data_leaf_max = max(2, min(10, n_samples // 2))
         
         search_space = {
             'num_leaves': hp.quniform('num_leaves', 15, max_num_leaves, 2),
@@ -419,7 +427,7 @@ class EnhancedCableHealthPredictor:
             'feature_fraction': hp.uniform('feature_fraction', 0.5, 0.9),
             'bagging_fraction': hp.uniform('bagging_fraction', 0.5, 0.9),
             'bagging_freq': hp.quniform('bagging_freq', 1, 7, 1),
-            'min_data_in_leaf': hp.quniform('min_data_in_leaf', min_data_leaf_min, min(200, n_samples // 5), 1),
+            'min_data_in_leaf': hp.quniform('min_data_in_leaf', min_data_leaf_min, min_data_leaf_max, 1),
             'lambda_l1': hp.uniform('lambda_l1', reg_min, reg_max),
             'lambda_l2': hp.uniform('lambda_l2', reg_min, reg_max)
         }
@@ -429,13 +437,13 @@ class EnhancedCableHealthPredictor:
         print(f"  Num leaves range: 15-{max_num_leaves}")
         print(f"  Learning rate range: {lr_min}-{lr_max}")
         print(f"  Regularization range: {reg_min}-{reg_max}")
-        print(f"  Min data in leaf: {min_data_leaf_min}-{min(200, n_samples // 5)}")
+        print(f"  Min data in leaf: {min_data_leaf_min}-{min_data_leaf_max}")
         
         return search_space
     
     def nested_cross_validation(self, X, y, outer_splits=5, inner_splits=3, use_optimized_params=True):
         """
-        NEW: Nested cross-validation for unbiased performance estimation
+        FIXED: Nested cross-validation with proper validation dataset handling
         
         Theory: Nested CV provides an unbiased estimate of model performance by
         separating hyperparameter optimization (inner loop) from performance
@@ -460,27 +468,38 @@ class EnhancedCableHealthPredictor:
             X_train_outer, X_test_outer = X.iloc[train_idx], X.iloc[test_idx]
             y_train_outer, y_test_outer = y.iloc[train_idx], y.iloc[test_idx]
             
+            # FIXED: Create validation split for early stopping
+            X_train_inner, X_val_inner, y_train_inner, y_val_inner = train_test_split(
+                X_train_outer, y_train_outer, test_size=0.2, random_state=self.random_state, stratify=y_train_outer
+            )
+            
             # Inner loop for hyperparameter optimization
-            if use_optimized_params and len(X_train_outer) > inner_splits * 5:  # Minimum samples per fold
+            if use_optimized_params and len(X_train_inner) > inner_splits * 5:  # Minimum samples per fold
                 try:
                     best_params = self.optimize_hyperparameters(
-                        X_train_outer, y_train_outer, 
-                        n_trials=min(50, len(X_train_outer) // 2)  # Adaptive trials
+                        X_train_inner, y_train_inner, 
+                        n_trials=min(50, len(X_train_inner) // 2)  # Adaptive trials
                     )
                 except Exception as e:
                     print(f"    Optimization failed, using default params: {e}")
-                    best_params = self.get_enhanced_default_params(X_train_outer)
+                    best_params = self.get_enhanced_default_params(X_train_inner)
             else:
                 print(f"    Using default params due to small sample size")
-                best_params = self.get_enhanced_default_params(X_train_outer)
+                best_params = self.get_enhanced_default_params(X_train_inner)
             
-            # Train model on outer training set
-            train_data = lgb.Dataset(X_train_outer, label=y_train_outer,
-                                   categorical_feature=self.categorical_features)
+            # FIXED: Train model on inner training set with proper validation
+            train_data = lgb.Dataset(X_train_inner, label=y_train_inner,
+                                categorical_feature=self.categorical_features)
+            val_data = lgb.Dataset(X_val_inner, label=y_val_inner,
+                                categorical_feature=self.categorical_features,
+                                reference=train_data)
             
+            # FIXED: Train with validation dataset for early stopping
             model = lgb.train(
                 best_params,
                 train_data,
+                valid_sets=[train_data, val_data],
+                valid_names=['train', 'valid'],
                 num_boost_round=1000,
                 callbacks=[lgb.early_stopping(50), lgb.log_evaluation(0)]
             )
@@ -517,10 +536,13 @@ class EnhancedCableHealthPredictor:
     
     def get_enhanced_default_params(self, X_train):
         """
-        NEW: Enhanced default parameters with adaptive regularization
+        FIXED: Enhanced default parameters with proper validation and range checking
         """
         n_samples, n_features = X_train.shape
         sample_feature_ratio = n_samples / n_features
+        
+        # FIXED: Ensure min_data_in_leaf is reasonable for dataset size
+        min_data_leaf = max(1, min(20, n_samples // 20))
         
         if sample_feature_ratio < 5:
             # Strong regularization for small datasets
@@ -535,7 +557,7 @@ class EnhancedCableHealthPredictor:
                 'feature_fraction': 0.6,
                 'bagging_fraction': 0.7,
                 'bagging_freq': 3,
-                'min_data_in_leaf': max(10, n_samples // 10),
+                'min_data_in_leaf': min_data_leaf,
                 'lambda_l1': 1.0,
                 'lambda_l2': 1.0,
                 'is_unbalance': True,
@@ -555,7 +577,7 @@ class EnhancedCableHealthPredictor:
                 'feature_fraction': 0.8,
                 'bagging_fraction': 0.8,
                 'bagging_freq': 5,
-                'min_data_in_leaf': 20,
+                'min_data_in_leaf': min_data_leaf,
                 'lambda_l1': 0.1,
                 'lambda_l2': 0.2,
                 'is_unbalance': True,
@@ -567,16 +589,12 @@ class EnhancedCableHealthPredictor:
     
     def optimize_hyperparameters(self, X_train, y_train, n_trials=100):
         """
-        ENHANCED: Bayesian optimization with adaptive search space and better validation
-        
-        Theory: Bayesian optimization with Tree Parzen Estimator efficiently
-        explores hyperparameter space by building probabilistic models of
-        the objective function.
+        FIXED: Bayesian optimization with proper validation dataset handling
         """
         print(f"\n🎯 Enhanced Hyperparameter Optimization ({n_trials} trials)...")
         
         def objective(params):
-            """Enhanced objective function with better validation"""
+            """Enhanced objective function with proper validation"""
             # Convert hyperopt parameters to LightGBM format
             lgb_params = {
                 'objective': 'multiclass',
@@ -609,18 +627,23 @@ class EnhancedCableHealthPredictor:
                     X_fold_train, X_fold_val = X_train.iloc[train_idx], X_train.iloc[val_idx]
                     y_fold_train, y_fold_val = y_train.iloc[train_idx], y_train.iloc[val_idx]
                     
-                    # Create LightGBM datasets
+                    # FIXED: Create LightGBM datasets with proper validation
                     train_data = lgb.Dataset(X_fold_train, label=y_fold_train, 
-                                           categorical_feature=self.categorical_features)
+                                        categorical_feature=self.categorical_features)
                     val_data = lgb.Dataset(X_fold_val, label=y_fold_val, 
-                                         categorical_feature=self.categorical_features,
-                                         reference=train_data)
+                                        categorical_feature=self.categorical_features,
+                                        reference=train_data)
                     
                     # Train model with adaptive early stopping
                     early_stopping_rounds = min(50, max(10, n_samples // 20))
-                    model = lgb.train(lgb_params, train_data, valid_sets=[val_data],
-                                    callbacks=[lgb.early_stopping(early_stopping_rounds), 
-                                             lgb.log_evaluation(0)])
+                    model = lgb.train(
+                        lgb_params, 
+                        train_data, 
+                        valid_sets=[train_data, val_data],
+                        valid_names=['train', 'valid'],
+                        num_boost_round=500,  # Reduced for faster optimization
+                        callbacks=[lgb.early_stopping(early_stopping_rounds), lgb.log_evaluation(0)]
+                    )
                     
                     # Predict and calculate F1-macro score
                     y_pred = model.predict(X_fold_val, num_iteration=model.best_iteration)
@@ -632,43 +655,64 @@ class EnhancedCableHealthPredictor:
             
             except Exception as e:
                 # Return penalty for failed configurations
+                print(f"  Trial failed: {str(e)[:50]}...")
                 return {'loss': 1.0, 'status': STATUS_OK}
         
-        # Use adaptive search space
-        search_space = self.adaptive_search_space(X_train)
+        # Use adaptive search space with validation
+        try:
+            search_space = self.adaptive_search_space(X_train)
+        except Exception as e:
+            print(f"⚠️  Search space creation failed: {e}")
+            # Fallback to simple search space
+            search_space = {
+                'num_leaves': hp.quniform('num_leaves', 15, 63, 2),
+                'max_depth': hp.quniform('max_depth', 3, 8, 1),
+                'learning_rate': hp.uniform('learning_rate', 0.05, 0.2),
+                'feature_fraction': hp.uniform('feature_fraction', 0.6, 0.9),
+                'bagging_fraction': hp.uniform('bagging_fraction', 0.6, 0.9),
+                'bagging_freq': hp.quniform('bagging_freq', 1, 7, 1),
+                'min_data_in_leaf': hp.quniform('min_data_in_leaf', 1, 20, 1),
+                'lambda_l1': hp.uniform('lambda_l1', 0.0, 1.0),
+                'lambda_l2': hp.uniform('lambda_l2', 0.0, 1.0)
+            }
         
         # Run optimization with enhanced early stopping
         trials = Trials()
         patience = min(20, n_trials // 5)  # Adaptive patience
         
-        best = fmin(fn=objective, space=search_space, algo=tpe.suggest,
-                   max_evals=n_trials, trials=trials,
-                   early_stop_fn=no_progress_loss(patience))
-        
-        # Convert best parameters back to LightGBM format
-        self.best_params = {
-            'objective': 'multiclass',
-            'num_class': 3,
-            'metric': 'multi_logloss',
-            'boosting_type': 'gbdt',
-            'num_leaves': int(best['num_leaves']),
-            'max_depth': int(best['max_depth']),
-            'learning_rate': best['learning_rate'],
-            'feature_fraction': best['feature_fraction'],
-            'bagging_fraction': best['bagging_fraction'],
-            'bagging_freq': int(best['bagging_freq']),
-            'min_data_in_leaf': int(best['min_data_in_leaf']),
-            'lambda_l1': best['lambda_l1'],
-            'lambda_l2': best['lambda_l2'],
-            'is_unbalance': True,
-            'verbosity': -1,
-            'random_state': self.random_state
-        }
-        
-        best_score = -trials.best_trial['result']['loss']
-        print(f"✅ Enhanced optimization completed. Best F1-macro score: {best_score:.4f}")
-        
-        return self.best_params
+        try:
+            best = fmin(fn=objective, space=search_space, algo=tpe.suggest,
+                    max_evals=n_trials, trials=trials,
+                    early_stop_fn=no_progress_loss(patience))
+            
+            # Convert best parameters back to LightGBM format
+            self.best_params = {
+                'objective': 'multiclass',
+                'num_class': 3,
+                'metric': 'multi_logloss',
+                'boosting_type': 'gbdt',
+                'num_leaves': int(best['num_leaves']),
+                'max_depth': int(best['max_depth']),
+                'learning_rate': best['learning_rate'],
+                'feature_fraction': best['feature_fraction'],
+                'bagging_fraction': best['bagging_fraction'],
+                'bagging_freq': int(best['bagging_freq']),
+                'min_data_in_leaf': int(best['min_data_in_leaf']),
+                'lambda_l1': best['lambda_l1'],
+                'lambda_l2': best['lambda_l2'],
+                'is_unbalance': True,
+                'verbosity': -1,
+                'random_state': self.random_state
+            }
+            
+            best_score = -trials.best_trial['result']['loss']
+            print(f"✅ Enhanced optimization completed. Best F1-macro score: {best_score:.4f}")
+            
+            return self.best_params
+            
+        except Exception as e:
+            print(f"⚠️  Optimization failed completely: {e}")
+            return self.get_enhanced_default_params(X_train)
     
     def train_model(self, X_train, y_train, X_val, y_val, use_optimized_params=True):
         """
@@ -1182,7 +1226,7 @@ class EnhancedCableHealthPredictor:
         
         # 1. All features baseline
         print("\n1️⃣ Baseline - All Features:")
-        baseline_score, baseline_std = self.nested_cross_validation(X, y, outer_splits=3, inner_splits=2)
+        baseline_score, baseline_std, fold_predictions = self.nested_cross_validation(X, y, outer_splits=3, inner_splits=2)
         results['all_features'] = {'mean': baseline_score, 'std': baseline_std}
         
         # 2. Aggressive feature selection using mutual information
@@ -1345,7 +1389,7 @@ def enhanced_main():
     predictor = EnhancedCableHealthPredictor(random_state=42)
     
     # Step 1: Load and explore data
-    df = predictor.load_and_explore_data('cable_health_sample_ordinal_encoded-cable_health_sample_ordinal_encoded.csv')
+    df = predictor.load_and_explore_data('cable_health_method2_clustering_20k.csv')
     
     # Step 2: Enhanced correlation analysis
     corr_matrix, high_corr_pairs = predictor.correlation_analysis(df)
