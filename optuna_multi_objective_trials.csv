@@ -1,0 +1,2 @@
+number,values_0,values_1,datetime_start,datetime_complete,duration,params_colsample_bylevel,params_colsample_bytree,params_gamma,params_learning_rate,params_max_depth,params_min_child_weight,params_n_estimators,params_reg_alpha,params_reg_lambda,params_subsample,state
+0,,,2025-07-01 21:18:09.706946,2025-07-01 21:18:09.718464,0 days 00:00:00.011518,0.662397808134481,0.6624074561769746,0.7080725777960455,0.17254716573280354,5,5,759,0.11616722433639892,1.7323522915498704,0.8394633936788146,FAIL

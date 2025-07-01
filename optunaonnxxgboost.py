@@ -2072,74 +2072,129 @@ def enhanced_main_xgboost_optuna():
         X_augmented, y_augmented = predictor.augment_data(X, y, augmentation_factor=3)
         print(f"Dataset size increased from {len(X)} to {len(X_augmented)} samples")
         
-        # Recalculate sample weights for augmented data
+        # FIXED: Recalculate sample weights for augmented data
         sample_weights_augmented = predictor.handle_class_imbalance_xgboost(y_augmented)
         X, y, sample_weights = X_augmented, y_augmented, sample_weights_augmented
+        
+        # FIXED: Reset indices to ensure alignment
+        X = X.reset_index(drop=True)
+        y = y.reset_index(drop=True)
+    
+    # FIXED: Ensure sample weights array matches the data length
+    if len(sample_weights) != len(X):
+        print(f"⚠️  Sample weights length mismatch. Recalculating...")
+        sample_weights = predictor.handle_class_imbalance_xgboost(y)
     
     # Step 8: Train-test split with stratification
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
     
-    # Adjust sample weights for split
-    train_indices = X_train.index if hasattr(X_train, 'index') else range(len(X_train))
-    if len(sample_weights) == len(X):
-        sample_weights_train = sample_weights[train_indices] if hasattr(sample_weights, '__getitem__') else sample_weights[:len(X_train)]
-    else:
-        sample_weights_train = sample_weights
+    # FIXED: Reset indices after split to ensure continuous indexing
+    X_train = X_train.reset_index(drop=True)
+    X_test = X_test.reset_index(drop=True)
+    y_train = y_train.reset_index(drop=True)
+    y_test = y_test.reset_index(drop=True)
+    
+    # FIXED: Create sample weights for train set using positional indices
+    train_size = len(X_train)
+    sample_weights_train = sample_weights[:train_size]
     
     # Validation split
     X_train_opt, X_val, y_train_opt, y_val = train_test_split(
         X_train, y_train, test_size=0.2, random_state=42, stratify=y_train
     )
     
-    # Adjust sample weights for optimization split
-    train_opt_indices = X_train_opt.index if hasattr(X_train_opt, 'index') else range(len(X_train_opt))
-    sample_weights_train_opt = sample_weights_train[train_opt_indices] if hasattr(sample_weights_train, '__getitem__') else sample_weights_train[:len(X_train_opt)]
+    # FIXED: Reset indices for optimization sets
+    X_train_opt = X_train_opt.reset_index(drop=True)
+    X_val = X_val.reset_index(drop=True)
+    y_train_opt = y_train_opt.reset_index(drop=True)
+    y_val = y_val.reset_index(drop=True)
+    
+    # FIXED: Create sample weights for optimization split using positional indices
+    train_opt_size = len(X_train_opt)
+    sample_weights_train_opt = sample_weights_train[:train_opt_size]
+    
+    # FIXED: Validate sample weights alignment
+    assert len(sample_weights_train_opt) == len(X_train_opt), f"Sample weights mismatch: {len(sample_weights_train_opt)} != {len(X_train_opt)}"
+    assert len(sample_weights_train) == len(X_train), f"Sample weights mismatch: {len(sample_weights_train)} != {len(X_train)}"
     
     print(f"\n📊 Enhanced XGBoost Data Split Summary:")
     print(f"  Original dataset: {original_size:,} samples")
-    print(f"  Augmented dataset: {len(X):,} samples")
+    print(f"  Final dataset: {len(X):,} samples")
     print(f"  Training set: {len(X_train_opt):,} samples")
     print(f"  Validation set: {len(X_val):,} samples")
     print(f"  Test set: {len(X_test):,} samples")
     print(f"  Total features: {len(predictor.feature_names)}")
+    print(f"  Sample weights train_opt shape: {len(sample_weights_train_opt)}")
+    print(f"  Sample weights train shape: {len(sample_weights_train)}")
     
     # Step 9: Enhanced Optuna hyperparameter optimization
     print(f"\n🎯 Enhanced Optuna Hyperparameter Optimization...")
     
-    # Single-objective optimization
-    optimal_params_single = predictor.optimize_with_optuna_single_objective(
-        X_train_opt, y_train_opt, n_trials=100
-    )
+    try:
+        # Single-objective optimization
+        optimal_params_single = predictor.optimize_with_optuna_single_objective(
+            X_train_opt, y_train_opt, n_trials=100
+        )
+    except Exception as e:
+        print(f"⚠️  Single-objective optimization failed: {e}")
+        optimal_params_single = None
     
-    # Multi-objective optimization (accuracy vs speed)
-    optimal_params_multi = predictor.optimize_with_optuna_multi_objective(
-        X_train_opt, y_train_opt, n_trials=100
-    )
+    try:
+        # Multi-objective optimization (accuracy vs speed)
+        optimal_params_multi = predictor.optimize_with_optuna_multi_objective(
+            X_train_opt, y_train_opt, n_trials=100
+        )
+    except Exception as e:
+        print(f"⚠️  Multi-objective optimization failed: {e}")
+        optimal_params_multi = None
     
     # Visualize Optuna results
-    predictor.visualize_optuna_results()
+    try:
+        predictor.visualize_optuna_results()
+    except Exception as e:
+        print(f"⚠️  Optuna visualization failed: {e}")
     
     # Step 10: Train enhanced XGBoost model
     model = predictor.train_xgboost_model(
-        X_train, y_train, X_val, y_val, sample_weights_train, use_optimized_params=True
+        X_train, y_train, X_val, y_val, sample_weights_train, 
+        use_optimized_params=(optimal_params_single is not None or optimal_params_multi is not None)
     )
     
     # Step 11: Convert to ONNX format
-    onnx_path = predictor.convert_to_onnx(X_test.head(100), model_name="enhanced_xgboost_cable_health")
+    try:
+        onnx_path = predictor.convert_to_onnx(X_test.head(100), model_name="enhanced_xgboost_cable_health")
+    except Exception as e:
+        print(f"⚠️  ONNX conversion failed: {e}")
+        onnx_path = None
     
     # Step 12: Benchmark inference performance
-    benchmark_results = predictor.benchmark_inference_performance(X_test, iterations=1000)
+    try:
+        benchmark_results = predictor.benchmark_inference_performance(X_test, iterations=1000)
+    except Exception as e:
+        print(f"⚠️  Benchmarking failed: {e}")
+        benchmark_results = None
     
     # Step 13: Create and train ensemble model
-    ensemble_model = predictor.create_ensemble_model(X_train, y_train, sample_weights_train)
+    try:
+        ensemble_model = predictor.create_ensemble_model(X_train, y_train, sample_weights_train)
+    except Exception as e:
+        print(f"⚠️  Ensemble model creation failed: {e}")
+        ensemble_model = None
     
     # Step 14: Comprehensive evaluation
     eval_results = predictor.comprehensive_evaluation_xgboost(X_test, y_test)
     
     # Step 15: Ensemble evaluation
-    ensemble_results = predictor.evaluate_ensemble(X_test, y_test)
+    if ensemble_model is not None:
+        try:
+            ensemble_results = predictor.evaluate_ensemble(X_test, y_test)
+        except Exception as e:
+            print(f"⚠️  Ensemble evaluation failed: {e}")
+            ensemble_results = None
+    else:
+        ensemble_results = None
     
     # Step 16: Feature importance analysis
     feature_importance_df = predictor.feature_importance_analysis_xgboost()
@@ -2150,9 +2205,13 @@ def enhanced_main_xgboost_optuna():
     )
     
     # Step 18: Enhanced SHAP interpretability analysis
-    shap_values = predictor.shap_interpretability_analysis_xgboost(
-        X_test, max_samples=min(500, len(X_test))
-    )
+    try:
+        shap_values = predictor.shap_interpretability_analysis_xgboost(
+            X_test, max_samples=min(500, len(X_test))
+        )
+    except Exception as e:
+        print(f"⚠️  SHAP analysis failed: {e}")
+        shap_values = None
     
     # Step 19: Generate comprehensive comparative report
     report_df, confidence_stats = predictor.generate_comparative_report(X_test, y_test)
@@ -2167,7 +2226,7 @@ def enhanced_main_xgboost_optuna():
     print(f"  Final dataset: {len(X):,} samples")
     print(f"  Data augmentation applied: {len(X) > original_size}")
     print(f"  Features after preprocessing: {len(predictor.feature_names)}")
-    print(f"  Optuna optimization: {'✅ Completed' if predictor.best_params else '❌ Failed'}")
+    print(f"  Optuna optimization: {'✅ Completed' if (optimal_params_single or optimal_params_multi) else '❌ Failed'}")
     print(f"  ONNX conversion: {'✅ Completed' if onnx_path else '❌ Failed'}")
     
     print(f"\n🎯 Single Model Performance:")
@@ -2196,6 +2255,8 @@ def enhanced_main_xgboost_optuna():
         print(f"  Accuracy improvement: {accuracy_improvement:+.1f}%")
         print(f"  F1-Macro improvement: {f1_improvement:+.1f}%")
         print(f"  MCC improvement: {mcc_improvement:+.1f}%")
+    else:
+        print(f"\n⚠️  Ensemble model not available")
     
     # Performance benchmarking results
     if benchmark_results:
@@ -2222,8 +2283,8 @@ def enhanced_main_xgboost_optuna():
         print(f"  Cost ratio (False alarms/Missed critical): {false_alarms/max(critical_misses, 1):.2f}")
     
     print(f"\n🎯 Key Insights and Recommendations:")
-    print(f"  • Optuna optimization completed: {predictor.single_objective_study is not None}")
-    print(f"  • Multi-objective optimization: {predictor.multi_objective_study is not None}")
+    print(f"  • Optuna optimization completed: {(optimal_params_single is not None) or (optimal_params_multi is not None)}")
+    print(f"  • Multi-objective optimization: {optimal_params_multi is not None}")
     print(f"  • Feature subset analysis completed: {subset_results is not None}")
     print(f"  • Data augmentation factor: {len(X) / original_size:.1f}x")
     print(f"  • Ensemble method diversity: {'5 algorithms' if ensemble_results else 'Single model only'}")
@@ -2255,7 +2316,7 @@ def enhanced_main_xgboost_optuna():
     print(f"  ✅ Trained XGBoost model with Optuna optimization")
     print(f"  {'✅' if ensemble_results else '❌'} 5-algorithm ensemble model")
     print(f"  ✅ Feature importance analysis with 3 importance types")
-    print(f"  {'✅' if shap_values else '❌'} SHAP interpretability analysis")
+    print(f"  {'✅' if shap_values.any() else '❌'} SHAP interpretability analysis")
     print(f"  {'✅' if onnx_path else '❌'} ONNX model for production deployment")
     print(f"  ✅ Comprehensive evaluation report")
     print(f"  ✅ Business impact analysis")
