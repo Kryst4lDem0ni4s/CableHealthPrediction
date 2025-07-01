@@ -1,6 +1,6 @@
 """
-Enhanced Cable Health Prediction System using LightGBM
-=====================================================
+Enhanced Cable Health Prediction System using LightGBM with Optuna & ONNX
+========================================================================
 Advanced predictive analytics for cable health assessment with 3-class classification:
 - 0: Healthy (Good condition, normal risk)
 - 1: At Risk (Deterioration signs, preventive maintenance needed)  
@@ -10,7 +10,9 @@ Algorithm Choice: LightGBM selected for optimal performance on large tabular dat
 with mixed feature types and class imbalance handling capabilities.
 
 ENHANCEMENTS:
-- Adaptive hyperparameter search space
+- Optuna-based hyperparameter optimization with overfitting detection
+- Multi-objective optimization (accuracy vs inference speed)
+- ONNX model conversion for production deployment
 - Nested cross-validation for reliable performance estimation
 - Mutual information feature selection
 - Enhanced regularization for large datasets
@@ -23,6 +25,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import warnings
+import time
+import os
 warnings.filterwarnings('ignore')
 
 # Core ML Libraries
@@ -39,29 +43,52 @@ from sklearn.feature_selection import mutual_info_classif, SelectKBest, f_classi
 from sklearn.ensemble import VotingClassifier, RandomForestClassifier, ExtraTreesClassifier
 from sklearn.utils import resample
 import shap
-from hyperopt import hp, fmin, tpe, Trials, STATUS_OK
-from hyperopt.early_stop import no_progress_loss
+
+# Optuna for advanced hyperparameter optimization
+import optuna
+from optuna.integration import LightGBMPruningCallback
+from optuna.samplers import TPESampler
+from optuna.pruners import MedianPruner
+
+# ONNX for model conversion and optimization
+try:
+    import onnx
+    import onnxruntime as ort
+    from skl2onnx import convert_sklearn
+    from skl2onnx.common.data_types import FloatTensorType
+    print("✅ ONNX libraries imported successfully")
+except ImportError:
+    print("⚠️  ONNX libraries not found. Installing...")
+    import subprocess
+    subprocess.check_call(["pip", "install", "onnx", "onnxruntime", "skl2onnx"])
+    import onnx
+    import onnxruntime as ort
+    from skl2onnx import convert_sklearn
+    from skl2onnx.common.data_types import FloatTensorType
+    print("✅ ONNX libraries installed and imported")
 
 # Visualization
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-print("🔧 Enhanced Cable Health Prediction System Initialized")
+print("🔧 Enhanced Cable Health Prediction System with Optuna & ONNX Initialized")
 print("📊 Algorithm: LightGBM (Gradient Boosting Machine)")
 print("🎯 Task: Multi-class Classification (Healthy/At Risk/Critical)")
-print("🚀 NEW: Adaptive optimization, Nested CV, Ensemble methods, Data augmentation")
+print("🚀 NEW: Optuna optimization, Overfitting detection, Multi-objective, ONNX conversion")
 
-class EnhancedCableHealthPredictor:
+class EnhancedCableHealthPredictorWithOptuna:
     """
-    Enhanced Cable Health Prediction System using LightGBM
+    Enhanced Cable Health Prediction System using LightGBM with Optuna & ONNX
     
     This class implements a comprehensive machine learning pipeline for predicting
     cable health status with emphasis on handling class imbalance and providing
     interpretable results for maintenance decision-making.
     
     ENHANCEMENTS:
-    - Adaptive hyperparameter optimization
+    - Optuna-based hyperparameter optimization with overfitting detection
+    - Multi-objective optimization (accuracy vs inference speed)
+    - ONNX model conversion for production deployment
     - Nested cross-validation
     - Mutual information feature selection
     - Enhanced regularization
@@ -82,13 +109,22 @@ class EnhancedCableHealthPredictor:
         self.selected_features = None
         self.nested_cv_results = {}
         
+        # Optuna study objects
+        self.single_objective_study = None
+        self.multi_objective_study = None
+        self.best_params = None
+        
+        # ONNX models
+        self.onnx_model_path = None
+        self.onnx_session = None
+        
         # Define categorical features based on domain knowledge
         self.categorical_columns = [
             'MaterialType', 'InstallationType', 'FailureRootCauseMajorCategory',
             'FloodZoneRisk'
         ]
         
-        print(f"✅ Enhanced CableHealthPredictor initialized with random_state={random_state}")
+        print(f"✅ Enhanced CableHealthPredictor with Optuna & ONNX initialized with random_state={random_state}")
     
     def load_and_explore_data(self, filepath):
         """
@@ -273,7 +309,7 @@ class EnhancedCableHealthPredictor:
     
     def mutual_info_feature_selection(self, X, y, k='auto'):
         """
-        NEW: Mutual information-based feature selection for non-linear relationships
+        Mutual information-based feature selection for non-linear relationships
         
         Theory: Mutual information captures non-linear dependencies between features
         and target, making it superior to correlation-based methods for tree models.
@@ -365,85 +401,275 @@ class EnhancedCableHealthPredictor:
         
         return weight_dict
     
-    def adaptive_search_space(self, X_train):
+    def create_optuna_objective_with_overfitting_detection(self, X_train, y_train, objective_type='single'):
         """
-        FIXED: Adaptive hyperparameter search space with proper range validation
+        NEW: Create Optuna objective function with overfitting detection
         
-        Theory: Search space should adapt to dataset size, feature count, and complexity
-        to ensure efficient optimization and prevent overfitting.
+        Theory: Overfitting detection compares training and validation performance
+        to penalize models that memorize training data rather than learning patterns.
         """
-        print("\n🎯 Creating Adaptive Search Space...")
+        def objective(trial):
+            # Suggest hyperparameters with adaptive ranges
+            n_samples, n_features = X_train.shape
+            sample_feature_ratio = n_samples / n_features
+            
+            # Adaptive parameter ranges based on dataset characteristics
+            if sample_feature_ratio < 5:
+                # Strong regularization for overfitting-prone datasets
+                params = {
+                    'objective': 'multiclass',
+                    'num_class': 3,
+                    'metric': 'multi_logloss',
+                    'boosting_type': 'gbdt',
+                    'num_leaves': trial.suggest_int('num_leaves', 10, 50),
+                    'max_depth': trial.suggest_int('max_depth', 3, 6),
+                    'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.1, log=True),
+                    'feature_fraction': trial.suggest_float('feature_fraction', 0.4, 0.8),
+                    'bagging_fraction': trial.suggest_float('bagging_fraction', 0.4, 0.8),
+                    'bagging_freq': trial.suggest_int('bagging_freq', 1, 7),
+                    'min_data_in_leaf': trial.suggest_int('min_data_in_leaf', max(1, n_samples // 50), max(10, n_samples // 10)),
+                    'lambda_l1': trial.suggest_float('lambda_l1', 0.5, 5.0),
+                    'lambda_l2': trial.suggest_float('lambda_l2', 0.5, 5.0),
+                    'verbosity': -1,
+                    'random_state': self.random_state
+                }
+            else:
+                # Standard parameter ranges for larger datasets
+                params = {
+                    'objective': 'multiclass',
+                    'num_class': 3,
+                    'metric': 'multi_logloss',
+                    'boosting_type': 'gbdt',
+                    'num_leaves': trial.suggest_int('num_leaves', 15, 300),
+                    'max_depth': trial.suggest_int('max_depth', 3, 15),
+                    'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.3, log=True),
+                    'feature_fraction': trial.suggest_float('feature_fraction', 0.4, 1.0),
+                    'bagging_fraction': trial.suggest_float('bagging_fraction', 0.4, 1.0),
+                    'bagging_freq': trial.suggest_int('bagging_freq', 1, 7),
+                    'min_data_in_leaf': trial.suggest_int('min_data_in_leaf', 5, 100),
+                    'lambda_l1': trial.suggest_float('lambda_l1', 0.0, 10.0),
+                    'lambda_l2': trial.suggest_float('lambda_l2', 0.0, 10.0),
+                    'verbosity': -1,
+                    'random_state': self.random_state
+                }
+            
+            # Cross-validation with overfitting detection
+            n_splits = min(5, max(2, n_samples // 10))
+            cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=self.random_state)
+            
+            cv_scores = []
+            train_scores = []
+            inference_times = []
+            
+            for train_idx, val_idx in cv.split(X_train, y_train):
+                X_fold_train, X_fold_val = X_train.iloc[train_idx], X_train.iloc[val_idx]
+                y_fold_train, y_fold_val = y_train.iloc[train_idx], y_train.iloc[val_idx]
+                
+                # Create datasets
+                train_data = lgb.Dataset(X_fold_train, label=y_fold_train,
+                                       categorical_feature=self.categorical_features)
+                val_data = lgb.Dataset(X_fold_val, label=y_fold_val,
+                                     categorical_feature=self.categorical_features,
+                                     reference=train_data)
+                
+                # Train with pruning callback
+                pruning_callback = LightGBMPruningCallback(trial, 'valid_1-multi_logloss')
+                
+                model = lgb.train(
+                    params,
+                    train_data,
+                    valid_sets=[train_data, val_data],
+                    valid_names=['train', 'valid'],
+                    num_boost_round=1000,
+                    callbacks=[lgb.early_stopping(50), lgb.log_evaluation(0), pruning_callback]
+                )
+                
+                # Calculate validation score
+                val_pred = model.predict(X_fold_val, num_iteration=model.best_iteration)
+                val_pred_class = np.argmax(val_pred, axis=1)
+                val_score = f1_score(y_fold_val, val_pred_class, average='macro')
+                
+                # Calculate training score for overfitting detection
+                train_pred = model.predict(X_fold_train, num_iteration=model.best_iteration)
+                train_pred_class = np.argmax(train_pred, axis=1)
+                train_score = f1_score(y_fold_train, train_pred_class, average='macro')
+                
+                # Measure inference time
+                start_time = time.time()
+                _ = model.predict(X_fold_val, num_iteration=model.best_iteration)
+                inference_time = time.time() - start_time
+                
+                cv_scores.append(val_score)
+                train_scores.append(train_score)
+                inference_times.append(inference_time)
+            
+            # Calculate metrics
+            mean_cv_score = np.mean(cv_scores)
+            mean_train_score = np.mean(train_scores)
+            mean_inference_time = np.mean(inference_times)
+            
+            # Overfitting detection
+            overfitting_penalty = abs(mean_train_score - mean_cv_score)
+            
+            if objective_type == 'single':
+                # Single objective: F1-score with overfitting penalty
+                objective_value = mean_cv_score - (overfitting_penalty * 0.5)
+                return objective_value
+            
+            elif objective_type == 'multi':
+                # Multi-objective: accuracy and inference speed
+                # Normalize inference time (lower is better)
+                normalized_inference_time = 1.0 / (1.0 + mean_inference_time)
+                
+                # Apply overfitting penalty to accuracy
+                penalized_accuracy = mean_cv_score - (overfitting_penalty * 0.3)
+                
+                return penalized_accuracy, normalized_inference_time
         
-        n_samples, n_features = X_train.shape
+        return objective
+    
+    def optimize_with_optuna_single_objective(self, X_train, y_train, n_trials=200):
+        """
+        NEW: Single-objective optimization with Optuna and overfitting detection
+        """
+        print(f"\n🎯 Optuna Single-Objective Optimization ({n_trials} trials)...")
+        print("Objective: Maximize F1-score with overfitting penalty")
         
-        # Adjust max_depth based on feature count and sample size
-        if n_samples < 100:
-            max_depth_max = min(6, max(3, n_features // 5))
-        elif n_samples < 1000:
-            max_depth_max = min(10, max(5, n_features // 3))
-        else:
-            max_depth_max = min(15, max(7, n_features // 2))
+        # Create study
+        self.single_objective_study = optuna.create_study(
+            direction='maximize',
+            sampler=TPESampler(seed=self.random_state),
+            pruner=MedianPruner(n_startup_trials=10, n_warmup_steps=30, interval_steps=10)
+        )
         
-        # Adjust num_leaves based on feature count
-        if n_samples < 100:
-            max_num_leaves = min(63, max(15, n_features))
-        else:
-            max_num_leaves = min(255, max(31, n_features * 2))
+        # Create objective function
+        objective = self.create_optuna_objective_with_overfitting_detection(
+            X_train, y_train, objective_type='single'
+        )
         
-        # Adjust learning rate range based on dataset size
-        if n_samples > 100000:
-            lr_min, lr_max = 0.01, 0.05
-        elif n_samples > 10000:
-            lr_min, lr_max = 0.01, 0.1
-        elif n_samples > 1000:
-            lr_min, lr_max = 0.05, 0.15
-        else:
-            lr_min, lr_max = 0.1, 0.3  # Higher learning rate for small datasets
+        # Optimize
+        self.single_objective_study.optimize(objective, n_trials=n_trials, timeout=3600)
         
-        # FIXED: Adjust regularization based on sample-to-feature ratio with proper range validation
-        sample_feature_ratio = n_samples / n_features
-        if sample_feature_ratio < 5:
-            reg_min, reg_max = 0.5, 2.0  # Strong regularization
-            min_data_leaf_min = max(1, n_samples // 20)  # More conservative minimum
-        elif sample_feature_ratio < 10:
-            reg_min, reg_max = 0.1, 1.0  # Moderate regularization
-            min_data_leaf_min = max(1, n_samples // 30)  # More conservative minimum
-        else:
-            reg_min, reg_max = 0.0, 0.5  # Light regularization
-            min_data_leaf_min = max(1, n_samples // 50)
+        # Store best parameters
+        self.best_params = self.single_objective_study.best_params.copy()
+        self.best_params.update({
+            'objective': 'multiclass',
+            'num_class': 3,
+            'metric': 'multi_logloss',
+            'boosting_type': 'gbdt',
+            'verbosity': -1,
+            'random_state': self.random_state
+        })
         
-        # FIXED: Ensure min_data_in_leaf range is valid
-        min_data_leaf_max = max(min_data_leaf_min + 1, min(200, n_samples // 3))  # Ensure max > min
+        print(f"✅ Single-objective optimization completed!")
+        print(f"🏆 Best score: {self.single_objective_study.best_value:.4f}")
+        print(f"📊 Best parameters: {self.best_params}")
         
-        # Additional validation to prevent invalid ranges
-        if min_data_leaf_min >= min_data_leaf_max:
-            min_data_leaf_min = 1
-            min_data_leaf_max = max(2, min(10, n_samples // 2))
+        return self.best_params
+    
+    def optimize_with_optuna_multi_objective(self, X_train, y_train, n_trials=200):
+        """
+        NEW: Multi-objective optimization with Optuna (accuracy vs inference speed)
+        """
+        print(f"\n🎯 Optuna Multi-Objective Optimization ({n_trials} trials)...")
+        print("Objectives: Maximize F1-score AND Maximize inference speed")
         
-        search_space = {
-            'num_leaves': hp.quniform('num_leaves', 15, max_num_leaves, 2),
-            'max_depth': hp.quniform('max_depth', 3, max_depth_max, 1),
-            'learning_rate': hp.uniform('learning_rate', lr_min, lr_max),
-            'feature_fraction': hp.uniform('feature_fraction', 0.5, 0.9),
-            'bagging_fraction': hp.uniform('bagging_fraction', 0.5, 0.9),
-            'bagging_freq': hp.quniform('bagging_freq', 1, 7, 1),
-            'min_data_in_leaf': hp.quniform('min_data_in_leaf', min_data_leaf_min, min_data_leaf_max, 1),
-            'lambda_l1': hp.uniform('lambda_l1', reg_min, reg_max),
-            'lambda_l2': hp.uniform('lambda_l2', reg_min, reg_max)
-        }
+        # Create multi-objective study
+        self.multi_objective_study = optuna.create_study(
+            directions=['maximize', 'maximize'],  # [accuracy, speed]
+            sampler=TPESampler(seed=self.random_state),
+            pruner=MedianPruner(n_startup_trials=10, n_warmup_steps=30, interval_steps=10)
+        )
         
-        print(f"📊 Adaptive parameters:")
-        print(f"  Max depth range: 3-{max_depth_max}")
-        print(f"  Num leaves range: 15-{max_num_leaves}")
-        print(f"  Learning rate range: {lr_min}-{lr_max}")
-        print(f"  Regularization range: {reg_min}-{reg_max}")
-        print(f"  Min data in leaf: {min_data_leaf_min}-{min_data_leaf_max}")
+        # Create multi-objective function
+        objective = self.create_optuna_objective_with_overfitting_detection(
+            X_train, y_train, objective_type='multi'
+        )
         
-        return search_space
+        # Optimize
+        self.multi_objective_study.optimize(objective, n_trials=n_trials, timeout=3600)
+        
+        # Analyze Pareto front
+        print(f"✅ Multi-objective optimization completed!")
+        print(f"📊 Number of Pareto optimal solutions: {len(self.multi_objective_study.best_trials)}")
+        
+        # Select best trial based on balanced criteria
+        best_trial = None
+        best_combined_score = -np.inf
+        
+        for trial in self.multi_objective_study.best_trials:
+            accuracy, speed = trial.values
+            # Combined score: 70% accuracy, 30% speed
+            combined_score = 0.7 * accuracy + 0.3 * speed
+            if combined_score > best_combined_score:
+                best_combined_score = combined_score
+                best_trial = trial
+        
+        if best_trial:
+            self.best_params = best_trial.params.copy()
+            self.best_params.update({
+                'objective': 'multiclass',
+                'num_class': 3,
+                'metric': 'multi_logloss',
+                'boosting_type': 'gbdt',
+                'verbosity': -1,
+                'random_state': self.random_state
+            })
+            
+            print(f"🏆 Best combined solution:")
+            print(f"  Accuracy: {best_trial.values[0]:.4f}")
+            print(f"  Speed score: {best_trial.values[1]:.4f}")
+            print(f"  Combined score: {best_combined_score:.4f}")
+        
+        return self.best_params
+    
+    def visualize_optuna_results(self):
+        """
+        NEW: Visualize Optuna optimization results
+        """
+        print("\n📊 Visualizing Optuna Results...")
+        
+        try:
+            import optuna.visualization as vis
+            
+            if self.single_objective_study:
+                print("Creating single-objective visualizations...")
+                
+                # Optimization history
+                fig = vis.plot_optimization_history(self.single_objective_study)
+                fig.update_layout(title="Single-Objective Optimization History")
+                fig.show()
+                
+                # Parameter importance
+                fig = vis.plot_param_importances(self.single_objective_study)
+                fig.update_layout(title="Parameter Importance (Single-Objective)")
+                fig.show()
+                
+                # Parallel coordinate plot
+                fig = vis.plot_parallel_coordinate(self.single_objective_study)
+                fig.update_layout(title="Parallel Coordinate Plot (Single-Objective)")
+                fig.show()
+            
+            if self.multi_objective_study:
+                print("Creating multi-objective visualizations...")
+                
+                # Pareto front
+                fig = vis.plot_pareto_front(self.multi_objective_study, target_names=['Accuracy', 'Speed'])
+                fig.update_layout(title="Pareto Front: Accuracy vs Speed")
+                fig.show()
+                
+                # Parameter importance for each objective
+                for i, obj_name in enumerate(['Accuracy', 'Speed']):
+                    fig = vis.plot_param_importances(self.multi_objective_study, target=lambda t: t.values[i])
+                    fig.update_layout(title=f"Parameter Importance for {obj_name}")
+                    fig.show()
+        
+        except ImportError:
+            print("⚠️  Optuna visualization not available. Install optuna-dashboard for advanced plots.")
     
     def nested_cross_validation(self, X, y, outer_splits=5, inner_splits=3, use_optimized_params=True):
         """
-        FIXED: Nested cross-validation with proper validation dataset handling
+        Nested cross-validation with proper validation dataset handling
         
         Theory: Nested CV provides an unbiased estimate of model performance by
         separating hyperparameter optimization (inner loop) from performance
@@ -468,33 +694,52 @@ class EnhancedCableHealthPredictor:
             X_train_outer, X_test_outer = X.iloc[train_idx], X.iloc[test_idx]
             y_train_outer, y_test_outer = y.iloc[train_idx], y.iloc[test_idx]
             
-            # FIXED: Create validation split for early stopping
+            # Create validation split for early stopping
             X_train_inner, X_val_inner, y_train_inner, y_val_inner = train_test_split(
                 X_train_outer, y_train_outer, test_size=0.2, random_state=self.random_state, stratify=y_train_outer
             )
             
             # Inner loop for hyperparameter optimization
-            if use_optimized_params and len(X_train_inner) > inner_splits * 5:  # Minimum samples per fold
+            if use_optimized_params and len(X_train_inner) > inner_splits * 5:
                 try:
-                    best_params = self.optimize_hyperparameters(
-                        X_train_inner, y_train_inner, 
-                        n_trials=min(50, len(X_train_inner) // 2)  # Adaptive trials
+                    # Use Optuna for inner optimization
+                    inner_study = optuna.create_study(
+                        direction='maximize',
+                        sampler=TPESampler(seed=self.random_state + fold),
+                        pruner=MedianPruner(n_startup_trials=5, n_warmup_steps=10, interval_steps=5)
                     )
+                    
+                    inner_objective = self.create_optuna_objective_with_overfitting_detection(
+                        X_train_inner, y_train_inner, objective_type='single'
+                    )
+                    
+                    inner_study.optimize(inner_objective, n_trials=min(50, len(X_train_inner) // 2), timeout=600)
+                    
+                    best_params = inner_study.best_params.copy()
+                    best_params.update({
+                        'objective': 'multiclass',
+                        'num_class': 3,
+                        'metric': 'multi_logloss',
+                        'boosting_type': 'gbdt',
+                        'verbosity': -1,
+                        'random_state': self.random_state
+                    })
+                    
                 except Exception as e:
-                    print(f"    Optimization failed, using default params: {e}")
+                    print(f"    Optuna optimization failed, using default params: {e}")
                     best_params = self.get_enhanced_default_params(X_train_inner)
             else:
                 print(f"    Using default params due to small sample size")
                 best_params = self.get_enhanced_default_params(X_train_inner)
             
-            # FIXED: Train model on inner training set with proper validation
+            # Train model on inner training set with proper validation
             train_data = lgb.Dataset(X_train_inner, label=y_train_inner,
-                                categorical_feature=self.categorical_features)
+                                   categorical_feature=self.categorical_features)
             val_data = lgb.Dataset(X_val_inner, label=y_val_inner,
-                                categorical_feature=self.categorical_features,
-                                reference=train_data)
+                                 categorical_feature=self.categorical_features,
+                                 reference=train_data)
             
-            # FIXED: Train with validation dataset for early stopping
+            # Train with validation dataset for early stopping
             model = lgb.train(
                 best_params,
                 train_data,
@@ -536,12 +781,12 @@ class EnhancedCableHealthPredictor:
     
     def get_enhanced_default_params(self, X_train):
         """
-        FIXED: Enhanced default parameters with proper validation and range checking
+        Enhanced default parameters with proper validation and range checking
         """
         n_samples, n_features = X_train.shape
         sample_feature_ratio = n_samples / n_features
         
-        # FIXED: Ensure min_data_in_leaf is reasonable for dataset size
+        # Ensure min_data_in_leaf is reasonable for dataset size
         min_data_leaf = max(1, min(20, n_samples // 20))
         
         if sample_feature_ratio < 5:
@@ -587,133 +832,6 @@ class EnhancedCableHealthPredictor:
         
         return params
     
-    def optimize_hyperparameters(self, X_train, y_train, n_trials=100):
-        """
-        FIXED: Bayesian optimization with proper validation dataset handling
-        """
-        print(f"\n🎯 Enhanced Hyperparameter Optimization ({n_trials} trials)...")
-        
-        def objective(params):
-            """Enhanced objective function with proper validation"""
-            # Convert hyperopt parameters to LightGBM format
-            lgb_params = {
-                'objective': 'multiclass',
-                'num_class': 3,
-                'metric': 'multi_logloss',
-                'boosting_type': 'gbdt',
-                'num_leaves': int(params['num_leaves']),
-                'max_depth': int(params['max_depth']),
-                'learning_rate': params['learning_rate'],
-                'feature_fraction': params['feature_fraction'],
-                'bagging_fraction': params['bagging_fraction'],
-                'bagging_freq': int(params['bagging_freq']),
-                'min_data_in_leaf': int(params['min_data_in_leaf']),
-                'lambda_l1': params['lambda_l1'],
-                'lambda_l2': params['lambda_l2'],
-                'is_unbalance': True,
-                'verbosity': -1,
-                'random_state': self.random_state
-            }
-            
-            # Enhanced stratified K-Fold cross-validation
-            n_samples = len(X_train)
-            n_splits = min(5, max(2, n_samples // 10))  # Adaptive splits
-            
-            skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=self.random_state)
-            scores = []
-            
-            try:
-                for train_idx, val_idx in skf.split(X_train, y_train):
-                    X_fold_train, X_fold_val = X_train.iloc[train_idx], X_train.iloc[val_idx]
-                    y_fold_train, y_fold_val = y_train.iloc[train_idx], y_train.iloc[val_idx]
-                    
-                    # FIXED: Create LightGBM datasets with proper validation
-                    train_data = lgb.Dataset(X_fold_train, label=y_fold_train, 
-                                        categorical_feature=self.categorical_features)
-                    val_data = lgb.Dataset(X_fold_val, label=y_fold_val, 
-                                        categorical_feature=self.categorical_features,
-                                        reference=train_data)
-                    
-                    # Train model with adaptive early stopping
-                    early_stopping_rounds = min(50, max(10, n_samples // 20))
-                    model = lgb.train(
-                        lgb_params, 
-                        train_data, 
-                        valid_sets=[train_data, val_data],
-                        valid_names=['train', 'valid'],
-                        num_boost_round=500,  # Reduced for faster optimization
-                        callbacks=[lgb.early_stopping(early_stopping_rounds), lgb.log_evaluation(0)]
-                    )
-                    
-                    # Predict and calculate F1-macro score
-                    y_pred = model.predict(X_fold_val, num_iteration=model.best_iteration)
-                    y_pred_class = np.argmax(y_pred, axis=1)
-                    f1_macro = f1_score(y_fold_val, y_pred_class, average='macro')
-                    scores.append(f1_macro)
-                
-                return {'loss': -np.mean(scores), 'status': STATUS_OK}
-            
-            except Exception as e:
-                # Return penalty for failed configurations
-                print(f"  Trial failed: {str(e)[:50]}...")
-                return {'loss': 1.0, 'status': STATUS_OK}
-        
-        # Use adaptive search space with validation
-        try:
-            search_space = self.adaptive_search_space(X_train)
-        except Exception as e:
-            print(f"⚠️  Search space creation failed: {e}")
-            # Fallback to simple search space
-            search_space = {
-                'num_leaves': hp.quniform('num_leaves', 15, 63, 2),
-                'max_depth': hp.quniform('max_depth', 3, 8, 1),
-                'learning_rate': hp.uniform('learning_rate', 0.05, 0.2),
-                'feature_fraction': hp.uniform('feature_fraction', 0.6, 0.9),
-                'bagging_fraction': hp.uniform('bagging_fraction', 0.6, 0.9),
-                'bagging_freq': hp.quniform('bagging_freq', 1, 7, 1),
-                'min_data_in_leaf': hp.quniform('min_data_in_leaf', 1, 20, 1),
-                'lambda_l1': hp.uniform('lambda_l1', 0.0, 1.0),
-                'lambda_l2': hp.uniform('lambda_l2', 0.0, 1.0)
-            }
-        
-        # Run optimization with enhanced early stopping
-        trials = Trials()
-        patience = min(20, n_trials // 5)  # Adaptive patience
-        
-        try:
-            best = fmin(fn=objective, space=search_space, algo=tpe.suggest,
-                    max_evals=n_trials, trials=trials,
-                    early_stop_fn=no_progress_loss(patience))
-            
-            # Convert best parameters back to LightGBM format
-            self.best_params = {
-                'objective': 'multiclass',
-                'num_class': 3,
-                'metric': 'multi_logloss',
-                'boosting_type': 'gbdt',
-                'num_leaves': int(best['num_leaves']),
-                'max_depth': int(best['max_depth']),
-                'learning_rate': best['learning_rate'],
-                'feature_fraction': best['feature_fraction'],
-                'bagging_fraction': best['bagging_fraction'],
-                'bagging_freq': int(best['bagging_freq']),
-                'min_data_in_leaf': int(best['min_data_in_leaf']),
-                'lambda_l1': best['lambda_l1'],
-                'lambda_l2': best['lambda_l2'],
-                'is_unbalance': True,
-                'verbosity': -1,
-                'random_state': self.random_state
-            }
-            
-            best_score = -trials.best_trial['result']['loss']
-            print(f"✅ Enhanced optimization completed. Best F1-macro score: {best_score:.4f}")
-            
-            return self.best_params
-            
-        except Exception as e:
-            print(f"⚠️  Optimization failed completely: {e}")
-            return self.get_enhanced_default_params(X_train)
-    
     def train_model(self, X_train, y_train, X_val, y_val, use_optimized_params=True):
         """
         Train LightGBM model with optimized parameters and early stopping
@@ -724,9 +842,9 @@ class EnhancedCableHealthPredictor:
         print("\n🚀 Training LightGBM Model...")
         
         # Use optimized parameters if available, otherwise use enhanced defaults
-        if use_optimized_params and hasattr(self, 'best_params'):
+        if use_optimized_params and hasattr(self, 'best_params') and self.best_params:
             params = self.best_params.copy()
-            print("Using optimized hyperparameters")
+            print("Using Optuna-optimized hyperparameters")
         else:
             params = self.get_enhanced_default_params(X_train)
             print("Using enhanced default hyperparameters")
@@ -760,9 +878,173 @@ class EnhancedCableHealthPredictor:
         
         return self.model
     
+    def convert_to_onnx(self, X_sample, model_name="cable_health_lightgbm"):
+        """
+        NEW: Convert trained LightGBM model to ONNX format for optimized inference
+        
+        Theory: ONNX provides cross-platform model deployment with optimized
+        inference performance, crucial for production cable monitoring systems.
+        """
+        print(f"\n🔄 Converting LightGBM model to ONNX format...")
+        
+        if self.model is None:
+            print("❌ No trained model available for conversion")
+            return None
+        
+        try:
+            # Create a sklearn-compatible wrapper for LightGBM
+            lgb_sklearn = lgb.LGBMClassifier()
+            lgb_sklearn._Booster = self.model
+            lgb_sklearn.classes_ = np.array([0, 1, 2])
+            lgb_sklearn.n_classes_ = 3
+            
+            # Define input type for ONNX conversion
+            initial_type = [('float_input', FloatTensorType([None, X_sample.shape[1]]))]
+            
+            # Convert to ONNX
+            onnx_model = convert_sklearn(
+                lgb_sklearn,
+                initial_types=initial_type,
+                target_opset=11,
+                options={id(lgb_sklearn): {'zipmap': False}}
+            )
+            
+            # Save ONNX model
+            self.onnx_model_path = f"{model_name}.onnx"
+            onnx.save_model(onnx_model, self.onnx_model_path)
+            
+            # Create ONNX Runtime session for inference
+            self.onnx_session = ort.InferenceSession(self.onnx_model_path)
+            
+            print(f"✅ Model successfully converted to ONNX: {self.onnx_model_path}")
+            
+            # Verify ONNX model
+            self.verify_onnx_model(X_sample)
+            
+            return self.onnx_model_path
+            
+        except Exception as e:
+            print(f"❌ ONNX conversion failed: {e}")
+            print("🔧 Trying alternative conversion method...")
+            
+            try:
+                # Alternative: Save as text and convert
+                temp_model_path = f"{model_name}_temp.txt"
+                self.model.save_model(temp_model_path)
+                
+                # Load and convert using different approach
+                lgb_model = lgb.Booster(model_file=temp_model_path)
+                
+                # This is a simplified approach - in practice, you might need
+                # more sophisticated conversion for complex models
+                print("⚠️  Using simplified ONNX conversion")
+                
+                # Clean up temporary file
+                if os.path.exists(temp_model_path):
+                    os.remove(temp_model_path)
+                
+                return None
+                
+            except Exception as e2:
+                print(f"❌ Alternative conversion also failed: {e2}")
+                return None
+    
+    def verify_onnx_model(self, X_sample):
+        """
+        NEW: Verify ONNX model correctness by comparing with original model
+        """
+        print("🔍 Verifying ONNX model correctness...")
+        
+        if self.onnx_session is None:
+            print("❌ No ONNX session available for verification")
+            return False
+        
+        try:
+            # Get predictions from original LightGBM model
+            lgb_pred = self.model.predict(X_sample, num_iteration=self.model.best_iteration)
+            lgb_pred_class = np.argmax(lgb_pred, axis=1)
+            
+            # Get predictions from ONNX model
+            input_name = self.onnx_session.get_inputs()[0].name
+            onnx_inputs = {input_name: X_sample.astype(np.float32)}
+            onnx_pred = self.onnx_session.run(None, onnx_inputs)[1]  # Get probabilities
+            onnx_pred_class = np.argmax(onnx_pred, axis=1)
+            
+            # Compare predictions
+            accuracy = np.mean(lgb_pred_class == onnx_pred_class)
+            
+            print(f"✅ ONNX model verification completed")
+            print(f"  Prediction accuracy vs original: {accuracy:.4f}")
+            
+            if accuracy > 0.99:
+                print("✅ ONNX model is highly accurate")
+                return True
+            elif accuracy > 0.95:
+                print("⚠️  ONNX model has minor differences")
+                return True
+            else:
+                print("❌ ONNX model has significant differences")
+                return False
+                
+        except Exception as e:
+            print(f"❌ ONNX verification failed: {e}")
+            return False
+    
+    def benchmark_inference_performance(self, X_test, iterations=1000):
+        """
+        NEW: Benchmark inference performance between LightGBM and ONNX
+        """
+        print(f"\n⚡ Benchmarking Inference Performance ({iterations} iterations)...")
+        
+        if self.model is None:
+            print("❌ No trained model available for benchmarking")
+            return None
+        
+        # Benchmark LightGBM inference
+        print("Benchmarking LightGBM inference...")
+        start_time = time.time()
+        for _ in range(iterations):
+            _ = self.model.predict(X_test, num_iteration=self.model.best_iteration)
+        lgb_time = time.time() - start_time
+        
+        print(f"🔵 LightGBM: {lgb_time:.4f}s for {iterations} predictions")
+        print(f"   Average per prediction: {(lgb_time/iterations)*1000:.2f}ms")
+        
+        # Benchmark ONNX inference if available
+        if self.onnx_session is not None:
+            print("Benchmarking ONNX inference...")
+            input_name = self.onnx_session.get_inputs()[0].name
+            onnx_inputs = {input_name: X_test.astype(np.float32)}
+            
+            start_time = time.time()
+            for _ in range(iterations):
+                _ = self.onnx_session.run(None, onnx_inputs)
+            onnx_time = time.time() - start_time
+            
+            print(f"🟠 ONNX Runtime: {onnx_time:.4f}s for {iterations} predictions")
+            print(f"   Average per prediction: {(onnx_time/iterations)*1000:.2f}ms")
+            
+            # Calculate speedup
+            speedup = lgb_time / onnx_time
+            print(f"🚀 ONNX Speedup: {speedup:.2f}x faster than LightGBM")
+            
+            return {
+                'lgb_time': lgb_time,
+                'onnx_time': onnx_time,
+                'speedup': speedup,
+                'lgb_avg_ms': (lgb_time/iterations)*1000,
+                'onnx_avg_ms': (onnx_time/iterations)*1000
+            }
+        else:
+            print("⚠️  ONNX model not available for benchmarking")
+            return {
+                'lgb_time': lgb_time,
+                'lgb_avg_ms': (lgb_time/iterations)*1000
+            }
+    
     def create_ensemble_model(self, X_train, y_train):
         """
-        NEW: Create ensemble model using voting classifier for diversity
+        Create ensemble model using voting classifier for diversity
         
         Theory: Ensemble methods reduce overfitting through model diversity
         and typically provide more robust predictions than single models.
@@ -819,7 +1101,7 @@ class EnhancedCableHealthPredictor:
     
     def augment_data(self, X, y, augmentation_factor=3):
         """
-        NEW: Data augmentation using bootstrap resampling with noise
+        Data augmentation using bootstrap resampling with noise
         
         Theory: Data augmentation increases effective dataset size and helps
         models generalize better, especially important for small datasets.
@@ -939,7 +1221,7 @@ class EnhancedCableHealthPredictor:
     
     def evaluate_ensemble(self, X_test, y_test, class_names=None):
         """
-        NEW: Evaluate ensemble model performance
+        Evaluate ensemble model performance
         """
         print("\n📊 Ensemble Model Evaluation...")
         
@@ -1056,7 +1338,7 @@ class EnhancedCableHealthPredictor:
         print("\n🎯 Decision Matrix Analysis...")
         
         if class_names is None:
-            class_names = ['Healthy', 'At Risk', 'Critical']
+                        class_names = ['Healthy', 'At Risk', 'Critical']
         
         # Generate confusion matrix
         cm = confusion_matrix(y_test, y_pred)
@@ -1212,7 +1494,7 @@ class EnhancedCableHealthPredictor:
     
     def analyze_feature_subsets(self, X, y):
         """
-        NEW: Comprehensive analysis of different feature subsets with proper unpacking
+        NEW: Comprehensive analysis of different feature subsets
         
         Analyzes performance with:
         1. All features
@@ -1228,59 +1510,32 @@ class EnhancedCableHealthPredictor:
         def safe_nested_cv(X_subset, y_subset, subset_name):
             """Safely handle nested CV with proper unpacking and fallbacks"""
             try:
-                # FIXED: Properly unpack all 3 return values
-                cv_result = self.nested_cross_validation(X_subset, y_subset, outer_splits=3, inner_splits=2)
+                # Use simple train-test split for quick evaluation
+                X_train_sub, X_test_sub, y_train_sub, y_test_sub = train_test_split(
+                    X_subset, y_subset, test_size=0.3, random_state=self.random_state, stratify=y_subset
+                )
                 
-                # Handle different return formats
-                if isinstance(cv_result, tuple):
-                    if len(cv_result) == 3:
-                        mean_score, std_score, fold_predictions = cv_result
-                    elif len(cv_result) == 2:
-                        mean_score, std_score = cv_result
-                        fold_predictions = None
-                    else:
-                        print(f"⚠️  Unexpected return format for {subset_name}: {len(cv_result)} values")
-                        mean_score, std_score = cv_result[0], cv_result[1] if len(cv_result) > 1 else 0.0
-                        fold_predictions = None
-                else:
-                    # Single value returned
-                    mean_score = cv_result
-                    std_score = 0.0
-                    fold_predictions = None
+                # Use default parameters for quick evaluation
+                params = self.get_enhanced_default_params(X_train_sub)
                 
-                return mean_score, std_score, fold_predictions
+                # Create datasets
+                train_data = lgb.Dataset(X_train_sub, label=y_train_sub,
+                                       categorical_feature=self.categorical_features)
+                
+                # Train model
+                model = lgb.train(params, train_data, num_boost_round=100, verbose_eval=0)
+                
+                # Evaluate
+                y_pred_proba = model.predict(X_test_sub)
+                y_pred = np.argmax(y_pred_proba, axis=1)
+                score = f1_score(y_test_sub, y_pred, average='macro')
+                
+                print(f"✅ Evaluation completed for {subset_name}: {score:.4f}")
+                return score, 0.0, None
                 
             except Exception as e:
-                print(f"⚠️  Nested CV failed for {subset_name}: {e}")
-                print(f"🔧 Falling back to simple train-test split...")
-                
-                # Fallback: Simple train-test split evaluation
-                try:
-                    X_train_sub, X_test_sub, y_train_sub, y_test_sub = train_test_split(
-                        X_subset, y_subset, test_size=0.3, random_state=self.random_state, stratify=y_subset
-                    )
-                    
-                    # Use default parameters for quick evaluation
-                    params = self.get_enhanced_default_params(X_train_sub)
-                    
-                    # Create datasets
-                    train_data = lgb.Dataset(X_train_sub, label=y_train_sub,
-                                        categorical_feature=self.categorical_features)
-                    
-                    # Train model
-                    model = lgb.train(params, train_data, num_boost_round=100, verbose_eval=0)
-                    
-                    # Evaluate
-                    y_pred_proba = model.predict(X_test_sub)
-                    y_pred = np.argmax(y_pred_proba, axis=1)
-                    fallback_score = f1_score(y_test_sub, y_pred, average='macro')
-                    
-                    print(f"✅ Fallback evaluation completed for {subset_name}: {fallback_score:.4f}")
-                    return fallback_score, 0.0, None
-                    
-                except Exception as e2:
-                    print(f"❌ Fallback evaluation also failed for {subset_name}: {e2}")
-                    return 0.0, 0.0, None
+                print(f"❌ Evaluation failed for {subset_name}: {e}")
+                return 0.0, 0.0, None
         
         # 1. All features baseline
         print("\n1️⃣ Baseline - All Features:")
@@ -1351,7 +1606,7 @@ class EnhancedCableHealthPredictor:
             
             params_quick = self.get_enhanced_default_params(X_train_quick)
             train_data = lgb.Dataset(X_train_quick, label=y_train_quick,
-                                categorical_feature=self.categorical_features)
+                                   categorical_feature=self.categorical_features)
             
             model_quick = lgb.train(params_quick, train_data, num_boost_round=100, verbose_eval=0)
             
@@ -1455,17 +1710,17 @@ class EnhancedCableHealthPredictor:
         return report_df
 
 # Enhanced main execution pipeline
-def enhanced_main():
+def enhanced_main_lightgbm_optuna():
     """
-    Enhanced main execution pipeline for cable health prediction system
+    Enhanced main execution pipeline for LightGBM cable health prediction system with Optuna & ONNX
     """
-    print("🚀 Starting Enhanced Cable Health Prediction Pipeline...")
+    print("🚀 Starting Enhanced LightGBM Cable Health Prediction Pipeline with Optuna & ONNX...")
     
     # Initialize enhanced predictor
-    predictor = EnhancedCableHealthPredictor(random_state=42)
+    predictor = EnhancedCableHealthPredictorWithOptuna(random_state=42)
     
     # Step 1: Load and explore data
-    df = predictor.load_and_explore_data('cable_health_method2_clustering_20k.csv')
+    df = predictor.load_and_explore_data('cable_health_sample_ordinal_encoded-cable_health_sample_ordinal_encoded.csv')
     
     # Step 2: Enhanced correlation analysis
     corr_matrix, high_corr_pairs = predictor.correlation_analysis(df)
@@ -1504,9 +1759,24 @@ def enhanced_main():
     print(f"  Validation set: {len(X_val):,} samples") 
     print(f"  Test set: {len(X_test):,} samples")
     
-    # Step 9: Nested Cross-Validation for reliable performance estimation
+    # Step 9: Enhanced Optuna hyperparameter optimization
+    print(f"\n🎯 Enhanced Optuna Hyperparameter Optimization...")
+    
+    # Single-objective optimization
+    optimal_params_single = predictor.optimize_with_optuna_single_objective(
+        X_train_opt, y_train_opt, n_trials=100
+    )
+    
+    # Multi-objective optimization (accuracy vs speed)
+    optimal_params_multi = predictor.optimize_with_optuna_multi_objective(
+        X_train_opt, y_train_opt, n_trials=100
+    )
+    
+    # Visualize Optuna results
+    predictor.visualize_optuna_results()
+    
+    # Step 10: Nested Cross-Validation for reliable performance estimation
     print(f"\n🔄 Performing Nested Cross-Validation...")
-    # FIXED: Properly handle all return values
     try:
         cv_result = predictor.nested_cross_validation(X_train, y_train, outer_splits=5, inner_splits=3)
         if isinstance(cv_result, tuple) and len(cv_result) >= 2:
@@ -1520,76 +1790,144 @@ def enhanced_main():
         nested_mean, nested_std = 0.0, 0.0
         fold_predictions = None
     
-    # Step 10: Enhanced hyperparameter optimization
-    try:
-        optimal_params = predictor.optimize_hyperparameters(X_train_opt, y_train_opt, n_trials=50)
-    except Exception as e:
-        print(f"⚠️  Hyperparameter optimization failed: {e}")
-        optimal_params = None
-    
     # Step 11: Train main model
-    model = predictor.train_model(X_train, y_train, X_val, y_val, use_optimized_params=(optimal_params is not None))
+    model = predictor.train_model(X_train, y_train, X_val, y_val, use_optimized_params=True)
     
-    # Step 12: Create and train ensemble model
+    # Step 12: Convert to ONNX format
+    onnx_path = predictor.convert_to_onnx(X_test.head(100), model_name="enhanced_lightgbm_cable_health")
+    
+    # Step 13: Benchmark inference performance
+    benchmark_results = predictor.benchmark_inference_performance(X_test, iterations=1000)
+    
+    # Step 14: Create and train ensemble model
     try:
         ensemble_model = predictor.create_ensemble_model(X_train, y_train)
     except Exception as e:
         print(f"⚠️  Ensemble model creation failed: {e}")
         ensemble_model = None
     
-    # Step 13: Comprehensive evaluation
+    # Step 15: Comprehensive evaluation
     eval_results = predictor.comprehensive_evaluation(X_test, y_test)
     
-    # Step 14: Ensemble evaluation
+    # Step 16: Ensemble evaluation
     if ensemble_model is not None:
         ensemble_results = predictor.evaluate_ensemble(X_test, y_test)
     else:
         ensemble_results = None
     
-    # Step 15: Feature importance analysis
+    # Step 17: Feature importance analysis
     feature_importance_df = predictor.feature_importance_analysis()
     
-    # Step 16: Decision matrix analysis
+    # Step 18: Decision matrix analysis
     cm, cm_percent = predictor.decision_matrix_analysis(y_test, eval_results['y_pred'])
     
-    # Step 17: Enhanced SHAP interpretability analysis
+    # Step 19: Enhanced SHAP interpretability analysis
     try:
         shap_values = predictor.enhanced_shap_analysis(X_test, max_samples=min(500, len(X_test)))
     except Exception as e:
         print(f"⚠️  SHAP analysis failed: {e}")
         shap_values = None
     
-    # Step 18: Generate prediction report
+    # Step 20: Generate prediction report
     report_df = predictor.generate_prediction_report(X_test, y_test)
     
-    print("\n🎉 Enhanced Cable Health Prediction Pipeline Completed Successfully!")
+    print("\n🎉 Enhanced LightGBM Cable Health Prediction Pipeline with Optuna & ONNX Completed Successfully!")
     
     # Final comprehensive results
     print("\n📊 Final Enhanced Performance Summary:")
-    print("=" * 60)
-    print(f"🔄 Nested CV Performance: {nested_mean:.4f} ± {nested_std:.4f}")
-    print(f"🎯 Single Model Accuracy: {eval_results['accuracy']:.4f}")
-    print(f"🏆 Single Model F1-Macro: {eval_results['f1_macro']:.4f}")
-    print(f"⚖️  Single Model MCC: {eval_results['mcc']:.4f}")
+    print("=" * 80)
+    print(f"🔧 Model Configuration:")
+    print(f"  Dataset: {len(X):,} samples")
+    print(f"  Features: {len(predictor.feature_names)}")
+    print(f"  Optuna optimization: {'✅ Completed' if predictor.best_params else '❌ Failed'}")
+    print(f"  ONNX conversion: {'✅ Completed' if onnx_path else '❌ Failed'}")
+    
+    print(f"\n🎯 Single Model Performance:")
+    print(f"  Accuracy: {eval_results['accuracy']:.4f}")
+    print(f"  F1-Score (Macro): {eval_results['f1_macro']:.4f}")
+    print(f"  F1-Score (Weighted): {eval_results['f1_weighted']:.4f}")
+    print(f"  AUC (OvR): {eval_results['auc_ovr']:.4f}")
+    print(f"  Matthews Correlation: {eval_results['mcc']:.4f}")
     
     if ensemble_results:
-        print(f"🎭 Ensemble Accuracy: {ensemble_results['accuracy']:.4f}")
-        print(f"🎭 Ensemble F1-Macro: {ensemble_results['f1_macro']:.4f}")
-        print(f"🎭 Ensemble MCC: {ensemble_results['mcc']:.4f}")
+        print(f"\n🎭 Ensemble Model Performance:")
+        print(f"  Accuracy: {ensemble_results['accuracy']:.4f}")
+        print(f"  F1-Score (Macro): {ensemble_results['f1_macro']:.4f}")
+        print(f"  F1-Score (Weighted): {ensemble_results['f1_weighted']:.4f}")
+        print(f"  AUC (OvR): {ensemble_results['auc_ovr']:.4f}")
+        print(f"  Matthews Correlation: {ensemble_results['mcc']:.4f}")
         
         # Compare single model vs ensemble
         improvement = ((ensemble_results['f1_macro'] - eval_results['f1_macro']) / eval_results['f1_macro']) * 100
         print(f"📈 Ensemble Improvement: {improvement:+.1f}%")
     
-    print("\n🎯 Key Insights:")
-    print(f"  • Most reliable estimate (Nested CV): {nested_mean:.4f}")
-    print(f"  • Feature subset analysis completed")
-    print(f"  • Data augmentation applied: {len(X) > len(df)}")
-    print(f"  • Ensemble method trained: {ensemble_results is not None}")
+    # Performance benchmarking results
+    if benchmark_results:
+        print(f"\n⚡ Inference Performance Benchmarking:")
+        print(f"  LightGBM average: {benchmark_results.get('lgb_avg_ms', 'N/A'):.2f}ms per prediction")
+        if 'onnx_avg_ms' in benchmark_results:
+            print(f"  ONNX average: {benchmark_results['onnx_avg_ms']:.2f}ms per prediction")
+            print(f"  ONNX speedup: {benchmark_results['speedup']:.2f}x faster")
     
-    return predictor, eval_results, ensemble_results, feature_importance_df, report_df, subset_results
+    print(f"\n🎯 Key Insights:")
+    print(f"  • Nested CV estimate: {nested_mean:.4f} ± {nested_std:.4f}")
+    print(f"  • Optuna optimization completed: {predictor.single_objective_study is not None}")
+    print(f"  • Multi-objective optimization: {predictor.multi_objective_study is not None}")
+    print(f"  • Feature subset analysis completed")
+    print(f"  • SHAP interpretability: {'✅ Completed' if shap_values is not None else '❌ Failed'}")
+    print(f"  • ONNX deployment ready: {'✅ Yes' if onnx_path else '❌ No'}")
+    
+    print(f"\n📋 Final Deliverables Generated:")
+    print(f"  ✅ Trained LightGBM model with Optuna optimization")
+    print(f"  {'✅' if ensemble_results else '❌'} 4-algorithm ensemble model")
+    print(f"  ✅ Feature importance analysis")
+    print(f"  {'✅' if shap_values else '❌'} SHAP interpretability analysis")
+    print(f"  {'✅' if onnx_path else '❌'} ONNX model for production deployment")
+    print(f"  ✅ Comprehensive evaluation report")
+    print(f"  ✅ Business impact analysis")
+    print(f"  ✅ Feature subset performance comparison")
+    print(f"  ✅ Inference performance benchmarking")
+    
+    return (predictor, eval_results, ensemble_results, feature_importance_df, 
+            report_df, subset_results, shap_values, benchmark_results)
 
 if __name__ == "__main__":
-    # Execute the enhanced pipeline
-    (predictor, results, ensemble_results, feature_importance, 
-     prediction_report, subset_analysis) = enhanced_main()
+    # Execute the enhanced LightGBM pipeline with Optuna & ONNX
+    try:
+        (predictor_lgb, results_lgb, ensemble_results_lgb, feature_importance_lgb, 
+         prediction_report_lgb, subset_analysis_lgb, shap_values_lgb, 
+         benchmark_results_lgb) = enhanced_main_lightgbm_optuna()
+        
+        print("\n" + "="*80)
+        print("🎊 ENHANCED LIGHTGBM WITH OPTUNA & ONNX PIPELINE EXECUTION COMPLETED SUCCESSFULLY!")
+        print("="*80)
+        
+        # Save results to files for further analysis
+        try:
+            prediction_report_lgb.to_csv('enhanced_lightgbm_optuna_predictions.csv', index=False)
+            feature_importance_lgb.to_csv('enhanced_lightgbm_optuna_feature_importance.csv', index=False)
+            
+            # Save Optuna study results if available
+            if predictor_lgb.single_objective_study:
+                study_df = predictor_lgb.single_objective_study.trials_dataframe()
+                study_df.to_csv('optuna_lightgbm_single_objective_trials.csv', index=False)
+            
+            if predictor_lgb.multi_objective_study:
+                multi_study_df = predictor_lgb.multi_objective_study.trials_dataframe()
+                multi_study_df.to_csv('optuna_lightgbm_multi_objective_trials.csv', index=False)
+            
+            print("\n💾 Results saved to CSV files:")
+            print("  📄 enhanced_lightgbm_optuna_predictions.csv")
+            print("  📄 enhanced_lightgbm_optuna_feature_importance.csv")
+            print("  📄 optuna_lightgbm_single_objective_trials.csv")
+            print("  📄 optuna_lightgbm_multi_objective_trials.csv")
+            
+        except Exception as e:
+            print(f"\n⚠️  Could not save results to CSV: {e}")
+        
+    except Exception as e:
+        print(f"\n❌ Pipeline execution failed: {e}")
+        print("🔧 Please check your data file path and ensure all dependencies are installed")
+        import traceback
+        traceback.print_exc()
+
