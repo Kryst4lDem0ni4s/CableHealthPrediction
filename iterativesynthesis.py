@@ -413,3 +413,6 @@ def run_method_1():
     print(classification_report(y_test, y_pred, target_names=['Healthy', 'At Risk', 'Critical']))
     
     return improved_dataset, final_accuracy
+
+if __name__ == "__main__":
+    run_method_1()
