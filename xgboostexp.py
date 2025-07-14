@@ -943,7 +943,7 @@ def main_xgboost():
     predictor = CableHealthPredictorXGBoost(random_state=42)
     
     # Step 1: Load and explore data
-    df = predictor.load_and_explore_data('cable_health_method2_clustering_20k.csv')  # Using the provided dataset
+    df = predictor.load_and_explore_data('cable_health_method1_iterative_20k.csv')  # Using the provided dataset
     
     # Step 2: Enhanced correlation analysis
     corr_matrix, feature_clusters, significant_features = predictor.correlation_analysis(df)

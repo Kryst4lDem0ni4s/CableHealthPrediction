@@ -740,7 +740,7 @@ def main():
     
     # Step 1: Load and explore data
     # Note: Replace with your actual dataset path
-    df = predictor.load_and_explore_data('cable_health_method2_clustering_20k.csv')
+    df = predictor.load_and_explore_data('cable_health_method1_iterative_20k.csv')           # Pointer 
     
     # Step 2: Correlation analysis
     corr_matrix, high_corr_pairs = predictor.correlation_analysis(df)

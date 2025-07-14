@@ -1465,7 +1465,7 @@ def enhanced_main():
     predictor = EnhancedCableHealthPredictor(random_state=42)
     
     # Step 1: Load and explore data
-    df = predictor.load_and_explore_data('cable_health_method2_clustering_20k.csv')
+    df = predictor.load_and_explore_data('cable_health_method2_clustering_20k.csv')    #Pointer 
     
     # Step 2: Enhanced correlation analysis
     corr_matrix, high_corr_pairs = predictor.correlation_analysis(df)
