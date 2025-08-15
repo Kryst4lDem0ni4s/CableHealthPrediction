@@ -262,7 +262,7 @@ MODEL_CONFIGS = {
         },
         'lightgbm_neuralnetwork_advancedsvm': {
             'base_models': ['lightgbm', 'neuralnetwork', 'advancedsvm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'lightgbm_neuralnetwork_naivebayes': {
             'base_models': ['lightgbm', 'neuralnetwork', 'naivebayes'],
