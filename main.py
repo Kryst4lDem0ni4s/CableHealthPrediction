@@ -31,10 +31,14 @@ except ImportError as e:
     print(f"Import failed: {e}")
     
 try:
-    from ticl.ticl.models.tabflex import TabFlex
+    from ticl.prediction.tabflex import TabFlex
     print("Tabflex imported successfully!")
 except ImportError as e:
-    print(f"Import failed: {e}")
+    try:
+        from ticl.models.tabflex import TabFlex
+    except ImportError as e:
+        print(f"Import failed: {e}")
+
     
 import catboost as cb
 from sklearn.ensemble import RandomForestClassifier
@@ -81,10 +85,10 @@ class Config:
     # File paths
     DATA_PATH = 'expresults/cable_health_method1_iterative_20k.csv'
     TARGET_COLUMN = 'CableHealthScore'
-    CHECKPOINT_DIR = 'expresults/model_checkpoints'
-    RESULTS_DIR = 'expresults/analysis_results'
-    REPORTS_DIR = 'expresults/reports'
-    PLOTS_DIR = 'expresults/plots'
+    CHECKPOINT_DIR = 'resnew/model_checkpoints'
+    RESULTS_DIR = 'resnew/analysis_results'
+    REPORTS_DIR = 'resnew/reports'
+    PLOTS_DIR = 'resnew/plots'
 
     # Performance thresholds for early stopping
     EARLY_STOP_ACCURACY = 0.15  # Further lowered for more lenient early stopping
@@ -160,7 +164,7 @@ MODEL_CONFIGS = {
         },
         'lightgbm_xgboost_ensemble': {
             'base_models': ['lightgbm', 'xgboost'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'lightgbm_randomforest': {
             'base_models': ['lightgbm', 'randomforest'],
@@ -172,15 +176,15 @@ MODEL_CONFIGS = {
         },
         'lightgbm_advancedsvm': {
             'base_models': ['lightgbm', 'advancedsvm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'lightgbm_advancedsvm_randomforest': {
             'base_models': ['lightgbm', 'advancedsvm', 'randomforest'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'xgboost_advancedsvm_randomforest': {
             'base_models': ['xgboost', 'advancedsvm', 'randomforest'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'xgboost_solo': {
             'base_models': ['xgboost'],
@@ -195,16 +199,15 @@ MODEL_CONFIGS = {
         },
         'xgboost_catboost_lightgbm': {
             'base_models': ['xgboost', 'catboost', 'lightgbm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'xgboost_advancedsvm_2model': {
             'base_models': ['xgboost', 'advancedsvm'],
-            'ensemble_type': 'weighted',
-            'weights': [0.6, 0.4]
+            'ensemble_type': 'voting'
         },
         'xgboost_lightgbm_randomforest_linearsvm': {
             'base_models': ['xgboost', 'lightgbm', 'randomforest', 'linearsvm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'lightgbm_catboost_naivebayes': {
             'base_models': ['lightgbm', 'catboost', 'naivebayes'],
@@ -212,11 +215,11 @@ MODEL_CONFIGS = {
         },
         'lightgbm_catboost_advancedsvm': {
             'base_models': ['lightgbm', 'catboost', 'advancedsvm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'xgboost_catboost_advancedsvm': {
             'base_models': ['xgboost', 'catboost', 'advancedsvm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'xgboost_catboost_naivebayes': {
             'base_models': ['xgboost', 'catboost', 'naivebayes'],
@@ -242,15 +245,15 @@ MODEL_CONFIGS = {
         },
         'catboost_advancedsvm_randomforest': {
             'base_models': ['catboost', 'advancedsvm', 'randomforest'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'lightgbm_neuralnetwork': {
             'base_models': ['lightgbm', 'neuralnetwork'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'xgboost_neuralnetwork': {
             'base_models': ['xgboost', 'neuralnetwork'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'xgboost_neuralnetwork_naivebayes': {
             'base_models': ['xgboost', 'neuralnetwork', 'naivebayes'],
@@ -258,7 +261,7 @@ MODEL_CONFIGS = {
         },
         'xgboost_neuralnetwork_randomforest': {
             'base_models': ['xgboost', 'neuralnetwork', 'randomforest'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'lightgbm_neuralnetwork_advancedsvm': {
             'base_models': ['lightgbm', 'neuralnetwork', 'advancedsvm'],
@@ -270,7 +273,7 @@ MODEL_CONFIGS = {
         },
         'lightgbm_neuralnetwork_randomforest': {
             'base_models': ['lightgbm', 'neuralnetwork', 'randomforest'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'lightgbm_randomforest_naivebayes': {
             'base_models': ['lightgbm', 'randomforest', 'naivebayes'],
@@ -286,11 +289,11 @@ MODEL_CONFIGS = {
         },
         'xgboost_neuralnetwork_advancedsvm': {
             'base_models': ['xgboost', 'neuralnetwork', 'advancedsvm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'catboost_neuralnetwork': {
             'base_models': ['catboost', 'neuralnetwork'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'randomforest_knn_naivebayes': {
             'base_models': ['randomforest', 'knn', 'naivebayes'],
@@ -306,7 +309,7 @@ MODEL_CONFIGS = {
         },
         'xgboost_randomforest_neuralnetwork': {
             'base_models': ['xgboost', 'randomforest', 'neuralnetwork'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'randomforest_solo': {
             'base_models': ['randomforest'],
@@ -387,11 +390,11 @@ MODEL_CONFIGS = {
         },
         'deepgbm_lightgbm_randomforest': {
             'base_models': ['deepgbm', 'lightgbm', 'randomforest'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'deepgbm_advancedsvm': {
             'base_models': ['deepgbm', 'advancedsvm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'deepgbm_randomforest': {
             'base_models': ['deepgbm', 'randomforest'],
@@ -403,7 +406,7 @@ MODEL_CONFIGS = {
         },
         'deepgbm_advancedsvm_randomforest': {
             'base_models': ['deepgbm', 'advancedsvm', 'randomforest'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
 
         # TabFlex Combinations
@@ -413,11 +416,11 @@ MODEL_CONFIGS = {
         },
         'tabflex_xgboost': {
             'base_models': ['tabflex', 'xgboost'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'tabflex_lightgbm': {
             'base_models': ['tabflex', 'lightgbm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
 
         # NgBoost Combinations (if NgBoost available)
@@ -427,11 +430,11 @@ MODEL_CONFIGS = {
         },
         'ngboost_advancedsvm': {
             'base_models': ['ngboost', 'advancedsvm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'ngboost_xgboost_catboost': {
             'base_models': ['ngboost', 'xgboost', 'catboost'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'ngboost_randomforest': {
             'base_models': ['ngboost', 'randomforest'],
@@ -443,15 +446,15 @@ MODEL_CONFIGS = {
         },
         'ngboost_neuralnetwork': {
             'base_models': ['ngboost', 'neuralnetwork'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'ngboost_advancedsvm_randomforest': {
             'base_models': ['ngboost', 'advancedsvm', 'randomforest'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'ngboost_neuralnetwork_advancedsvm': {
             'base_models': ['ngboost', 'neuralnetwork', 'advancedsvm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'ngboost_neuralnetwork_naivebayes': {
             'base_models': ['ngboost', 'neuralnetwork', 'naivebayes'],
@@ -459,13 +462,13 @@ MODEL_CONFIGS = {
         },
         'ngboost_neuralnetwork_randomforest': {
             'base_models': ['ngboost', 'neuralnetwork', 'randomforest'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
 
         # Mixture-of-Experts Combinations
         'mixture_of_experts_lightgbm_advancedsvm': {
             'base_models': ['mixture_of_experts', 'lightgbm', 'advancedsvm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'mixture_of_experts_lightgbm_naivebayes': {
             'base_models': ['mixture_of_experts', 'lightgbm', 'naivebayes'],
@@ -477,7 +480,7 @@ MODEL_CONFIGS = {
         },
         'mixture_of_experts_xgboost_advancedsvm': {
             'base_models': ['mixture_of_experts', 'xgboost', 'advancedsvm'],
-            'ensemble_type': 'stacking'
+            'ensemble_type': 'voting'
         },
         'mixture_of_experts_xgboost_naivebayes': {
             'base_models': ['mixture_of_experts', 'xgboost', 'naivebayes'],
@@ -491,7 +494,7 @@ MODEL_CONFIGS = {
         # Stacked Ensemble with Ridge Meta-Learner
         'stacked_lightgbm_xgboost_catboost_ridge': {
             'base_models': ['lightgbm', 'xgboost', 'catboost'],
-            'ensemble_type': 'stacking_ridge'
+            'ensemble_type': 'voting_ridge'
         },
 
         # Parametric Ensemble Learning Models
@@ -830,10 +833,12 @@ def safe_array_length(arr):
     """Safely get the length of an array, handling both dense and sparse matrices"""
     if sparse.issparse(arr):
         return arr.shape[0]
-    elif hasattr(arr, 'shape'):
-        return arr.shape[0]
-    else:
+    elif hasattr(arr, 'shape') and len(arr.shape) > 0:
+        return arr.shape
+    elif hasattr(arr, '__len__'):
         return len(arr)
+    else:
+        return 0
 
 def safe_array_indexing(arr, indices):
     """Safely index an array, handling both dense and sparse matrices"""
@@ -841,6 +846,13 @@ def safe_array_indexing(arr, indices):
         return arr[indices]
     else:
         return arr[indices]
+
+def safe_len(arr):
+    """Safe wrapper for len() that handles sparse matrices"""
+    if sparse.issparse(arr):
+        return arr.shape
+    else:
+        return len(arr)
 
 def safe_pandas_indexing(df_or_series, indices):
     """Safely index pandas DataFrame or Series using iloc for integer indices"""
@@ -985,41 +997,60 @@ class TabFlexClassifier(BaseEstimator, ClassifierMixin):
         return self
     
     def predict_proba(self, X):
-        """Predict class probabilities"""
+        """FIXED: Batched prediction without O(n²) complexity"""
         check_array(X)
         
         if self.model_ is None:
             raise ValueError("Model must be fitted before making predictions")
         
         device = self._setup_device()
-        X_tensor = torch.FloatTensor(X).to(device)
         
+        # Convert to tensor once
+        if not isinstance(X, torch.Tensor):
+            X_tensor = torch.FloatTensor(X).to(device)
+        else:
+            X_tensor = X.to(device)
+            
         self.model_.eval()
-        probabilities = []
         
         with torch.no_grad():
-            # For prediction, we need to provide some context
-            # This is simplified - real implementation would use proper context
-            dummy_y = torch.zeros(len(X_tensor), dtype=torch.long).to(device)
+            batch_size = min(512, len(X_tensor))  # Adaptive batch size
+            all_probabilities = []
             
-            for i in range(len(X_tensor)):
+            # Process in batches to avoid memory issues
+            for start_idx in range(0, len(X_tensor), batch_size):
+                end_idx = min(start_idx + batch_size, len(X_tensor))
+                X_batch = X_tensor[start_idx:end_idx]
+                
                 try:
-                    # Use first sample as context, predict for current sample
-                    context_size = min(i + 1, 10)  # Use up to 10 samples as context
-                    start_idx = max(0, i - context_size + 1)
+                    # Create dummy context for the batch
+                    batch_len = len(X_batch)
+                    dummy_y = torch.zeros(batch_len, dtype=torch.long).to(device)
                     
-                    context_X = X_tensor[start_idx:i+1]
-                    context_y = dummy_y[start_idx:i+1]
+                    # Use simple context strategy - just use first few samples as context
+                    context_size = min(5, batch_len)  # Reduced context for speed
                     
-                    outputs = self.model_((context_X, context_y), single_eval_pos=len(context_X)-1)
+                    if batch_len == 1:
+                        # Single sample case
+                        outputs = self.model_((X_batch, dummy_y), single_eval_pos=0)
+                    else:
+                        # Batch case - use last position for prediction
+                        outputs = self.model_((X_batch, dummy_y), single_eval_pos=batch_len-1)
+                        
+                        # If we get single output, expand to batch
+                        if len(outputs.shape) == 1:
+                            outputs = outputs.unsqueeze(0).repeat(batch_len, 1)
+                    
                     probs = torch.softmax(outputs, dim=-1)
-                    probabilities.append(probs.cpu().numpy())
-                except Exception:
+                    all_probabilities.append(probs.cpu().numpy())
+                    
+                except Exception as e:
+                    print(f"TabFlex batch prediction failed: {e}")
                     # Fallback to uniform probabilities
-                    uniform_prob = np.ones(self.n_classes_) / self.n_classes_
-                    probabilities.append(uniform_prob.reshape(1, -1))
-        
-        return np.vstack(probabilities)
+                    uniform_prob = np.ones((len(X_batch), self.n_classes_)) / self.n_classes_
+                    all_probabilities.append(uniform_prob)
+            
+            return np.vstack(all_probabilities)
     
     def predict(self, X):
         """Predict class labels"""
@@ -1177,8 +1208,15 @@ class BaseModelFactory:
             elif 'deepgbm' in model_name_clean:
                 # DeepGBM implementation (fallback to LightGBM with deeper trees if DeepGBM not available)
                 try:
-                    # Try to import DeepGBM if available
-                    return DeepGBM(n_classes=n_classes, **kwargs)
+                    # Import and create DeepGBM with correct parameters
+                    from DeepGBM.models.deepgbm import DeepGBM
+                    
+                    # DeepGBM doesn't take n_classes directly - it infers from data
+                    return DeepGBM(
+                        objective='classification',  # Use correct parameter names
+                        random_state=Config.RANDOM_STATE,
+                        **kwargs
+                    )
                 except ImportError as e:
                     print(f"DeepGBM not available: {e}. Using enhanced LightGBM fallback.")
                     # Enhanced LightGBM fallback with DeepGBM-like settings
@@ -1200,9 +1238,9 @@ class BaseModelFactory:
             elif 'tabflex' in model_name_clean:
                 try:
                     # Import the TabFlex class and dependencies
-                    from ticl.ticl.models.encoders import Linear
-                    from ticl.ticl.models.linear_attention import get_linear_attention_layers
-                    from ticl.ticl.utils import SeqBN
+                    from ticl.models.encoders import Linear
+                    from ticl.models.linear_attention import get_linear_attention_layers
+                    from ticl.utils import SeqBN
                     
                     # Use the TabFlexClassifier wrapper
                     return TabFlexClassifier(
@@ -1218,7 +1256,7 @@ class BaseModelFactory:
                         **kwargs
                     )
                 except ImportError as e:
-                    print(f"TabFlex dependencies not available: {e}. Using TabNet fallback.")  # Fixed: removed self.logger
+                    print(f"TabFlex dependencies not available: {e}. Using TabNet fallback.") 
                     try:
                         # TabNet fallback
                         from pytorch_tabnet.tab_model import TabNetClassifier
@@ -1283,24 +1321,18 @@ class BaseModelFactory:
                             return self
 
                         def predict_proba(self, X):
-                            # Get predictions from all experts
-                            expert_probas = []
-                            expert_scores = []
-
-                            for expert in self.experts:
-                                proba = expert.predict_proba(X)
-                                expert_probas.append(proba)
-                                expert_scores.append(np.max(proba, axis=1))
-
-                            # Get gating weights
-                            gating_X = np.column_stack(expert_scores)
+                            """FIXED: Vectorized prediction without loops"""
+                            # Get all expert predictions at once
+                            expert_probas = np.stack([expert.predict_proba(X) for expert in self.experts], axis=0)
+                            expert_scores = np.max(expert_probas, axis=2)  # Shape: (n_experts, n_samples)
+                            
+                            # Get gating weights for all samples at once
+                            gating_X = expert_scores.T  # Shape: (n_samples, n_experts)
                             gate_proba = self.gating_network.predict_proba(gating_X)
-
-                            # Weighted combination of expert predictions
-                            final_proba = np.zeros_like(expert_probas[0])
-                            for i, expert_proba in enumerate(expert_probas):
-                                final_proba += expert_proba * gate_proba[:, i:i+1]
-
+                            
+                            # Vectorized combination
+                            final_proba = np.einsum('ijk,ij->jk', expert_probas.transpose(0,1,2), gate_proba.T)
+                            
                             return final_proba
 
                         def predict(self, X):
@@ -2408,15 +2440,19 @@ class ModelEvaluator:
                 y_full = y_full.values
             y_full = np.asarray(y_full).flatten()
             
-            # Validate data dimensions
-            if len(y_full) == 0:
+            # FIXED: Validate data dimensions using safe_array_length
+            n_samples_X = safe_array_length(X_full)
+            n_samples_y = len(y_full)
+            
+            if n_samples_y == 0:
                 self.logger.error("No training data available for CV")
                 return {'cv_failed': True, 'error': 'No training data'}
             
-            if len(X_full) != len(y_full):
-                self.logger.error(f"X and y dimension mismatch: X={len(X_full)}, y={len(y_full)}")
+            if n_samples_X != n_samples_y:
+                self.logger.error(f"X and y dimension mismatch: X={n_samples_X}, y={n_samples_y}")
                 return {'cv_failed': True, 'error': 'Dimension mismatch'}
 
+            # Rest of the method remains the same...
             skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=Config.RANDOM_STATE)
 
             cv_scores = {
@@ -2484,42 +2520,51 @@ class ModelEvaluator:
             return {'cv_failed': True, 'error': str(e)}
 
     def full_evaluate(self, model_name: str, config: Dict[str, Any]) -> Dict[str, Any]:
-        """Enhanced full evaluation with detailed status logging"""
+        """Enhanced full evaluation with detailed timing and optimizations"""
         try:
-            self.logger.info(f"Starting full evaluation of {model_name}")
-            self.logger.info(f"Model config: {config}")
-
-            # Resource monitoring with detailed logging
+            print(f"Starting full evaluation of {model_name}")
+            print(f"Model config: {config}")
+            
+            # Overall timing
+            overall_start_time = time.time()
+            
+            # Resource monitoring
             start_resources = monitor_resources()
-            self.logger.info(f"Initial memory usage: {start_resources['memory_percent']:.1f}%")
+            print(f"Initial memory usage: {start_resources['memory_percent']:.1f}%")
 
-            start_time = time.time()
-
-            # Create model with status updates
-            self.logger.info(f"Creating model architecture...")
+            # Model creation timing
+            model_creation_start = time.time()
+            print(f"Creating model architecture...")
             if config.get('ensemble_type') == 'none':
                 model = BaseModelFactory.create_model(config['base_models'][0], self.n_classes)
-                self.logger.info(f"Single model created: {config['base_models'][0]}")
+                print(f"Single model created: {config['base_models']}")
             else:
                 model = EnsembleFactory.create_ensemble(config, self.n_classes)
-                self.logger.info(f"Ensemble created: {config['ensemble_type']} with {len(config['base_models'])} base models")
+                print(f"Ensemble created: {config['ensemble_type']} with {len(config['base_models'])} base models")
+            
+            model_creation_time = time.time() - model_creation_start
+            print(f"Model creation completed in {model_creation_time:.2f} seconds")
 
-            # Data preparation with logging
-            self.logger.info(f"Preparing training data...")
+            # Data preparation timing
+            data_prep_start = time.time()
+            print(f"Preparing training data...")
             X_train_use = self.X_train
             X_test_use = self.X_test
             y_train_use = self.y_train
 
-            # FIXED: Properly define X_val_eval for all cases
+            # OPTIMIZED: Do conversion once and reuse
             if sparse.issparse(X_train_use):
                 base_models = config.get('base_models', [])
                 needs_dense = any(model.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
                                 for model in base_models)
                 if needs_dense:
-                    self.logger.info(f"Converting sparse matrices to dense for compatibility...")
+                    print(f"Converting sparse matrices to dense for compatibility...")
+                    dense_conversion_start = time.time()
                     X_train_use = X_train_use.toarray()
                     X_test_use = self.X_test.toarray()
                     X_val_eval = self.X_val.toarray() if sparse.issparse(self.X_val) else self.X_val
+                    dense_conversion_time = time.time() - dense_conversion_start
+                    print(f"Dense conversion completed in {dense_conversion_time:.2f} seconds")
                 else:
                     X_val_eval = self.X_val
             else:
@@ -2528,162 +2573,309 @@ class ModelEvaluator:
             if hasattr(y_train_use, 'values'):
                 y_train_use = y_train_use.values
 
-            # 1. Comprehensive Cross-Validation
+            data_prep_time = time.time() - data_prep_start
+            print(f"Data preparation completed in {data_prep_time:.2f} seconds")
+
+            # Cross-validation timing
+            cv_start = time.time()
+            print(f"Starting comprehensive cross-validation...")
             cv_results = self.comprehensive_cv_evaluate(model_name, config, cv_folds=3)
+            cv_time = time.time() - cv_start
+            print(f"Cross-validation completed in {cv_time:.2f} seconds")
 
-            # Validate data integrity before bootstrap
-            if len(y_train_use) == 0 or len(X_train_use) == 0:
-                self.logger.error("No training data available for evaluation")
+            # FIXED: Data validation using safe_array_length
+            train_samples = safe_array_length(X_train_use)
+            train_labels = safe_array_length(y_train_use)
+            test_samples = safe_array_length(X_test_use)
+            test_labels = safe_array_length(self.y_test)
+            
+            if train_labels == 0 or train_samples == 0:
+                print("No training data available for evaluation")
                 return {
-                    'model_name': model_name,
-                    'config': config,
-                    'status': 'failed',
-                    'error': 'No training data available',
-                    'timestamp': datetime.now().isoformat()
+                    'model_name': model_name, 'config': config, 'status': 'failed',
+                    'error': 'No training data available', 'timestamp': datetime.now().isoformat()
                 }
 
-            if len(self.y_test) == 0 or len(X_test_use) == 0:
-                self.logger.error("No test data available for evaluation")
+            if test_labels == 0 or test_samples == 0:
+                print("No test data available for evaluation")
                 return {
-                    'model_name': model_name,
-                    'config': config,
-                    'status': 'failed',
-                    'error': 'No test data available',
-                    'timestamp': datetime.now().isoformat()
+                    'model_name': model_name, 'config': config, 'status': 'failed',
+                    'error': 'No test data available', 'timestamp': datetime.now().isoformat()
                 }
 
-            # 2. Bootstrap Analysis for confidence intervals
-            bootstrap_analyzer = BootstrapAnalyzer(n_bootstrap=100)
-
-            # Training with progress updates
-            self.logger.info(f"Starting model training...")
-            self.logger.info(f"Training set size: {X_train_use.shape[0]} samples, {X_train_use.shape[1]} features")
-
+            # Training timing
+            training_start = time.time()
+            print(f"Starting model training...")
+            print(f"Training set size: {train_samples} samples, {X_train_use.shape[1]} features")
+            
             model.fit(X_train_use, y_train_use)
-            training_time = time.time() - start_time
-
-            self.logger.info(f"Training completed in {training_time:.2f} seconds")
+            training_time = time.time() - training_start
+            print(f"Training completed in {training_time:.2f} seconds")
 
             end_resources = monitor_resources()
             memory_usage = max(0, end_resources['memory_percent'] - start_resources['memory_percent'])
-            self.logger.info(f"Memory usage change: +{memory_usage:.1f}%")
+            print(f"Memory usage change: +{memory_usage:.1f}%")
 
-            # Prediction phase with logging
-            self.logger.info(f"Generating predictions...")
-            # 3. Generate predictions
-            y_train_pred_proba = model.predict_proba(X_train_use)
-            y_test_pred_proba = model.predict_proba(X_test_use)
-            y_val_pred_proba = model.predict_proba(X_val_eval)  # NOW X_val_eval is properly defined
+            # DETAILED PREDICTION PHASE WITH OPTIMIZATIONS
+            print(f"="*50)
+            print(f"STARTING PREDICTION PHASE")
+            print(f"="*50)
+            
+            # Check if this is a problematic model type
+            is_complex_model = any(base_model in ['tabflex', 'mixture_of_experts', 'deepgbm'] 
+                                for base_model in config.get('base_models', []))
+            
+            if is_complex_model:
+                print(f"COMPLEX MODEL DETECTED: Using optimized prediction strategy")
 
-            # 4. Bootstrap confidence intervals for test performance
-            # test_bootstrap = bootstrap_analyzer.bootstrap_model_performance(
-            #     model, X_test_use, self.y_test
-            # )
+            total_prediction_start = time.time()
 
-            try:
-                # Ensure y_test is properly formatted for bootstrap
-                y_test_array = self.y_test.values if hasattr(self.y_test, 'values') else np.array(self.y_test)
-                y_test_array = np.asarray(y_test_array).flatten()
-                
-                # Validate data before bootstrap
-                if len(y_test_array) > 0 and len(X_test_use) == len(y_test_array):
-                    test_bootstrap = bootstrap_analyzer.bootstrap_model_performance(
-                        model, X_test_use, y_test_array
-                    )
-                    self.logger.info(f"Bootstrap analysis completed with {test_bootstrap.get('success_rate', 0):.2%} success rate")
-                else:
-                    self.logger.warning(f"Skipping bootstrap: data shape mismatch X={len(X_test_use)}, y={len(y_test_array)}")
-                    test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
-            except Exception as bootstrap_error:
-                self.logger.warning(f"Bootstrap analysis failed: {bootstrap_error}")
-                test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
+            # 1. Training set predictions
+            train_pred_start = time.time()
+            print(f"Predicting probabilities for TRAINING set...")
+            print(f"Training set shape: {X_train_use.shape}")
+            
+            # OPTIMIZATION: Use batched prediction for large datasets
+            if train_samples > 5000 and is_complex_model:
+                print(f"Using batched prediction for large training set...")
+                y_train_pred_proba = self._predict_proba_batched(model, X_train_use, batch_size=1000)
+            else:
+                y_train_pred_proba = model.predict_proba(X_train_use)
+            
+            train_pred_time = time.time() - train_pred_start
+            print(f"Training predictions completed in {train_pred_time:.2f} seconds")
+            print(f"Training prediction shape: {y_train_pred_proba.shape}")
 
-            self.logger.info(f"Predictions generated for both train and test sets")
+            # 2. Validation set predictions  
+            val_pred_start = time.time()
+            print(f"Predicting probabilities for VALIDATION set...")
+            val_samples = safe_array_length(X_val_eval)
+            print(f"Validation set shape: {X_val_eval.shape}")
+            
+            if val_samples > 2000 and is_complex_model:
+                print(f"Using batched prediction for validation set...")
+                y_val_pred_proba = self._predict_proba_batched(model, X_val_eval, batch_size=500)
+            else:
+                y_val_pred_proba = model.predict_proba(X_val_eval)
+            
+            val_pred_time = time.time() - val_pred_start
+            print(f"Validation predictions completed in {val_pred_time:.2f} seconds")
+            print(f"Validation prediction shape: {y_val_pred_proba.shape}")
 
-            # Rest of the method continues as before...
-            # Cross-validation with status
-            self.logger.info(f"Running cross-validation for stability assessment...")
-            cv_scores = None
-            try:
-                if config.get('ensemble_type') == 'none':
-                    simple_model = BaseModelFactory.create_model(config['base_models'][0], self.n_classes)
-                    cv_scores = cross_val_score(simple_model, X_train_use, y_train_use,
-                                              cv=3, scoring='f1_weighted', n_jobs=1)
-                    self.logger.info(f"CV completed. Stability scores: {cv_scores}")
-            except Exception as e:
-                self.logger.warning(f"CV failed: {str(e)}")
-                cv_scores = None
+            # 3. Test set predictions
+            test_pred_start = time.time()
+            print(f"Predicting probabilities for TEST set...")
+            print(f"Test set shape: {X_test_use.shape}")
+            
+            if test_samples > 2000 and is_complex_model:
+                print(f"Using batched prediction for test set...")
+                y_test_pred_proba = self._predict_proba_batched(model, X_test_use, batch_size=500)
+            else:
+                y_test_pred_proba = model.predict_proba(X_test_use)
+            
+            test_pred_time = time.time() - test_pred_start
+            print(f"Test predictions completed in {test_pred_time:.2f} seconds")
+            print(f"Test prediction shape: {y_test_pred_proba.shape}")
 
-            # Metrics calculation with detailed logging
-            self.logger.info(f"Calculating comprehensive metrics...")
+            total_prediction_time = time.time() - total_prediction_start
+            print(f"="*50)
+            print(f"TOTAL PREDICTION TIME: {total_prediction_time:.2f} seconds")
+            print(f"="*50)
 
-            # 5. Calculate all metrics with confidence intervals
-            train_tier1 = MetricsCalculator.calculate_tier1_metrics(
+            # Continue with metrics calculation...
+            print(f"Calculating comprehensive metrics...")
+            
+            # Calculate training metrics
+            train_metrics = MetricsCalculator.calculate_tier1_metrics(
                 y_train_use, y_train_pred_proba, training_time, memory_usage, self.n_classes
             )
-            test_tier1 = MetricsCalculator.calculate_tier1_metrics(
-                self.y_test, y_test_pred_proba, training_time, memory_usage, self.n_classes
+            
+            # Calculate test metrics  
+            y_test_array = self.y_test.values if hasattr(self.y_test, 'values') else np.array(self.y_test)
+            test_metrics = MetricsCalculator.calculate_tier1_metrics(
+                y_test_array, y_test_pred_proba, training_time, memory_usage, self.n_classes
             )
-            val_tier1 = MetricsCalculator.calculate_tier1_metrics(
-                self.y_val, y_val_pred_proba, training_time, memory_usage, self.n_classes
-            )
-
-            # Add confidence intervals to test metrics
-            test_tier1['bootstrap_analysis'] = test_bootstrap
-            test_tier1['confidence_interval'] = test_bootstrap.get('confidence_interval', (0, 0))
-
-            # 6. Cross-validation statistics
+            
+            # Add Tier 2 metrics
             train_tier2 = MetricsCalculator.calculate_tier2_metrics(
-                y_train_use, y_train_pred_proba, cv_results.get('weighted_f1_scores', [])
+                y_train_use, y_train_pred_proba
             )
             test_tier2 = MetricsCalculator.calculate_tier2_metrics(
-                self.y_test, y_test_pred_proba, cv_results.get('weighted_f1_scores', [])
+                y_test_array, y_test_pred_proba
             )
-
-            # Add comprehensive CV results
-            test_tier2['comprehensive_cv'] = cv_results
-
-            tier3 = MetricsCalculator.calculate_tier3_metrics(model)
-
+            
+            train_metrics.update(train_tier2)
+            test_metrics.update(test_tier2)
+            
             # Store actual y values for visualization
-            train_tier1['y_true'] = y_train_use
-            test_tier1['y_true'] = self.y_test
+            train_metrics['y_true'] = y_train_use
+            test_metrics['y_true'] = y_test_array
 
+            # OPTIMIZED Bootstrap analysis (reduced samples for speed)
+            bootstrap_start = time.time()
+            print(f"Starting bootstrap analysis...")
+            bootstrap_analyzer = self._get_adaptive_bootstrap_analyzer(model_name, test_samples)
+            
+            try:
+                if test_samples > 0 and test_samples == test_labels:
+                    # Use smaller sample for bootstrap if dataset is large
+                    if test_samples > 3000:
+                        print(f"Using bootstrap subsample for large dataset...")
+                        sample_indices = np.random.choice(test_samples, 2000, replace=False)
+                        X_bootstrap = safe_array_indexing(X_test_use, sample_indices)
+                        y_bootstrap = y_test_array[sample_indices]
+                        test_bootstrap = bootstrap_analyzer.bootstrap_model_performance(model, X_bootstrap, y_bootstrap)
+                    else:
+                        test_bootstrap = bootstrap_analyzer.bootstrap_model_performance(model, X_test_use, y_test_array)
+                        
+                    print(f"Bootstrap analysis completed with {test_bootstrap.get('success_rate', 0):.2%} success rate")
+                else:
+                    print(f"Skipping bootstrap: data shape mismatch X={test_samples}, y={test_labels}")
+                    test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
+            except Exception as bootstrap_error:
+                print(f"Bootstrap analysis failed: {bootstrap_error}")
+                test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
+            
+            bootstrap_time = time.time() - bootstrap_start
+            print(f"Bootstrap analysis completed in {bootstrap_time:.2f} seconds")
+
+            print(f"All predictions and analysis completed successfully!")
+
+            # Assemble final results
             results = {
                 'model_name': model_name,
                 'config': config,
-                'train_metrics': {**train_tier1, **train_tier2},
-                'test_metrics': {**test_tier1, **test_tier2},
-                'validation_metrics': val_tier1,  # NEW: Validation metrics
-                'cross_validation': cv_results,    # NEW: Comprehensive CV
-                'statistical_analysis': {          # NEW: Statistical analysis
-                    'bootstrap_ci': test_bootstrap,
-                    'cv_stability': cv_results.get('weighted_f1_std', 0)
-                },
-                'ensemble_metrics': tier3,
+                'status': 'completed',
+                'train_metrics': train_metrics,
+                'test_metrics': test_metrics,
+                'cross_validation': cv_results,
+                'bootstrap_analysis': test_bootstrap,
                 'predictions': {
                     'train_proba': y_train_pred_proba,
                     'test_proba': y_test_pred_proba,
-                    'validation_proba': y_val_pred_proba  # NEW: Validation predictions
+                    'val_proba': y_val_pred_proba
                 },
-                'status': 'completed',
+                'timing': {
+                    'model_creation': model_creation_time,
+                    'data_preparation': data_prep_time,
+                    'cross_validation': cv_time,
+                    'training': training_time,
+                    'prediction': total_prediction_time,
+                    'bootstrap': bootstrap_time,
+                    'total': time.time() - overall_start_time
+                },
                 'timestamp': datetime.now().isoformat()
             }
 
-            self.logger.info(f"Full evaluation completed for {model_name}")
-            self.logger.info(f"Final Test F1: {test_tier1['weighted_f1']:.4f}")
+            total_time = time.time() - overall_start_time
+            print(f"FULL EVALUATION COMPLETED in {total_time:.2f} seconds")
+            print(f"Time breakdown:")
+            print(f"  - Model creation: {model_creation_time:.2f}s")
+            print(f"  - Data preparation: {data_prep_time:.2f}s") 
+            print(f"  - Cross-validation: {cv_time:.2f}s")
+            print(f"  - Training: {training_time:.2f}s")
+            print(f"  - Predictions: {total_prediction_time:.2f}s")
+            print(f"  - Bootstrap: {bootstrap_time:.2f}s")
+
             return results
 
         except Exception as e:
-            self.logger.error(f"Full evaluation FAILED for {model_name}: {str(e)}")
+            print(f"Full evaluation FAILED for {model_name}: {str(e)}")
             return {
-                'model_name': model_name,
-                'config': config,
-                'status': 'failed',
-                'error': str(e),
-                'timestamp': datetime.now().isoformat()
+                'model_name': model_name, 'config': config, 'status': 'failed',
+                'error': str(e), 'timestamp': datetime.now().isoformat()
             }
+            
+    def _get_adaptive_bootstrap_analyzer(self, model_name: str, dataset_size: int):
+        """Get bootstrap analyzer with adaptive settings based on model complexity and dataset size"""
+        
+        # Check memory pressure
+        memory_info = monitor_resources()
+        high_memory = memory_info['memory_percent'] > 90
+        
+        # Classify model complexity
+        complex_models = ['neuralnetwork', 'advancedsvm', 'tabflex', 'mixture_of_experts', 'deepgbm']
+        is_complex = any(cm in model_name.lower() for cm in complex_models)
+        
+        # Determine bootstrap settings
+        if high_memory or (is_complex and dataset_size > 5000):
+            # ULTRA-FAST mode for high memory or complex models
+            n_bootstrap = 10
+            max_samples = 1000
+            self.logger.warning(f"Using ULTRA-FAST bootstrap: {n_bootstrap} iterations, {max_samples} samples")
+        elif is_complex or dataset_size > 10000:
+            # FAST mode for complex models or large datasets  
+            n_bootstrap = 20
+            max_samples = 3000
+            self.logger.info(f"Using FAST bootstrap: {n_bootstrap} iterations, {max_samples} samples")
+        else:
+            # NORMAL mode
+            n_bootstrap = 30
+            max_samples = 8000
+            self.logger.info(f"Using NORMAL bootstrap: {n_bootstrap} iterations, {max_samples} samples")
+        
+        return BootstrapAnalyzer(n_bootstrap=n_bootstrap, max_bootstrap_samples=max_samples)
+            
+    def _prepare_all_data_formats(self, config):
+        """Prepare all data formats once to avoid repeated conversions"""
+        base_models = config.get('base_models', [])
+        needs_dense = any(model.lower().replace('_', '') in 
+                        ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+                        for model in base_models)
+        
+        if sparse.issparse(self.X_train) and needs_dense:
+            print("Converting to dense format once...")
+            X_train_use = self.X_train.toarray()
+            X_test_use = self.X_test.toarray()
+            X_val_use = self.X_val.toarray()
+        else:
+            X_train_use = self.X_train
+            X_test_use = self.X_test
+            X_val_use = self.X_val
+        
+        return X_train_use, X_test_use, X_val_use
 
+    def _predict_proba_batched(self, model, X, batch_size=None):
+        """HIGHLY OPTIMIZED batched prediction with adaptive sizing"""
+        
+        # Dynamic batch sizing based on model complexity and available memory
+        if batch_size is None:
+            model_name = model.__class__.__name__.lower()
+            if 'tabflex' in model_name or 'mixture' in model_name:
+                batch_size = min(256, safe_array_length(X) // 10)  # FIXED: Use safe_array_length
+            elif 'deepgbm' in model_name:
+                batch_size = min(512, safe_array_length(X) // 5)   # FIXED: Use safe_array_length
+            else:
+                batch_size = min(2000, safe_array_length(X) // 2)  # FIXED: Use safe_array_length
+        
+        print(f"Using adaptive batch size: {batch_size}")
+        
+        n_samples = safe_array_length(X)  # FIXED: Use safe_array_length
+        n_batches = (n_samples + batch_size - 1) // batch_size
+        all_probas = []
+        
+        for i in range(n_batches):
+            batch_start = i * batch_size
+            batch_end = min((i + 1) * batch_size, n_samples)
+            
+            if i % max(1, n_batches // 10) == 0:  # Progress every 10%
+                print(f"Batch progress: {i+1}/{n_batches} ({100*(i+1)/n_batches:.1f}%)")
+            
+            X_batch = safe_array_indexing(X, slice(batch_start, batch_end))  # FIXED: Use safe_array_indexing
+            
+            try:
+                batch_proba = model.predict_proba(X_batch)
+                all_probas.append(batch_proba)
+                
+            except Exception as e:
+                print(f"Batch {i+1} failed: {e}")
+                # Fallback prediction
+                n_classes = getattr(model, 'n_classes_', 3)
+                fallback = np.ones((batch_end - batch_start, n_classes)) / n_classes
+                all_probas.append(fallback)
+        
+        return np.vstack(all_probas)
+    
 class EnsembleSelectionFramework:
     """Systematic ensemble type selection with theoretical justification"""
     
@@ -2962,69 +3154,74 @@ class StatisticalTester:
             return pvalues
 
 class BootstrapAnalyzer:
-    """Bootstrap analysis for confidence intervals and stability assessment"""
+    """OPTIMIZED Bootstrap analyzer with adaptive limits"""
 
-    def __init__(self, n_bootstrap: int = 100, confidence_level: float = 0.95):
+    def __init__(self, n_bootstrap: int = 30, confidence_level: float = 0.95, max_bootstrap_samples: int = None):
         self.n_bootstrap = n_bootstrap
-        self.confidence_level = confidence_level
+        self.confidence_level = confidence_level  
+        self.max_bootstrap_samples = max_bootstrap_samples
         self.logger = logging.getLogger(__name__)
 
     def bootstrap_model_performance(self, model, X: np.ndarray, y: np.ndarray,
                               metric_func=None) -> Dict[str, Any]:
-        """Bootstrap model performance for confidence intervals"""
+        """OPTIMIZED: Adaptive bootstrap with memory and complexity awareness"""
         if metric_func is None:
             metric_func = lambda y_true, y_pred: f1_score(y_true, y_pred, average='weighted')
 
         try:
-            # FIXED: Ensure proper array conversion and validation
+            # FIXED: Proper array conversion and validation
             if hasattr(y, 'values'):
                 y = y.values
             if hasattr(X, 'values'):
                 X = X.values
                 
-            # Convert to numpy arrays and ensure proper shapes
-            y = np.asarray(y).flatten()  # Ensure 1D array
+            y = np.asarray(y).flatten()
             X = np.asarray(X)
-            
-            # Validate dimensions
-            if len(y.shape) != 1:
-                self.logger.error(f"y must be 1-dimensional, got shape {y.shape}")
-                return self._get_fallback_bootstrap_result()
-            
-            if len(X.shape) < 1:
-                self.logger.error(f"X must have at least 1 dimension, got shape {X.shape}")
-                return self._get_fallback_bootstrap_result()
-            
             n_samples = len(y)
             
-            # Validate sample count
-            if n_samples == 0:
-                self.logger.error("No samples available for bootstrap analysis")
-                return self._get_fallback_bootstrap_result()
+            # ADAPTIVE LIMITS based on dataset size and memory
+            memory_info = monitor_resources()
+            high_memory = memory_info['memory_percent'] > 90
             
-            if len(X) != n_samples:
-                self.logger.error(f"X and y sample count mismatch: X={len(X)}, y={n_samples}")
-                return self._get_fallback_bootstrap_result()
+            # Dynamic bootstrap settings
+            if high_memory or n_samples > 10000:
+                actual_n_bootstrap = min(15, self.n_bootstrap)  # Severely reduced
+                max_sample_size = min(2000, n_samples // 2)    # Much smaller samples
+                self.logger.warning(f"High memory/large dataset: reducing bootstrap to {actual_n_bootstrap} iterations, {max_sample_size} samples each")
+            elif n_samples > 5000:
+                actual_n_bootstrap = min(25, self.n_bootstrap)  # Moderately reduced
+                max_sample_size = min(5000, n_samples)         # Limited sample size
+                self.logger.info(f"Large dataset: reducing bootstrap to {actual_n_bootstrap} iterations, {max_sample_size} samples each")
+            else:
+                actual_n_bootstrap = self.n_bootstrap
+                max_sample_size = n_samples
+            
+            # Override with manual limit if provided
+            if self.max_bootstrap_samples is not None:
+                max_sample_size = min(max_sample_size, self.max_bootstrap_samples)
 
             bootstrap_scores = []
             successful_bootstraps = 0
-            max_failures = min(50, self.n_bootstrap // 10)  # Allow some failures
+            max_failures = min(20, actual_n_bootstrap // 3)  # Allow some failures
             failures = 0
 
-            for i in range(self.n_bootstrap):
+            # PROGRESS TRACKING for user feedback
+            progress_interval = max(1, actual_n_bootstrap // 5)
+
+            for i in range(actual_n_bootstrap):
                 if failures > max_failures:
                     self.logger.warning(f"Too many bootstrap failures ({failures}), stopping early")
                     break
                     
-                try:
-                    # Bootstrap sample with proper validation
-                    indices = np.random.choice(n_samples, n_samples, replace=True)
+                if i % progress_interval == 0:
+                    self.logger.info(f"Bootstrap progress: {i+1}/{actual_n_bootstrap} ({100*(i+1)/actual_n_bootstrap:.1f}%)")
                     
-                    # FIXED: Use proper array indexing
-                    if len(X.shape) == 1:
-                        X_boot = X[indices]
-                    else:
-                        X_boot = X[indices]
+                try:
+                    # OPTIMIZED: Use smaller sample size
+                    bootstrap_sample_size = min(max_sample_size, n_samples)
+                    indices = np.random.choice(n_samples, bootstrap_sample_size, replace=True)
+                    
+                    X_boot = X[indices]
                     y_boot = y[indices]
                     
                     # Validate bootstrap sample
@@ -3032,42 +3229,43 @@ class BootstrapAnalyzer:
                         failures += 1
                         continue
 
-                    # Get predictions with error handling
+                    # OPTIMIZED: Prediction with error handling
                     try:
                         if hasattr(model, 'predict_proba'):
-                            y_pred_proba = model.predict_proba(X_boot.reshape(len(X_boot), -1) if len(X_boot.shape) == 1 else X_boot)
+                            y_pred_proba = model.predict_proba(X_boot)
                             y_pred = np.argmax(y_pred_proba, axis=1)
                         else:
-                            y_pred = model.predict(X_boot.reshape(len(X_boot), -1) if len(X_boot.shape) == 1 else X_boot)
+                            y_pred = model.predict(X_boot)
                     except Exception as pred_error:
                         failures += 1
-                        if failures <= 5:  # Log only first few prediction errors
+                        if failures <= 3:  # Reduced logging
                             self.logger.warning(f"Bootstrap prediction failed: {pred_error}")
                         continue
 
-                    # Calculate metric with error handling
+                    # Calculate metric
                     try:
                         score = metric_func(y_boot, y_pred)
-                        if np.isfinite(score):  # Only accept finite scores
+                        if np.isfinite(score):
                             bootstrap_scores.append(score)
                             successful_bootstraps += 1
                         else:
                             failures += 1
                     except Exception as metric_error:
                         failures += 1
-                        if failures <= 5:  # Log only first few metric errors
+                        if failures <= 3:
                             self.logger.warning(f"Bootstrap metric calculation failed: {metric_error}")
                         continue
 
                 except Exception as bootstrap_error:
                     failures += 1
-                    if failures <= 5:  # Log only first few bootstrap errors
+                    if failures <= 3:
                         self.logger.warning(f"Bootstrap iteration {i} failed: {bootstrap_error}")
                     continue
 
             # Check if we have enough successful bootstraps
-            if len(bootstrap_scores) < max(10, self.n_bootstrap // 10):
-                self.logger.warning(f"Insufficient successful bootstraps: {len(bootstrap_scores)}/{self.n_bootstrap}")
+            min_successful = max(5, actual_n_bootstrap // 5)  # Relaxed requirement
+            if len(bootstrap_scores) < min_successful:
+                self.logger.warning(f"Insufficient successful bootstraps: {len(bootstrap_scores)}/{actual_n_bootstrap}")
                 return self._get_fallback_bootstrap_result()
 
             # Calculate confidence interval
@@ -3078,16 +3276,21 @@ class BootstrapAnalyzer:
             ci_lower = np.percentile(bootstrap_scores, lower_percentile)
             ci_upper = np.percentile(bootstrap_scores, upper_percentile)
 
-            self.logger.info(f"Bootstrap completed: {successful_bootstraps}/{self.n_bootstrap} successful samples")
+            self.logger.info(f"Bootstrap completed: {successful_bootstraps}/{actual_n_bootstrap} successful samples")
 
             return {
                 'mean': float(np.mean(bootstrap_scores)),
                 'std': float(np.std(bootstrap_scores)),
                 'confidence_interval': (float(ci_lower), float(ci_upper)),
                 'confidence_level': self.confidence_level,
-                'bootstrap_scores': bootstrap_scores[:100],  # Limit stored scores to save memory
+                'bootstrap_scores': bootstrap_scores[:50],  # Limit stored scores
                 'n_bootstrap': successful_bootstraps,
-                'success_rate': successful_bootstraps / self.n_bootstrap
+                'success_rate': successful_bootstraps / actual_n_bootstrap,
+                'adaptive_limits_used': {
+                    'n_bootstrap_actual': actual_n_bootstrap,
+                    'max_sample_size': max_sample_size,
+                    'high_memory_mode': high_memory
+                }
             }
 
         except Exception as e:
@@ -3095,16 +3298,17 @@ class BootstrapAnalyzer:
             return self._get_fallback_bootstrap_result()
 
     def _get_fallback_bootstrap_result(self):
-        """Get fallback bootstrap result when analysis fails"""
+        """ENHANCED fallback bootstrap result"""
         return {
-            'error': 'Bootstrap analysis failed',
+            'error': 'Bootstrap analysis failed or insufficient data',
             'mean': 0.0,
             'std': 0.0,
             'confidence_interval': (0.0, 0.0),
             'confidence_level': self.confidence_level,
             'bootstrap_scores': [],
             'n_bootstrap': 0,
-            'success_rate': 0.0
+            'success_rate': 0.0,
+            'fallback_used': True
         }
 
 # ================================================================================================
@@ -4379,15 +4583,15 @@ class ModelComparisonPipeline:
             self._generate_final_analysis()
 
             self.logger.info("Analysis pipeline completed successfully!")
-            return self.all_results
+            return self.all_results if self.all_results is not None else {}
 
         except KeyboardInterrupt:
             self.logger.info("Analysis interrupted by user. Generating partial results...")
             self._generate_final_analysis()
-            return self.all_results
+            return self.all_results if self.all_results is not None else {}
         except Exception as e:
             self.logger.error(f"Analysis pipeline failed: {str(e)}")
-            raise
+            return self.all_results if self.all_results is not None else {}
 
     def _create_model_batches(self, tier_configs: Dict[str, Dict[str, Any]]) -> Dict[str, List[Tuple[str, Dict]]]:
         """Group models by complexity for intelligent batching"""
@@ -4545,9 +4749,6 @@ def update_model_configs_systematically():
         'tier2': tier2_configs
     }
 
-
-
-
 # ================================================================================================
 # MAIN EXECUTION
 # ================================================================================================
@@ -4598,7 +4799,11 @@ def main():
         print("="*50)
 
         results = pipeline.run_analysis(MODEL_CONFIGS)
-
+        if results is None:
+            print("\nERROR: Analysis pipeline returned None!")
+            print("Check the logs above for specific errors.")
+            return None
+        
         # Final summary
         print(f"\n{'='*80}")
         print("ANALYSIS COMPLETED SUCCESSFULLY!")

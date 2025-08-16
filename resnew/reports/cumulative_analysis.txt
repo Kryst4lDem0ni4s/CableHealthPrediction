@@ -1,0 +1,15 @@
+CUMULATIVE ANALYSIS REPORT - Updated: 2025-08-16 16:20:29
+================================================================================
+Total Models Processed: 6
+Successful Models: 6
+Failed Models: 0
+Early Stopped Models: 0
+
+TOP 10 PERFORMERS (All Time):
+----------------------------------------
+lightgbm_solo: F1=0.0000, Acc=nan
+lightgbm_xgboost_ensemble: F1=0.0000, Acc=nan
+lightgbm_randomforest: F1=0.0000, Acc=nan
+xgboost_randomforest: F1=0.0000, Acc=nan
+xgboost_solo: F1=0.0000, Acc=nan
+lightgbm_advancedsvm: F1=0.0000, Acc=nan
