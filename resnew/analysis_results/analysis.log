@@ -88,3 +88,502 @@ Processing heavy complexity batch: 3 models
 2025-08-16 16:18:45,284 - INFO - Stage 2: Full evaluation...
 2025-08-16 16:18:45,290 - INFO - Running comprehensive 3-fold CV for lightgbm_advancedsvm
 2025-08-16 16:18:45,293 - INFO - Processing fold 1/3
+2025-08-16 16:18:56,488 - INFO - Processing fold 2/3
+2025-08-16 16:19:08,170 - INFO - Processing fold 3/3
+2025-08-16 16:19:19,935 - INFO - CV completed. F1: 0.8183 ± 0.0037
+2025-08-16 16:20:27,932 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-16 16:20:27,934 - INFO - Generating comprehensive visualizations for lightgbm_advancedsvm...
+2025-08-16 16:20:29,638 - INFO - Individual model visualizations completed for lightgbm_advancedsvm
+2025-08-16 16:20:29,649 - INFO - Checkpoint and CSV files updated for lightgbm_advancedsvm
+2025-08-16 16:20:29,864 - INFO - 
+--- Processing lightgbm_advancedsvm_randomforest (2/3) ---
+2025-08-16 16:20:29,879 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:20:31,089 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:20:31,097 - INFO - Running comprehensive 3-fold CV for lightgbm_advancedsvm_randomforest
+2025-08-16 16:20:31,100 - INFO - Processing fold 1/3
+2025-08-16 16:20:43,487 - INFO - Processing fold 2/3
+2025-08-16 16:20:55,620 - INFO - Processing fold 3/3
+2025-08-16 16:21:08,119 - INFO - CV completed. F1: 0.8149 ± 0.0044
+2025-08-16 16:22:12,870 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-16 16:22:12,873 - INFO - Generating comprehensive visualizations for lightgbm_advancedsvm_randomforest...
+2025-08-16 16:22:14,496 - INFO - Individual model visualizations completed for lightgbm_advancedsvm_randomforest
+2025-08-16 16:22:14,507 - INFO - Checkpoint and CSV files updated for lightgbm_advancedsvm_randomforest
+2025-08-16 16:24:43,366 - INFO - 
+--- Processing xgboost_advancedsvm_randomforest (3/3) ---
+2025-08-16 16:24:43,377 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:24:45,701 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:24:45,708 - INFO - Running comprehensive 3-fold CV for xgboost_advancedsvm_randomforest
+2025-08-16 16:24:45,710 - INFO - Processing fold 1/3
+2025-08-16 16:24:59,820 - INFO - Processing fold 2/3
+2025-08-16 16:25:13,945 - INFO - Processing fold 3/3
+2025-08-16 16:25:27,894 - INFO - CV completed. F1: 0.8093 ± 0.0018
+2025-08-16 16:26:31,246 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-16 16:26:31,248 - INFO - Generating comprehensive visualizations for xgboost_advancedsvm_randomforest...
+2025-08-16 16:26:32,846 - INFO - Individual model visualizations completed for xgboost_advancedsvm_randomforest
+2025-08-16 16:26:32,856 - INFO - Checkpoint and CSV files updated for xgboost_advancedsvm_randomforest
+2025-08-16 16:26:33,065 - INFO - 
+============================================================
+2025-08-16 16:26:33,065 - INFO - Processing TIER2: 83 models
+2025-08-16 16:26:33,065 - INFO - ============================================================
+2025-08-16 16:26:33,066 - INFO - 
+Processing light complexity batch: 5 models
+2025-08-16 16:26:33,067 - INFO - 
+--- Processing naivebayes_solo (1/5) ---
+2025-08-16 16:26:33,072 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:26:33,272 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:26:33,327 - INFO - Running comprehensive 3-fold CV for naivebayes_solo
+2025-08-16 16:26:33,370 - ERROR - X and y dimension mismatch: X=(12816, 2052), y=12816
+2025-08-16 16:26:33,998 - INFO - Checkpoint and CSV files updated for naivebayes_solo
+2025-08-16 16:26:34,233 - INFO - 
+--- Processing logisticregression_solo (2/5) ---
+2025-08-16 16:26:34,239 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:26:34,301 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:26:34,307 - INFO - Running comprehensive 3-fold CV for logisticregression_solo
+2025-08-16 16:26:34,309 - INFO - Processing fold 1/3
+2025-08-16 16:26:34,515 - INFO - Processing fold 2/3
+2025-08-16 16:26:34,691 - INFO - Processing fold 3/3
+2025-08-16 16:26:34,868 - INFO - CV completed. F1: 0.5925 ± 0.0010
+2025-08-16 16:26:35,187 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 16:26:35,189 - INFO - Generating comprehensive visualizations for logisticregression_solo...
+2025-08-16 16:26:36,887 - INFO - Individual model visualizations completed for logisticregression_solo
+2025-08-16 16:26:36,898 - INFO - Checkpoint and CSV files updated for logisticregression_solo
+2025-08-16 16:26:37,122 - INFO - 
+--- Processing knn_solo (3/5) ---
+2025-08-16 16:26:37,127 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:26:37,348 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:26:37,354 - INFO - Running comprehensive 3-fold CV for knn_solo
+2025-08-16 16:26:37,356 - INFO - Processing fold 1/3
+2025-08-16 16:26:39,777 - INFO - Processing fold 2/3
+2025-08-16 16:26:42,062 - INFO - Processing fold 3/3
+2025-08-16 16:26:44,310 - INFO - CV completed. F1: 0.6906 ± 0.0041
+2025-08-16 16:27:07,869 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 16:27:07,870 - INFO - Generating comprehensive visualizations for knn_solo...
+2025-08-16 16:27:09,477 - INFO - Individual model visualizations completed for knn_solo
+2025-08-16 16:27:09,487 - INFO - Checkpoint and CSV files updated for knn_solo
+2025-08-16 16:27:09,708 - INFO - 
+--- Processing ridge_solo (4/5) ---
+2025-08-16 16:27:09,712 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:27:09,767 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:27:09,773 - INFO - Running comprehensive 3-fold CV for ridge_solo
+2025-08-16 16:27:09,774 - INFO - Processing fold 1/3
+2025-08-16 16:27:09,969 - INFO - Processing fold 2/3
+2025-08-16 16:27:10,141 - INFO - Processing fold 3/3
+2025-08-16 16:27:10,313 - INFO - CV completed. F1: 0.5925 ± 0.0010
+2025-08-16 16:27:10,630 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 16:27:10,631 - INFO - Generating comprehensive visualizations for ridge_solo...
+2025-08-16 16:27:12,426 - INFO - Individual model visualizations completed for ridge_solo
+2025-08-16 16:27:12,439 - INFO - Checkpoint and CSV files updated for ridge_solo
+2025-08-16 16:27:12,671 - INFO - 
+--- Processing sgd_solo (5/5) ---
+2025-08-16 16:27:12,677 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:27:12,757 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:27:12,764 - INFO - Running comprehensive 3-fold CV for sgd_solo
+2025-08-16 16:27:12,767 - INFO - Processing fold 1/3
+2025-08-16 16:27:13,054 - INFO - Processing fold 2/3
+2025-08-16 16:27:13,348 - INFO - Processing fold 3/3
+2025-08-16 16:27:13,761 - INFO - CV completed. F1: 0.7083 ± 0.0012
+2025-08-16 16:27:14,488 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 16:27:14,489 - INFO - Generating comprehensive visualizations for sgd_solo...
+2025-08-16 16:27:16,212 - INFO - Individual model visualizations completed for sgd_solo
+2025-08-16 16:27:16,224 - INFO - Checkpoint and CSV files updated for sgd_solo
+2025-08-16 16:27:16,449 - INFO - 
+Processing medium complexity batch: 13 models
+2025-08-16 16:27:16,449 - INFO - 
+--- Processing xgboost_lightgbm_naivebayes (1/13) ---
+2025-08-16 16:27:16,455 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:27:21,058 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:27:21,118 - INFO - Running comprehensive 3-fold CV for xgboost_lightgbm_naivebayes
+2025-08-16 16:27:21,144 - ERROR - X and y dimension mismatch: X=(12816, 2052), y=12816
+2025-08-16 16:28:00,350 - INFO - Checkpoint and CSV files updated for xgboost_lightgbm_naivebayes
+2025-08-16 16:28:00,555 - INFO - 
+--- Processing lightgbm_randomforest_naivebayes (2/13) ---
+2025-08-16 16:28:00,560 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:28:01,694 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:28:01,753 - INFO - Running comprehensive 3-fold CV for lightgbm_randomforest_naivebayes
+2025-08-16 16:28:01,777 - ERROR - X and y dimension mismatch: X=(12816, 2052), y=12816
+2025-08-16 16:28:07,546 - INFO - Checkpoint and CSV files updated for lightgbm_randomforest_naivebayes
+2025-08-16 16:28:07,733 - INFO - 
+--- Processing xgboost_randomforest_naivebayes (3/13) ---
+2025-08-16 16:28:07,738 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:28:12,116 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:28:12,171 - INFO - Running comprehensive 3-fold CV for xgboost_randomforest_naivebayes
+2025-08-16 16:28:12,201 - ERROR - X and y dimension mismatch: X=(12816, 2052), y=12816
+2025-08-16 16:28:53,142 - INFO - Checkpoint and CSV files updated for xgboost_randomforest_naivebayes
+2025-08-16 16:30:47,879 - INFO - 
+--- Processing randomforest_knn_naivebayes (4/13) ---
+2025-08-16 16:30:47,884 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:30:50,502 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:30:50,553 - INFO - Running comprehensive 3-fold CV for randomforest_knn_naivebayes
+2025-08-16 16:30:50,578 - ERROR - X and y dimension mismatch: X=(12816, 2052), y=12816
+2025-08-16 16:30:54,886 - INFO - Checkpoint and CSV files updated for randomforest_knn_naivebayes
+2025-08-16 16:30:55,070 - INFO - 
+--- Processing randomforest_solo (5/13) ---
+2025-08-16 16:30:55,076 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:30:55,285 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:30:55,291 - INFO - Running comprehensive 3-fold CV for randomforest_solo
+2025-08-16 16:30:55,293 - INFO - Processing fold 1/3
+2025-08-16 16:30:55,934 - INFO - Processing fold 2/3
+2025-08-16 16:30:56,619 - INFO - Processing fold 3/3
+2025-08-16 16:30:57,252 - INFO - CV completed. F1: 0.6046 ± 0.0125
+2025-08-16 16:30:58,340 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 16:30:58,341 - INFO - Generating comprehensive visualizations for randomforest_solo...
+2025-08-16 16:31:00,008 - INFO - Individual model visualizations completed for randomforest_solo
+2025-08-16 16:31:00,020 - INFO - Checkpoint and CSV files updated for randomforest_solo
+2025-08-16 16:31:00,229 - INFO - 
+--- Processing lightgbm_naivebayes (6/13) ---
+2025-08-16 16:31:00,236 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:31:00,987 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:31:01,039 - INFO - Running comprehensive 3-fold CV for lightgbm_naivebayes
+2025-08-16 16:31:01,064 - ERROR - X and y dimension mismatch: X=(12816, 2052), y=12816
+2025-08-16 16:31:03,070 - INFO - Checkpoint and CSV files updated for lightgbm_naivebayes
+2025-08-16 16:48:07,274 - INFO - 
+--- Processing xgboost_naivebayes (7/13) ---
+2025-08-16 16:48:07,280 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:48:11,152 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:48:11,201 - INFO - Running comprehensive 3-fold CV for xgboost_naivebayes
+2025-08-16 16:48:11,225 - ERROR - X and y dimension mismatch: X=(12816, 2052), y=12816
+2025-08-16 16:48:47,386 - INFO - Checkpoint and CSV files updated for xgboost_naivebayes
+2025-08-16 16:48:47,562 - INFO - 
+--- Processing randomforest_naivebayes (8/13) ---
+2025-08-16 16:48:47,568 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:48:48,048 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:48:48,101 - INFO - Running comprehensive 3-fold CV for randomforest_naivebayes
+2025-08-16 16:48:48,123 - ERROR - X and y dimension mismatch: X=(12816, 2052), y=12816
+2025-08-16 16:48:51,897 - INFO - Checkpoint and CSV files updated for randomforest_naivebayes
+2025-08-16 16:48:52,069 - INFO - 
+--- Processing lightgbm_logisticregression (9/13) ---
+2025-08-16 16:48:52,073 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:48:52,635 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:48:52,642 - INFO - Running comprehensive 3-fold CV for lightgbm_logisticregression
+2025-08-16 16:48:52,644 - INFO - Processing fold 1/3
+2025-08-16 16:48:53,969 - INFO - Processing fold 2/3
+2025-08-16 16:48:55,242 - INFO - Processing fold 3/3
+2025-08-16 16:48:56,493 - INFO - CV completed. F1: 0.7941 ± 0.0064
+2025-08-16 16:48:58,885 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 16:48:58,887 - INFO - Generating comprehensive visualizations for lightgbm_logisticregression...
+2025-08-16 16:49:00,395 - INFO - Individual model visualizations completed for lightgbm_logisticregression
+2025-08-16 16:49:00,405 - INFO - Checkpoint and CSV files updated for lightgbm_logisticregression
+2025-08-16 16:49:20,170 - INFO - 
+--- Processing xgboost_logisticregression (10/13) ---
+2025-08-16 16:49:20,175 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:49:21,832 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:49:21,837 - INFO - Running comprehensive 3-fold CV for xgboost_logisticregression
+2025-08-16 16:49:21,839 - INFO - Processing fold 1/3
+2025-08-16 16:49:25,493 - INFO - Processing fold 2/3
+2025-08-16 16:49:29,297 - INFO - Processing fold 3/3
+2025-08-16 16:49:34,077 - INFO - CV completed. F1: 0.8080 ± 0.0051
+2025-08-16 16:49:39,847 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 16:49:39,849 - INFO - Generating comprehensive visualizations for xgboost_logisticregression...
+2025-08-16 16:49:41,740 - INFO - Individual model visualizations completed for xgboost_logisticregression
+2025-08-16 16:49:41,750 - INFO - Checkpoint and CSV files updated for xgboost_logisticregression
+2025-08-16 16:49:41,954 - INFO - 
+--- Processing randomforest_logisticregression (11/13) ---
+2025-08-16 16:49:41,960 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:49:42,240 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:49:42,246 - INFO - Running comprehensive 3-fold CV for randomforest_logisticregression
+2025-08-16 16:49:42,248 - INFO - Processing fold 1/3
+2025-08-16 16:49:43,228 - INFO - Processing fold 2/3
+2025-08-16 16:49:44,018 - INFO - Processing fold 3/3
+2025-08-16 16:49:44,849 - INFO - CV completed. F1: 0.6062 ± 0.0007
+2025-08-16 16:49:46,344 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 16:49:46,346 - INFO - Generating comprehensive visualizations for randomforest_logisticregression...
+2025-08-16 16:49:48,145 - INFO - Individual model visualizations completed for randomforest_logisticregression
+2025-08-16 16:49:48,154 - INFO - Checkpoint and CSV files updated for randomforest_logisticregression
+2025-08-16 16:49:48,341 - INFO - 
+--- Processing lightgbm_knn (12/13) ---
+2025-08-16 16:49:48,346 - INFO - Stage 1: Quick assessment...
+2025-08-16 16:49:49,095 - INFO - Stage 2: Full evaluation...
+2025-08-16 16:49:49,101 - INFO - Running comprehensive 3-fold CV for lightgbm_knn
+2025-08-16 16:49:49,104 - INFO - Processing fold 1/3
+2025-08-16 16:49:53,622 - INFO - Processing fold 2/3
+2025-08-16 16:49:57,973 - INFO - Processing fold 3/3
+2025-08-16 16:50:02,694 - INFO - CV completed. F1: 0.8036 ± 0.0021
+2025-08-16 16:50:33,904 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 16:50:33,907 - INFO - Generating comprehensive visualizations for lightgbm_knn...
+2025-08-16 16:50:35,856 - INFO - Individual model visualizations completed for lightgbm_knn
+2025-08-16 16:50:35,867 - INFO - Checkpoint and CSV files updated for lightgbm_knn
+2025-08-16 17:35:28,543 - INFO - 
+--- Processing xgboost_knn (13/13) ---
+2025-08-16 17:35:28,552 - INFO - Stage 1: Quick assessment...
+2025-08-16 17:35:33,725 - INFO - Stage 2: Full evaluation...
+2025-08-16 17:35:33,739 - INFO - Running comprehensive 3-fold CV for xgboost_knn
+2025-08-16 17:35:33,745 - INFO - Processing fold 1/3
+2025-08-16 17:35:49,035 - INFO - Processing fold 2/3
+2025-08-16 17:36:04,053 - INFO - Processing fold 3/3
+2025-08-16 17:36:19,280 - INFO - CV completed. F1: 0.7895 ± 0.0020
+2025-08-16 17:37:27,595 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 17:37:27,600 - INFO - Generating comprehensive visualizations for xgboost_knn...
+2025-08-16 17:37:31,478 - INFO - Individual model visualizations completed for xgboost_knn
+2025-08-16 17:37:31,501 - INFO - Checkpoint and CSV files updated for xgboost_knn
+2025-08-16 17:37:31,861 - INFO - 
+Processing heavy complexity batch: 65 models
+2025-08-16 17:37:31,862 - INFO - 
+--- Processing xgboost_catboost_lightgbm (1/65) ---
+2025-08-16 17:37:31,870 - INFO - Stage 1: Quick assessment...
+2025-08-16 17:37:40,494 - INFO - Stage 2: Full evaluation...
+2025-08-16 17:37:40,505 - INFO - Running comprehensive 3-fold CV for xgboost_catboost_lightgbm
+2025-08-16 17:37:40,509 - INFO - Processing fold 1/3
+2025-08-16 17:37:58,077 - INFO - Processing fold 2/3
+2025-08-16 17:38:15,832 - INFO - Processing fold 3/3
+2025-08-16 17:38:33,091 - INFO - CV completed. F1: 0.8255 ± 0.0022
+2025-08-16 17:38:45,238 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 17:38:45,241 - INFO - Generating comprehensive visualizations for xgboost_catboost_lightgbm...
+2025-08-16 17:38:47,170 - INFO - Individual model visualizations completed for xgboost_catboost_lightgbm
+2025-08-16 17:38:47,182 - INFO - Checkpoint and CSV files updated for xgboost_catboost_lightgbm
+2025-08-16 17:38:47,369 - INFO - 
+--- Processing xgboost_advancedsvm_2model (2/65) ---
+2025-08-16 17:38:47,375 - INFO - Stage 1: Quick assessment...
+2025-08-16 17:38:51,965 - INFO - Stage 2: Full evaluation...
+2025-08-16 17:38:51,977 - INFO - Running comprehensive 3-fold CV for xgboost_advancedsvm_2model
+2025-08-16 17:38:51,984 - INFO - Processing fold 1/3
+2025-08-16 17:39:28,250 - INFO - Processing fold 2/3
+2025-08-16 17:40:04,381 - INFO - Processing fold 3/3
+2025-08-16 17:40:40,500 - INFO - CV completed. F1: 0.8051 ± 0.0017
+2025-08-16 17:43:23,180 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-16 17:43:23,186 - INFO - Generating comprehensive visualizations for xgboost_advancedsvm_2model...
+2025-08-16 17:43:26,949 - INFO - Individual model visualizations completed for xgboost_advancedsvm_2model
+2025-08-16 17:43:26,974 - INFO - Checkpoint and CSV files updated for xgboost_advancedsvm_2model
+2025-08-16 17:43:37,149 - INFO - 
+--- Processing xgboost_lightgbm_randomforest_linearsvm (3/65) ---
+2025-08-16 17:43:37,157 - INFO - Stage 1: Quick assessment...
+2025-08-16 17:43:43,449 - INFO - Stage 2: Full evaluation...
+2025-08-16 17:43:43,460 - INFO - Running comprehensive 3-fold CV for xgboost_lightgbm_randomforest_linearsvm
+2025-08-16 17:43:43,466 - INFO - Processing fold 1/3
+2025-08-16 17:43:57,441 - INFO - Processing fold 2/3
+2025-08-16 17:44:12,198 - INFO - Processing fold 3/3
+2025-08-16 17:44:27,416 - INFO - CV completed. F1: 0.8220 ± 0.0030
+2025-08-16 17:44:47,798 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 17:44:47,804 - INFO - Generating comprehensive visualizations for xgboost_lightgbm_randomforest_linearsvm...
+2025-08-16 17:44:51,948 - INFO - Individual model visualizations completed for xgboost_lightgbm_randomforest_linearsvm
+2025-08-16 17:44:51,972 - INFO - Checkpoint and CSV files updated for xgboost_lightgbm_randomforest_linearsvm
+2025-08-16 17:44:52,259 - INFO - 
+--- Processing lightgbm_catboost_naivebayes (4/65) ---
+2025-08-16 17:44:52,267 - INFO - Stage 1: Quick assessment...
+2025-08-16 17:45:01,289 - INFO - Stage 2: Full evaluation...
+2025-08-16 17:45:01,407 - INFO - Running comprehensive 3-fold CV for lightgbm_catboost_naivebayes
+2025-08-16 17:45:01,462 - ERROR - X and y dimension mismatch: X=(12816, 2052), y=12816
+2025-08-16 17:45:30,080 - INFO - Checkpoint and CSV files updated for lightgbm_catboost_naivebayes
+2025-08-16 17:59:48,700 - INFO - User requested early termination
+2025-08-16 17:59:48,700 - INFO - Generating comprehensive final analysis...
+2025-08-16 17:59:50,808 - INFO - Comprehensive reports generated successfully
+2025-08-16 17:59:50,810 - INFO - Comprehensive final analysis completed!
+2025-08-16 17:59:50,810 - INFO - All reports and visualizations saved to:
+2025-08-16 17:59:50,810 - INFO -    - CSV Results: resnew/analysis_results/
+2025-08-16 17:59:50,810 - INFO -    - Visual Reports: resnew/plots/
+2025-08-16 17:59:50,810 - INFO -    - Text Reports: resnew/reports/
+2025-08-16 18:00:16,090 - INFO - Starting comprehensive model analysis pipeline...
+2025-08-16 18:00:16,090 - INFO - Loading and preprocessing data...
+2025-08-16 18:00:16,131 - INFO - Real dataset loaded successfully!
+2025-08-16 18:00:16,137 - INFO - Numerical features: 31
+2025-08-16 18:00:16,137 - INFO - Categorical features: 1
+2025-08-16 18:00:16,203 - INFO - Data preprocessing completed.
+2025-08-16 18:00:16,203 - INFO - Training set shape: (16020, 2052)
+2025-08-16 18:00:16,203 - INFO - Test set shape: (4005, 2052)
+2025-08-16 18:00:16,203 - INFO - Number of classes: 3
+2025-08-16 18:00:16,204 - INFO - Class distribution: [ 3230 14722  2073]
+2025-08-16 18:00:16,205 - INFO - Found 21 previously processed models
+2025-08-16 18:00:16,205 - INFO - 
+============================================================
+2025-08-16 18:00:16,206 - INFO - Processing TIER1: 8 models
+2025-08-16 18:00:16,206 - INFO - ============================================================
+2025-08-16 18:00:16,206 - INFO - 
+Processing medium complexity batch: 5 models
+2025-08-16 18:00:16,206 - INFO - Skipping lightgbm_solo (already processed)
+2025-08-16 18:00:16,206 - INFO - Skipping lightgbm_xgboost_ensemble (already processed)
+2025-08-16 18:00:16,206 - INFO - Skipping lightgbm_randomforest (already processed)
+2025-08-16 18:00:16,206 - INFO - Skipping xgboost_randomforest (already processed)
+2025-08-16 18:00:16,206 - INFO - Skipping xgboost_solo (already processed)
+2025-08-16 18:00:16,206 - INFO - 
+Processing heavy complexity batch: 3 models
+2025-08-16 18:00:16,207 - INFO - Skipping lightgbm_advancedsvm (already processed)
+2025-08-16 18:00:16,207 - INFO - Skipping lightgbm_advancedsvm_randomforest (already processed)
+2025-08-16 18:00:16,207 - INFO - Skipping xgboost_advancedsvm_randomforest (already processed)
+2025-08-16 18:00:16,207 - INFO - 
+============================================================
+2025-08-16 18:00:16,207 - INFO - Processing TIER2: 83 models
+2025-08-16 18:00:16,207 - INFO - ============================================================
+2025-08-16 18:00:16,207 - INFO - 
+Processing light complexity batch: 5 models
+2025-08-16 18:00:16,208 - INFO - 
+--- Processing naivebayes_solo (1/5) ---
+2025-08-16 18:00:16,213 - INFO - Stage 1: Quick assessment...
+2025-08-16 18:00:16,404 - INFO - Stage 2: Full evaluation...
+2025-08-16 18:00:19,062 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 18:00:19,073 - INFO - Bootstrap progress: 1/30 (3.3%)
+2025-08-16 18:00:19,605 - INFO - Bootstrap progress: 7/30 (23.3%)
+2025-08-16 18:00:20,121 - INFO - Bootstrap progress: 13/30 (43.3%)
+2025-08-16 18:00:20,641 - INFO - Bootstrap progress: 19/30 (63.3%)
+2025-08-16 18:00:21,163 - INFO - Bootstrap progress: 25/30 (83.3%)
+2025-08-16 18:00:21,701 - INFO - Bootstrap completed: 30/30 successful samples
+2025-08-16 18:00:21,731 - INFO - Generating comprehensive visualizations for naivebayes_solo...
+2025-08-16 18:00:23,474 - INFO - Individual model visualizations completed for naivebayes_solo
+2025-08-16 18:00:23,487 - INFO - Checkpoint and CSV files updated for naivebayes_solo
+2025-08-16 18:00:23,650 - INFO - Skipping logisticregression_solo (already processed)
+2025-08-16 18:00:23,651 - INFO - Skipping knn_solo (already processed)
+2025-08-16 18:00:23,651 - INFO - Skipping ridge_solo (already processed)
+2025-08-16 18:00:23,651 - INFO - Skipping sgd_solo (already processed)
+2025-08-16 18:00:23,651 - INFO - 
+Processing medium complexity batch: 13 models
+2025-08-16 18:00:23,651 - INFO - 
+--- Processing xgboost_lightgbm_naivebayes (1/13) ---
+2025-08-16 18:00:23,656 - INFO - Stage 1: Quick assessment...
+2025-08-16 18:00:28,161 - INFO - Stage 2: Full evaluation...
+2025-08-16 18:02:31,635 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 18:02:31,647 - INFO - Bootstrap progress: 1/30 (3.3%)
+2025-08-16 18:02:33,267 - INFO - Bootstrap progress: 7/30 (23.3%)
+2025-08-16 18:02:34,898 - INFO - Bootstrap progress: 13/30 (43.3%)
+2025-08-16 18:02:36,482 - INFO - Bootstrap progress: 19/30 (63.3%)
+2025-08-16 18:02:38,134 - INFO - Bootstrap progress: 25/30 (83.3%)
+2025-08-16 18:02:39,751 - INFO - Bootstrap completed: 30/30 successful samples
+2025-08-16 18:02:39,782 - INFO - Generating comprehensive visualizations for xgboost_lightgbm_naivebayes...
+2025-08-16 18:02:41,522 - INFO - Individual model visualizations completed for xgboost_lightgbm_naivebayes
+2025-08-16 18:02:41,534 - INFO - Checkpoint and CSV files updated for xgboost_lightgbm_naivebayes
+2025-08-16 18:02:41,711 - INFO - 
+--- Processing lightgbm_randomforest_naivebayes (2/13) ---
+2025-08-16 18:02:41,716 - INFO - Stage 1: Quick assessment...
+2025-08-16 18:02:42,835 - INFO - Stage 2: Full evaluation...
+2025-08-16 18:03:02,030 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 18:03:02,041 - INFO - Bootstrap progress: 1/30 (3.3%)
+2025-08-16 18:03:03,341 - INFO - Bootstrap progress: 7/30 (23.3%)
+2025-08-16 18:03:04,606 - INFO - Bootstrap progress: 13/30 (43.3%)
+2025-08-16 18:03:05,843 - INFO - Bootstrap progress: 19/30 (63.3%)
+2025-08-16 18:03:06,999 - INFO - Bootstrap progress: 25/30 (83.3%)
+2025-08-16 18:03:08,284 - INFO - Bootstrap completed: 30/30 successful samples
+2025-08-16 18:03:08,313 - INFO - Generating comprehensive visualizations for lightgbm_randomforest_naivebayes...
+2025-08-16 18:03:10,088 - INFO - Individual model visualizations completed for lightgbm_randomforest_naivebayes
+2025-08-16 18:03:10,104 - INFO - Checkpoint and CSV files updated for lightgbm_randomforest_naivebayes
+2025-08-16 18:03:10,304 - INFO - 
+--- Processing xgboost_randomforest_naivebayes (3/13) ---
+2025-08-16 18:03:10,308 - INFO - Stage 1: Quick assessment...
+2025-08-16 18:03:15,021 - INFO - Stage 2: Full evaluation...
+2025-08-16 18:05:41,332 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 18:05:41,350 - INFO - Bootstrap progress: 1/30 (3.3%)
+2025-08-16 18:05:43,638 - INFO - Bootstrap progress: 7/30 (23.3%)
+2025-08-16 18:05:46,098 - INFO - Bootstrap progress: 13/30 (43.3%)
+2025-08-16 18:05:48,572 - INFO - Bootstrap progress: 19/30 (63.3%)
+2025-08-16 18:05:51,007 - INFO - Bootstrap progress: 25/30 (83.3%)
+2025-08-16 18:05:53,445 - INFO - Bootstrap completed: 30/30 successful samples
+2025-08-16 18:05:53,512 - INFO - Generating comprehensive visualizations for xgboost_randomforest_naivebayes...
+2025-08-16 18:05:57,527 - INFO - Individual model visualizations completed for xgboost_randomforest_naivebayes
+2025-08-16 18:05:57,556 - INFO - Checkpoint and CSV files updated for xgboost_randomforest_naivebayes
+2025-08-16 18:06:11,174 - INFO - 
+--- Processing randomforest_knn_naivebayes (4/13) ---
+2025-08-16 18:06:11,182 - INFO - Stage 1: Quick assessment...
+2025-08-16 18:06:14,943 - INFO - Stage 2: Full evaluation...
+2025-08-16 18:06:57,906 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 18:06:57,926 - INFO - Bootstrap progress: 1/30 (3.3%)
+2025-08-16 18:07:07,817 - INFO - Bootstrap progress: 7/30 (23.3%)
+2025-08-16 18:07:17,794 - INFO - Bootstrap progress: 13/30 (43.3%)
+2025-08-16 18:07:27,746 - INFO - Bootstrap progress: 19/30 (63.3%)
+2025-08-16 18:07:37,741 - INFO - Bootstrap progress: 25/30 (83.3%)
+2025-08-16 18:07:47,608 - INFO - Bootstrap completed: 30/30 successful samples
+2025-08-16 18:07:47,658 - INFO - Generating comprehensive visualizations for randomforest_knn_naivebayes...
+2025-08-16 18:07:51,597 - INFO - Individual model visualizations completed for randomforest_knn_naivebayes
+2025-08-16 18:07:51,629 - INFO - Checkpoint and CSV files updated for randomforest_knn_naivebayes
+2025-08-16 18:07:51,889 - INFO - Skipping randomforest_solo (already processed)
+2025-08-16 18:07:51,889 - INFO - 
+--- Processing lightgbm_naivebayes (6/13) ---
+2025-08-16 18:07:51,896 - INFO - Stage 1: Quick assessment...
+2025-08-16 18:07:53,592 - INFO - Stage 2: Full evaluation...
+2025-08-16 18:08:13,137 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 18:08:13,160 - INFO - Bootstrap progress: 1/30 (3.3%)
+2025-08-16 18:08:15,199 - INFO - Bootstrap progress: 7/30 (23.3%)
+2025-08-16 18:08:17,247 - INFO - Bootstrap progress: 13/30 (43.3%)
+2025-08-16 18:08:19,323 - INFO - Bootstrap progress: 19/30 (63.3%)
+2025-08-16 18:08:21,367 - INFO - Bootstrap progress: 25/30 (83.3%)
+2025-08-16 18:08:23,405 - INFO - Bootstrap completed: 30/30 successful samples
+2025-08-16 18:08:23,469 - INFO - Generating comprehensive visualizations for lightgbm_naivebayes...
+2025-08-16 18:08:27,347 - INFO - Individual model visualizations completed for lightgbm_naivebayes
+2025-08-16 18:08:27,371 - INFO - Checkpoint and CSV files updated for lightgbm_naivebayes
+2025-08-16 18:09:36,385 - INFO - 
+--- Processing xgboost_naivebayes (7/13) ---
+2025-08-16 18:09:36,390 - INFO - Stage 1: Quick assessment...
+2025-08-16 18:09:43,111 - INFO - Stage 2: Full evaluation...
+2025-08-16 18:14:13,657 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 18:14:13,670 - INFO - Bootstrap progress: 1/30 (3.3%)
+2025-08-16 18:14:14,857 - INFO - Bootstrap progress: 7/30 (23.3%)
+2025-08-16 18:14:16,081 - INFO - Bootstrap progress: 13/30 (43.3%)
+2025-08-16 18:14:17,321 - INFO - Bootstrap progress: 19/30 (63.3%)
+2025-08-16 18:14:18,515 - INFO - Bootstrap progress: 25/30 (83.3%)
+2025-08-16 18:14:19,650 - INFO - Bootstrap completed: 30/30 successful samples
+2025-08-16 18:14:19,687 - INFO - Generating comprehensive visualizations for xgboost_naivebayes...
+2025-08-16 18:14:21,461 - INFO - Individual model visualizations completed for xgboost_naivebayes
+2025-08-16 18:14:21,474 - INFO - Checkpoint and CSV files updated for xgboost_naivebayes
+2025-08-16 18:14:21,713 - INFO - 
+--- Processing randomforest_naivebayes (8/13) ---
+2025-08-16 18:14:21,719 - INFO - Stage 1: Quick assessment...
+2025-08-16 18:14:22,218 - INFO - Stage 2: Full evaluation...
+2025-08-16 18:14:36,369 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 18:14:36,381 - INFO - Bootstrap progress: 1/30 (3.3%)
+2025-08-16 18:14:37,132 - INFO - Bootstrap progress: 7/30 (23.3%)
+2025-08-16 18:14:37,866 - INFO - Bootstrap progress: 13/30 (43.3%)
+2025-08-16 18:14:38,595 - INFO - Bootstrap progress: 19/30 (63.3%)
+2025-08-16 18:14:39,316 - INFO - Bootstrap progress: 25/30 (83.3%)
+2025-08-16 18:14:40,041 - INFO - Bootstrap completed: 30/30 successful samples
+2025-08-16 18:14:40,071 - INFO - Generating comprehensive visualizations for randomforest_naivebayes...
+2025-08-16 18:14:41,758 - INFO - Individual model visualizations completed for randomforest_naivebayes
+2025-08-16 18:14:41,773 - INFO - Checkpoint and CSV files updated for randomforest_naivebayes
+2025-08-16 18:14:41,959 - INFO - Skipping lightgbm_logisticregression (already processed)
+2025-08-16 18:14:41,959 - INFO - Skipping xgboost_logisticregression (already processed)
+2025-08-16 18:14:41,959 - INFO - Skipping randomforest_logisticregression (already processed)
+2025-08-16 18:14:41,959 - INFO - Skipping lightgbm_knn (already processed)
+2025-08-16 18:14:41,960 - INFO - Skipping xgboost_knn (already processed)
+2025-08-16 18:14:41,960 - INFO - 
+Processing heavy complexity batch: 65 models
+2025-08-16 18:14:41,960 - INFO - Skipping xgboost_catboost_lightgbm (already processed)
+2025-08-16 18:14:41,961 - INFO - Skipping xgboost_advancedsvm_2model (already processed)
+2025-08-16 18:14:41,961 - INFO - Skipping xgboost_lightgbm_randomforest_linearsvm (already processed)
+2025-08-16 18:14:41,961 - INFO - 
+--- Processing lightgbm_catboost_naivebayes (4/65) ---
+2025-08-16 18:14:41,965 - INFO - Stage 1: Quick assessment...
+2025-08-16 18:14:45,691 - INFO - Stage 2: Full evaluation...
+2025-08-16 18:15:35,757 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-16 18:15:35,770 - INFO - Bootstrap progress: 1/30 (3.3%)
+2025-08-16 18:15:41,483 - INFO - Bootstrap progress: 7/30 (23.3%)
+2025-08-16 18:15:47,224 - INFO - Bootstrap progress: 13/30 (43.3%)
+2025-08-16 18:15:52,820 - INFO - Bootstrap progress: 19/30 (63.3%)
+2025-08-16 18:15:58,428 - INFO - Bootstrap progress: 25/30 (83.3%)
+2025-08-16 18:16:04,409 - INFO - Bootstrap completed: 30/30 successful samples
+2025-08-16 18:16:04,440 - INFO - Generating comprehensive visualizations for lightgbm_catboost_naivebayes...
+2025-08-16 18:16:06,081 - INFO - Individual model visualizations completed for lightgbm_catboost_naivebayes
+2025-08-16 18:16:06,100 - INFO - Checkpoint and CSV files updated for lightgbm_catboost_naivebayes
+2025-08-16 18:30:55,856 - INFO - 
+--- Processing lightgbm_catboost_advancedsvm (5/65) ---
+2025-08-16 18:30:55,864 - INFO - Stage 1: Quick assessment...
+2025-08-16 18:31:00,998 - INFO - Stage 2: Full evaluation...
+2025-08-16 18:31:01,009 - ERROR - X and y dimension mismatch: X=0, y=12816
+2025-08-16 18:34:03,072 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-16 18:34:03,082 - INFO - Bootstrap progress: 1/20 (5.0%)
+2025-08-16 18:34:03,082 - WARNING - Bootstrap iteration 0 failed: too many indices for array: array is 0-dimensional, but 1 were indexed
+2025-08-16 18:34:03,083 - WARNING - Bootstrap iteration 1 failed: too many indices for array: array is 0-dimensional, but 1 were indexed
+2025-08-16 18:34:03,083 - WARNING - Bootstrap iteration 2 failed: too many indices for array: array is 0-dimensional, but 1 were indexed
+2025-08-16 18:34:03,084 - INFO - Bootstrap progress: 5/20 (25.0%)
+2025-08-16 18:34:03,084 - WARNING - Too many bootstrap failures (7), stopping early
+2025-08-16 18:34:03,085 - WARNING - Insufficient successful bootstraps: 0/20
+2025-08-16 18:34:03,092 - INFO - Generating comprehensive visualizations for lightgbm_catboost_advancedsvm...
+2025-08-16 18:34:07,356 - INFO - Individual model visualizations completed for lightgbm_catboost_advancedsvm
+2025-08-16 18:34:07,384 - INFO - Checkpoint and CSV files updated for lightgbm_catboost_advancedsvm
+2025-08-16 18:34:07,665 - INFO - 
+--- Processing xgboost_catboost_advancedsvm (6/65) ---
+2025-08-16 18:34:07,675 - INFO - Stage 1: Quick assessment...
+2025-08-16 18:34:16,301 - INFO - Stage 2: Full evaluation...
+2025-08-16 18:34:16,312 - ERROR - X and y dimension mismatch: X=0, y=12816
+2025-08-16 18:37:25,841 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-16 18:37:25,851 - INFO - Bootstrap progress: 1/20 (5.0%)
+2025-08-16 18:37:25,852 - WARNING - Bootstrap iteration 0 failed: too many indices for array: array is 0-dimensional, but 1 were indexed
+2025-08-16 18:37:25,852 - WARNING - Bootstrap iteration 1 failed: too many indices for array: array is 0-dimensional, but 1 were indexed
+2025-08-16 18:37:25,853 - WARNING - Bootstrap iteration 2 failed: too many indices for array: array is 0-dimensional, but 1 were indexed
+2025-08-16 18:37:25,853 - INFO - Bootstrap progress: 5/20 (25.0%)
+2025-08-16 18:37:25,855 - WARNING - Too many bootstrap failures (7), stopping early
+2025-08-16 18:37:25,855 - WARNING - Insufficient successful bootstraps: 0/20
+2025-08-16 18:37:25,873 - INFO - Generating comprehensive visualizations for xgboost_catboost_advancedsvm...
+2025-08-16 18:37:30,350 - INFO - Individual model visualizations completed for xgboost_catboost_advancedsvm
+2025-08-16 18:37:30,388 - INFO - Checkpoint and CSV files updated for xgboost_catboost_advancedsvm
+2025-08-16 18:38:34,773 - INFO - User requested early termination
+2025-08-16 18:38:34,774 - INFO - Generating comprehensive final analysis...
+2025-08-16 18:38:39,444 - INFO - Comprehensive reports generated successfully
+2025-08-16 18:38:39,445 - INFO - Comprehensive final analysis completed!
+2025-08-16 18:38:39,446 - INFO - All reports and visualizations saved to:
+2025-08-16 18:38:39,447 - INFO -    - CSV Results: resnew/analysis_results/
+2025-08-16 18:38:39,448 - INFO -    - Visual Reports: resnew/plots/
+2025-08-16 18:38:39,448 - INFO -    - Text Reports: resnew/reports/

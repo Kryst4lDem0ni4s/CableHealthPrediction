@@ -2418,11 +2418,11 @@ class ModelEvaluator:
             return {'accuracy': 0.0, 'weighted_f1': 0.0, 'training_time': float('inf'), 'validation_based': False}
 
     def comprehensive_cv_evaluate(self, model_name: str, config: Dict[str, Any], cv_folds: int = 3) -> Dict[str, Any]:
-        """Comprehensive cross-validation for all model types including ensembles"""
+        """FIXED: Comprehensive cross-validation with proper dimension handling"""
         try:
             from sklearn.model_selection import StratifiedKFold
 
-            self.logger.info(f"Running comprehensive {cv_folds}-fold CV for {model_name}")
+            print(f"Running comprehensive {cv_folds}-fold CV for {model_name}")
 
             # Prepare data with enhanced validation
             X_full = self.X_train_split
@@ -2430,29 +2430,51 @@ class ModelEvaluator:
             
             if sparse.issparse(X_full):
                 base_models = config.get('base_models', [])
-                needs_dense = any(model.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+                needs_dense = any(model.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm']
                                 for model in base_models)
                 if needs_dense:
                     X_full = X_full.toarray()
             
-            # FIXED: Ensure proper array formats
+            # FIXED: Ensure proper array formats and dimension consistency
             if hasattr(y_full, 'values'):
                 y_full = y_full.values
             y_full = np.asarray(y_full).flatten()
             
-            # FIXED: Validate data dimensions using safe_array_length
-            n_samples_X = safe_array_length(X_full)
-            n_samples_y = len(y_full)
+            # FIXED: Ensure X is properly formatted
+            if hasattr(X_full, 'values'):
+                X_full = X_full.values
+            X_full = np.asarray(X_full)
             
-            if n_samples_y == 0:
+            # Validate data dimensions with detailed logging
+            if len(y_full) == 0:
                 self.logger.error("No training data available for CV")
                 return {'cv_failed': True, 'error': 'No training data'}
             
-            if n_samples_X != n_samples_y:
-                self.logger.error(f"X and y dimension mismatch: X={n_samples_X}, y={n_samples_y}")
-                return {'cv_failed': True, 'error': 'Dimension mismatch'}
+            # FIXED: Use safe shape checking
+            def safe_get_shape(arr):
+                try:
+                    if hasattr(arr, 'shape'):
+                        shape_val = arr.shape[0]
+                        return int(shape_val) if not isinstance(shape_val, tuple) else int(shape_val)
+                    else:
+                        return len(arr)
+                except:
+                    return 0
+            
+            x_samples = safe_get_shape(X_full)
+            y_samples = safe_get_shape(y_full)
+            
+            if x_samples != y_samples:
+                self.logger.error(f"X and y dimension mismatch: X={x_samples}, y={y_samples}")
+                # Try to fix the mismatch
+                min_samples = min(x_samples, y_samples)
+                if min_samples > 0:
+                    X_full = X_full[:min_samples]
+                    y_full = y_full[:min_samples]
+                    self.logger.info(f"Truncated to {min_samples} samples for consistency")
+                else:
+                    return {'cv_failed': True, 'error': 'Dimension mismatch cannot be resolved'}
 
-            # Rest of the method remains the same...
             skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=Config.RANDOM_STATE)
 
             cv_scores = {
@@ -2466,10 +2488,10 @@ class ModelEvaluator:
             fold_times = []
 
             for fold, (train_idx, val_idx) in enumerate(skf.split(X_full, y_full)):
-                self.logger.info(f"Processing fold {fold + 1}/{cv_folds}")
+                print(f"Processing fold {fold + 1}/{cv_folds}")
 
-                X_train_fold = safe_array_indexing(X_full, train_idx)
-                X_val_fold = safe_array_indexing(X_full, val_idx)
+                X_train_fold = X_full[train_idx]
+                X_val_fold = X_full[val_idx]
                 y_train_fold = y_full[train_idx]
                 y_val_fold = y_full[val_idx]
 
@@ -2511,16 +2533,16 @@ class ModelEvaluator:
             cv_stats['training_time_std'] = np.std(fold_times)
             cv_stats['cv_folds'] = cv_folds
 
-            self.logger.info(f"CV completed. F1: {cv_stats['weighted_f1_mean']:.4f} ± {cv_stats['weighted_f1_std']:.4f}")
+            print(f"CV completed. F1: {cv_stats['weighted_f1_mean']:.4f} ± {cv_stats['weighted_f1_std']:.4f}")
 
             return cv_stats
 
         except Exception as e:
-            self.logger.error(f"Comprehensive CV failed for {model_name}: {str(e)}")
+            print(f"Comprehensive CV failed for {model_name}: {str(e)}")
             return {'cv_failed': True, 'error': str(e)}
 
     def full_evaluate(self, model_name: str, config: Dict[str, Any]) -> Dict[str, Any]:
-        """Enhanced full evaluation with detailed timing and optimizations"""
+        """Enhanced full evaluation with SAFE SHAPE HANDLING"""
         try:
             print(f"Starting full evaluation of {model_name}")
             print(f"Model config: {config}")
@@ -2583,11 +2605,23 @@ class ModelEvaluator:
             cv_time = time.time() - cv_start
             print(f"Cross-validation completed in {cv_time:.2f} seconds")
 
-            # FIXED: Data validation using safe_array_length
-            train_samples = safe_array_length(X_train_use)
-            train_labels = safe_array_length(y_train_use)
-            test_samples = safe_array_length(X_test_use)
-            test_labels = safe_array_length(self.y_test)
+            # FIXED: Safe data validation using helper function
+            def safe_get_shape(arr):
+                """Safely get the first dimension of an array"""
+                try:
+                    if hasattr(arr, 'shape'):
+                        shape_val = arr.shape[0]
+                        # Ensure we return an integer, not a tuple
+                        return int(shape_val) if not isinstance(shape_val, tuple) else int(shape_val)
+                    else:
+                        return len(arr)
+                except:
+                    return 0
+
+            train_samples = safe_get_shape(X_train_use)
+            train_labels = safe_get_shape(y_train_use)
+            test_samples = safe_get_shape(X_test_use)
+            test_labels = safe_get_shape(self.y_test)
             
             if train_labels == 0 or train_samples == 0:
                 print("No training data available for evaluation")
@@ -2606,7 +2640,7 @@ class ModelEvaluator:
             # Training timing
             training_start = time.time()
             print(f"Starting model training...")
-            print(f"Training set size: {train_samples} samples, {X_train_use.shape[1]} features")
+            print(f"Training set size: {train_samples} samples, {safe_get_shape(X_train_use[0:1])} features" if train_samples > 0 else "Training set size: unknown")
             
             model.fit(X_train_use, y_train_use)
             training_time = time.time() - training_start
@@ -2616,7 +2650,7 @@ class ModelEvaluator:
             memory_usage = max(0, end_resources['memory_percent'] - start_resources['memory_percent'])
             print(f"Memory usage change: +{memory_usage:.1f}%")
 
-            # DETAILED PREDICTION PHASE WITH OPTIMIZATIONS
+            # DETAILED PREDICTION PHASE WITH SAFE SHAPE HANDLING
             print(f"="*50)
             print(f"STARTING PREDICTION PHASE")
             print(f"="*50)
@@ -2630,15 +2664,15 @@ class ModelEvaluator:
 
             total_prediction_start = time.time()
 
-            # 1. Training set predictions
+            # 1. Training set predictions with SAFE shape checking
             train_pred_start = time.time()
             print(f"Predicting probabilities for TRAINING set...")
-            print(f"Training set shape: {X_train_use.shape}")
+            print(f"Training set shape: ({train_samples}, {X_train_use.shape[1] if hasattr(X_train_use, 'shape') else 'unknown'})")
             
-            # OPTIMIZATION: Use batched prediction for large datasets
+            # FIXED: Safe shape comparison
             if train_samples > 5000 and is_complex_model:
                 print(f"Using batched prediction for large training set...")
-                y_train_pred_proba = self._predict_proba_batched(model, X_train_use, batch_size=1000)
+                y_train_pred_proba = self._predict_proba_batched_safe(model, X_train_use, batch_size=1000)
             else:
                 y_train_pred_proba = model.predict_proba(X_train_use)
             
@@ -2646,15 +2680,16 @@ class ModelEvaluator:
             print(f"Training predictions completed in {train_pred_time:.2f} seconds")
             print(f"Training prediction shape: {y_train_pred_proba.shape}")
 
-            # 2. Validation set predictions  
+            # 2. Validation set predictions with SAFE shape checking
             val_pred_start = time.time()
             print(f"Predicting probabilities for VALIDATION set...")
-            val_samples = safe_array_length(X_val_eval)
-            print(f"Validation set shape: {X_val_eval.shape}")
+            val_samples = safe_get_shape(X_val_eval)
+            print(f"Validation set shape: ({val_samples}, {X_val_eval.shape[1] if hasattr(X_val_eval, 'shape') else 'unknown'})")
             
+            # FIXED: Safe shape comparison
             if val_samples > 2000 and is_complex_model:
                 print(f"Using batched prediction for validation set...")
-                y_val_pred_proba = self._predict_proba_batched(model, X_val_eval, batch_size=500)
+                y_val_pred_proba = self._predict_proba_batched_safe(model, X_val_eval, batch_size=500)
             else:
                 y_val_pred_proba = model.predict_proba(X_val_eval)
             
@@ -2662,14 +2697,15 @@ class ModelEvaluator:
             print(f"Validation predictions completed in {val_pred_time:.2f} seconds")
             print(f"Validation prediction shape: {y_val_pred_proba.shape}")
 
-            # 3. Test set predictions
+            # 3. Test set predictions with SAFE shape checking
             test_pred_start = time.time()
             print(f"Predicting probabilities for TEST set...")
-            print(f"Test set shape: {X_test_use.shape}")
+            print(f"Test set shape: ({test_samples}, {X_test_use.shape[1] if hasattr(X_test_use, 'shape') else 'unknown'})")
             
+            # FIXED: Safe shape comparison
             if test_samples > 2000 and is_complex_model:
                 print(f"Using batched prediction for test set...")
-                y_test_pred_proba = self._predict_proba_batched(model, X_test_use, batch_size=500)
+                y_test_pred_proba = self._predict_proba_batched_safe(model, X_test_use, batch_size=500)
             else:
                 y_test_pred_proba = model.predict_proba(X_test_use)
             
@@ -2715,23 +2751,38 @@ class ModelEvaluator:
             bootstrap_start = time.time()
             print(f"Starting bootstrap analysis...")
             bootstrap_analyzer = self._get_adaptive_bootstrap_analyzer(model_name, test_samples)
+
+            # FIXED: Enhanced bootstrap data validation
+            bootstrap_start = time.time()
+            print(f"Starting bootstrap analysis...")
+            bootstrap_analyzer = self._get_adaptive_bootstrap_analyzer(model_name, len(X_test_use))
             
             try:
-                if test_samples > 0 and test_samples == test_labels:
-                    # Use smaller sample for bootstrap if dataset is large
-                    if test_samples > 3000:
+                y_test_array = self.y_test.values if hasattr(self.y_test, 'values') else np.array(self.y_test)
+                y_test_array = np.asarray(y_test_array).flatten()
+                
+                # CRITICAL VALIDATION: Check data before bootstrap
+                if len(y_test_array) == 0 or len(X_test_use) == 0:
+                    print(f"Skipping bootstrap: empty data arrays")
+                    test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
+                elif len(X_test_use) != len(y_test_array):
+                    print(f"Skipping bootstrap: data shape mismatch X={len(X_test_use)}, y={len(y_test_array)}")
+                    test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
+                elif X_test_use.ndim == 0 or y_test_array.ndim == 0:
+                    print(f"Skipping bootstrap: invalid array dimensions X.ndim={X_test_use.ndim}, y.ndim={y_test_array.ndim}")
+                    test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
+                else:
+                    # Proceed with bootstrap only if data is valid
+                    if len(X_test_use) > 3000:
                         print(f"Using bootstrap subsample for large dataset...")
-                        sample_indices = np.random.choice(test_samples, 2000, replace=False)
-                        X_bootstrap = safe_array_indexing(X_test_use, sample_indices)
+                        sample_indices = np.random.choice(len(X_test_use), 2000, replace=False)
+                        X_bootstrap = X_test_use[sample_indices]
                         y_bootstrap = y_test_array[sample_indices]
                         test_bootstrap = bootstrap_analyzer.bootstrap_model_performance(model, X_bootstrap, y_bootstrap)
                     else:
                         test_bootstrap = bootstrap_analyzer.bootstrap_model_performance(model, X_test_use, y_test_array)
                         
                     print(f"Bootstrap analysis completed with {test_bootstrap.get('success_rate', 0):.2%} success rate")
-                else:
-                    print(f"Skipping bootstrap: data shape mismatch X={test_samples}, y={test_labels}")
-                    test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
             except Exception as bootstrap_error:
                 print(f"Bootstrap analysis failed: {bootstrap_error}")
                 test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
@@ -2835,23 +2886,35 @@ class ModelEvaluator:
         
         return X_train_use, X_test_use, X_val_use
 
-    def _predict_proba_batched(self, model, X, batch_size=None):
-        """HIGHLY OPTIMIZED batched prediction with adaptive sizing"""
+    def _predict_proba_batched_safe(self, model, X, batch_size=None):
+        """SAFE batched prediction with proper shape handling"""
+        
+        # Safe shape extraction
+        def safe_get_length(arr):
+            try:
+                if hasattr(arr, 'shape'):
+                    shape_val = arr.shape[0]
+                    return int(shape_val) if not isinstance(shape_val, tuple) else int(shape_val)
+                else:
+                    return len(arr)
+            except:
+                return 0
+        
+        n_samples = safe_get_length(X)
         
         # Dynamic batch sizing based on model complexity and available memory
         if batch_size is None:
             model_name = model.__class__.__name__.lower()
             if 'tabflex' in model_name or 'mixture' in model_name:
-                batch_size = min(256, safe_array_length(X) // 10)  # FIXED: Use safe_array_length
+                batch_size = min(256, max(1, n_samples // 10))  # Ensure at least 1
             elif 'deepgbm' in model_name:
-                batch_size = min(512, safe_array_length(X) // 5)   # FIXED: Use safe_array_length
+                batch_size = min(512, max(1, n_samples // 5))   # Ensure at least 1
             else:
-                batch_size = min(2000, safe_array_length(X) // 2)  # FIXED: Use safe_array_length
+                batch_size = min(2000, max(1, n_samples // 2))  # Ensure at least 1
         
         print(f"Using adaptive batch size: {batch_size}")
         
-        n_samples = safe_array_length(X)  # FIXED: Use safe_array_length
-        n_batches = (n_samples + batch_size - 1) // batch_size
+        n_batches = max(1, (n_samples + batch_size - 1) // batch_size)
         all_probas = []
         
         for i in range(n_batches):
@@ -2861,9 +2924,12 @@ class ModelEvaluator:
             if i % max(1, n_batches // 10) == 0:  # Progress every 10%
                 print(f"Batch progress: {i+1}/{n_batches} ({100*(i+1)/n_batches:.1f}%)")
             
-            X_batch = safe_array_indexing(X, slice(batch_start, batch_end))  # FIXED: Use safe_array_indexing
-            
             try:
+                if hasattr(X, 'shape') and len(X.shape) > 1:
+                    X_batch = X[batch_start:batch_end]
+                else:
+                    X_batch = X[batch_start:batch_end]
+                
                 batch_proba = model.predict_proba(X_batch)
                 all_probas.append(batch_proba)
                 
@@ -2874,7 +2940,7 @@ class ModelEvaluator:
                 fallback = np.ones((batch_end - batch_start, n_classes)) / n_classes
                 all_probas.append(fallback)
         
-        return np.vstack(all_probas)
+        return np.vstack(all_probas) if all_probas else np.ones((n_samples, 3)) / 3
     
 class EnsembleSelectionFramework:
     """Systematic ensemble type selection with theoretical justification"""
@@ -3161,6 +3227,21 @@ class BootstrapAnalyzer:
         self.confidence_level = confidence_level  
         self.max_bootstrap_samples = max_bootstrap_samples
         self.logger = logging.getLogger(__name__)
+        
+    def _get_fallback_bootstrap_result(self):
+        """Enhanced fallback bootstrap result with debugging info"""
+        return {
+            'error': 'Bootstrap analysis failed - invalid data dimensions or insufficient data',
+            'mean': 0.0,
+            'std': 0.0,
+            'confidence_interval': (0.0, 0.0),
+            'confidence_level': self.confidence_level,
+            'bootstrap_scores': [],
+            'n_bootstrap': 0,
+            'success_rate': 0.0,
+            'fallback_used': True,
+            'fallback_reason': 'dimensionality_error'
+        }
 
     def bootstrap_model_performance(self, model, X: np.ndarray, y: np.ndarray,
                               metric_func=None) -> Dict[str, Any]:

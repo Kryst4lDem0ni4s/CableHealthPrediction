@@ -2822,3 +2822,11 @@ Processing heavy complexity batch: 65 models
 2025-08-16 15:52:40,856 - INFO - Processing fold 2/3
 2025-08-16 15:56:42,746 - INFO - Processing fold 3/3
 2025-08-16 16:00:36,569 - INFO - CV completed. F1: 0.8022 ± 0.0026
+2025-08-16 16:21:49,887 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-16 16:21:49,898 - INFO - Bootstrap progress: 1/20 (5.0%)
+2025-08-16 16:25:48,294 - INFO - Bootstrap progress: 5/20 (25.0%)
+2025-08-16 16:29:59,816 - INFO - Bootstrap progress: 9/20 (45.0%)
+2025-08-16 16:34:06,445 - INFO - Bootstrap progress: 13/20 (65.0%)
+2025-08-16 16:38:15,673 - INFO - Bootstrap progress: 17/20 (85.0%)
+2025-08-16 16:42:22,322 - INFO - Bootstrap completed: 20/20 successful samples
+2025-08-16 16:42:22,369 - ERROR - Analysis pipeline failed: 'NoneType' object is not subscriptable
