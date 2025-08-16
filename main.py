@@ -229,12 +229,12 @@ MODEL_CONFIGS = {
         'xgboost_cv_ensemble': {
             'base_models': ['xgboost'],
             'ensemble_type': 'cv_ensemble',
-            'cv_folds': 5
+            'cv_folds': 3
         },
         'lightgbm_cv_ensemble': {
             'base_models': ['lightgbm'],
             'ensemble_type': 'cv_ensemble',
-            'cv_folds': 5
+            'cv_folds': 3
         },
         'catboost_randomforest': {
             'base_models': ['catboost', 'randomforest'],
@@ -1098,7 +1098,7 @@ class BaseModelFactory:
                     C=1.0,
                     gamma='scale',
                     class_weight='balanced',
-                    probability=True,
+                    probability=False,
                     random_state=Config.RANDOM_STATE,
                     **kwargs
                 )
@@ -1124,7 +1124,7 @@ class BaseModelFactory:
             elif 'neuralnetwork' in model_name_clean or 'mlp' in model_name_clean:
                 return MLPClassifier(
                     hidden_layer_sizes=(50, 25),  # Reduced for faster training
-                    max_iter=200,  # Reduced for faster training
+                    max_iter=100,  # Reduced for faster training
                     early_stopping=True,
                     validation_fraction=0.1,
                     alpha=0.01,
@@ -1435,7 +1435,7 @@ class EnsembleFactory:
             weights = config.get('weights', None)
             return WeightedEnsemble(base_models, list(base_models.keys()), weights)
         elif ensemble_type == 'cv_ensemble':
-            cv_folds = config.get('cv_folds', 5)
+            cv_folds = config.get('cv_folds', 3)
             return CVEnsemble(base_models, list(base_models.keys()), cv_folds, n_classes)
         elif ensemble_type == 'parametric_ensemble':
             n_versions = config.get('n_versions', 3)
@@ -1460,17 +1460,23 @@ class StackingEnsemble:
             max_iter=1000
         )
         self.is_fitted = False
+        
+    def _needs_dense_conversion(self, model_name: str) -> bool:
+        """Check if a specific model needs dense matrix conversion"""
+        model_clean = model_name.lower().replace('_', '')
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        return any(dense_model in model_clean for dense_model in dense_only_models)
+
+    def _prepare_data_for_model(self, X, model_name: str):
+        """Prepare data in the right format (sparse/dense) for a specific model"""
+        if sparse.issparse(X) and self._needs_dense_conversion(model_name):
+            return X.toarray()
+        return X
 
     def fit(self, X, y):
-        """Fit the stacking ensemble with improved sparse handling"""
+        """Fit the stacking ensemble with optimal sparse handling"""
         try:
-            # FIXED: Convert to dense if any model needs it
-            needs_dense_conversion = any(name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-                                       for name in self.model_names)
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
-
+            # Keep X in original format - convert per model as needed
             skf = StratifiedKFold(n_splits=Config.CV_FOLDS, shuffle=True,
                                  random_state=Config.RANDOM_STATE)
 
@@ -1483,8 +1489,11 @@ class StackingEnsemble:
 
                 for train_idx, val_idx in skf.split(X, y_array):
                     try:
-                        X_train_fold = safe_array_indexing(X, train_idx)
-                        X_val_fold = safe_array_indexing(X, val_idx)
+                        # Prepare data specifically for this model
+                        X_model_format = self._prepare_data_for_model(X, name)
+                        
+                        X_train_fold = safe_array_indexing(X_model_format, train_idx)
+                        X_val_fold = safe_array_indexing(X_model_format, val_idx)
                         y_train_fold = y_array[train_idx]
 
                         # Create fresh model for this fold
@@ -1493,15 +1502,15 @@ class StackingEnsemble:
                         cv_preds[val_idx] = model_copy.predict_proba(X_val_fold)
                     except Exception as e:
                         print(f"Warning: Fold training failed for {name}: {e}")
-                        # Fill with uniform probabilities as fallback
                         cv_preds[val_idx] = np.ones((len(val_idx), self.n_classes)) / self.n_classes
 
                 meta_features.append(cv_preds)
 
-            # Train base models on full data
+            # Train base models on full data with appropriate format
             for name in self.model_names:
                 try:
-                    self.base_models[name].fit(X, y)
+                    X_model_format = self._prepare_data_for_model(X, name)
+                    self.base_models[name].fit(X_model_format, y)
                 except Exception as e:
                     print(f"Warning: Full training failed for {name}: {e}")
 
@@ -1519,25 +1528,20 @@ class StackingEnsemble:
             raise
 
     def predict_proba(self, X):
-        """Predict probabilities using stacking ensemble with sparse handling"""
+        """Predict probabilities with optimal sparse handling"""
         if not self.is_fitted:
             raise ValueError("Ensemble not fitted yet")
+        
         try:
-            # FIXED: Convert to dense if any model needs it
-            needs_dense_conversion = any(name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-                                       for name in self.model_names)
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
-
             base_preds = []
             for name in self.model_names:
                 try:
-                    pred = self.base_models[name].predict_proba(X)
+                    # Prepare data specifically for this model
+                    X_model_format = self._prepare_data_for_model(X, name)
+                    pred = self.base_models[name].predict_proba(X_model_format)
                     base_preds.append(pred)
                 except Exception as e:
                     print(f"Warning: Prediction failed for {name}: {e}")
-                    # Use uniform probabilities as fallback
                     n_samples = safe_array_length(X)
                     fallback_pred = np.ones((n_samples, self.n_classes)) / self.n_classes
                     base_preds.append(fallback_pred)
@@ -1546,7 +1550,6 @@ class StackingEnsemble:
                 meta_X = np.column_stack(base_preds)
                 return self.meta_learner.predict_proba(meta_X)
             else:
-                # Ultimate fallback
                 n_samples = safe_array_length(X)
                 return np.ones((n_samples, self.n_classes)) / self.n_classes
 
@@ -1567,20 +1570,27 @@ class VotingEnsemble:
         self.base_models = base_models
         self.model_names = model_names
         self.is_fitted = False
+        
+    def _needs_dense_conversion(self, model_name: str) -> bool:
+        """Check if a specific model needs dense matrix conversion"""
+        model_clean = model_name.lower().replace('_', '')
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        return any(dense_model in model_clean for dense_model in dense_only_models)
+
+    def _prepare_data_for_model(self, X, model_name: str):
+        """Prepare data in the right format (sparse/dense) for a specific model"""
+        if sparse.issparse(X) and self._needs_dense_conversion(model_name):
+            return X.toarray()
+        return X
 
     def fit(self, X, y):
-        """Fit the voting ensemble with sparse handling"""
+        """Fit the voting ensemble with optimal sparse handling"""
         try:
-            # FIXED: Convert to dense if any model needs it
-            needs_dense_conversion = any(name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-                                       for name in self.model_names)
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
-
             for name in self.model_names:
                 try:
-                    self.base_models[name].fit(X, y)
+                    # Prepare data specifically for this model
+                    X_model_format = self._prepare_data_for_model(X, name)
+                    self.base_models[name].fit(X_model_format, y)
                 except Exception as e:
                     print(f"Warning: Training failed for {name}: {e}")
             self.is_fitted = True
@@ -1591,22 +1601,17 @@ class VotingEnsemble:
             raise
 
     def predict_proba(self, X):
-        """Predict probabilities using voting ensemble with sparse handling"""
+        """Predict probabilities with optimal sparse handling"""
         if not self.is_fitted:
             raise ValueError("Ensemble not fitted yet")
 
         try:
-            # FIXED: Convert to dense if any model needs it
-            needs_dense_conversion = any(name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-                                       for name in self.model_names)
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
-
             valid_predictions = []
             for name in self.model_names:
                 try:
-                    proba = self.base_models[name].predict_proba(X)
+                    # Prepare data specifically for this model
+                    X_model_format = self._prepare_data_for_model(X, name)
+                    proba = self.base_models[name].predict_proba(X_model_format)
                     valid_predictions.append(proba)
                 except Exception as e:
                     print(f"Warning: Prediction failed for {name}: {e}")
@@ -1614,7 +1619,6 @@ class VotingEnsemble:
             if valid_predictions:
                 return np.mean(valid_predictions, axis=0)
             else:
-                # Fallback to uniform probabilities
                 n_samples = safe_array_length(X)
                 return np.ones((n_samples, 3)) / 3
 
@@ -1636,19 +1640,27 @@ class WeightedEnsemble:
         self.model_names = model_names
         self.weights = weights if weights else [1.0/len(model_names)] * len(model_names)
         self.is_fitted = False
+        
+    def _needs_dense_conversion(self, model_name: str) -> bool:
+        """Check if a specific model needs dense matrix conversion"""
+        model_clean = model_name.lower().replace('_', '')
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        return any(dense_model in model_clean for dense_model in dense_only_models)
+
+    def _prepare_data_for_model(self, X, model_name: str):
+        """Prepare data in the right format (sparse/dense) for a specific model"""
+        if sparse.issparse(X) and self._needs_dense_conversion(model_name):
+            return X.toarray()
+        return X
 
     def fit(self, X, y):
-        """Fit the weighted ensemble"""
+        """Fit the weighted ensemble with optimal sparse handling"""
         try:
-            # FIXED: Convert to dense if any model needs it
-            needs_dense_conversion = any(name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-                                       for name in self.model_names)
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
             for name in self.model_names:
                 try:
-                    self.base_models[name].fit(X, y)
+                    # Prepare data specifically for this model
+                    X_model_format = self._prepare_data_for_model(X, name)
+                    self.base_models[name].fit(X_model_format, y)
                 except Exception as e:
                     print(f"Warning: Training failed for {name}: {e}")
             self.is_fitted = True
@@ -1659,24 +1671,19 @@ class WeightedEnsemble:
             raise
 
     def predict_proba(self, X):
-        """Predict probabilities using weighted ensemble"""
+        """Predict probabilities with optimal sparse handling"""
         if not self.is_fitted:
             raise ValueError("Ensemble not fitted yet")
 
         try:
-            # FIXED: Convert to dense if any model needs it
-            needs_dense_conversion = any(name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-                                       for name in self.model_names)
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
-
             proba_weighted = None
             total_weight = 0
 
             for i, name in enumerate(self.model_names):
                 try:
-                    proba = self.base_models[name].predict_proba(X) * self.weights[i]
+                    # Prepare data specifically for this model
+                    X_model_format = self._prepare_data_for_model(X, name)
+                    proba = self.base_models[name].predict_proba(X_model_format) * self.weights[i]
                     if proba_weighted is None:
                         proba_weighted = proba
                     else:
@@ -1711,22 +1718,30 @@ class CVEnsemble:
         self.n_classes = n_classes
         self.models = []
         self.is_fitted = False
+        
+    def _needs_dense_conversion(self, model_name: str) -> bool:
+        """Check if a specific model needs dense matrix conversion"""
+        model_clean = model_name.lower().replace('_', '')
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        return any(dense_model in model_clean for dense_model in dense_only_models)
+
+    def _prepare_data_for_model(self, X, model_name: str):
+        """Prepare data in the right format (sparse/dense) for a specific model"""
+        if sparse.issparse(X) and self._needs_dense_conversion(model_name):
+            return X.toarray()
+        return X
 
     def fit(self, X, y):
-        """Fit multiple CV models with different hyperparameters"""
+        """Fit multiple CV models with optimal sparse handling"""
         try:
-            # FIXED: Convert to dense if any model needs it
-            needs_dense_conversion = self.base_model_name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
+            # Prepare data format for the base model type
+            X_model_format = self._prepare_data_for_model(X, self.base_model_name)
 
             skf = StratifiedKFold(n_splits=self.cv_folds, shuffle=True, random_state=Config.RANDOM_STATE)
             y_array = np.array(y) if not isinstance(y, np.ndarray) else y
 
-            for fold, (train_idx, _) in enumerate(skf.split(X, y_array)):
+            for fold, (train_idx, _) in enumerate(skf.split(X_model_format, y_array)):
                 try:
-                    # Vary hyperparameters slightly for each fold
                     hp_variation = {
                         'learning_rate': 0.05 + (fold * 0.02),
                         'max_depth': 5 + (fold % 3),
@@ -1734,7 +1749,7 @@ class CVEnsemble:
                     }
 
                     model = BaseModelFactory.create_model(self.base_model_name, self.n_classes, **hp_variation)
-                    X_train_fold = safe_array_indexing(X, train_idx)
+                    X_train_fold = safe_array_indexing(X_model_format, train_idx)
                     y_train_fold = y_array[train_idx]
 
                     model.fit(X_train_fold, y_train_fold)
@@ -1751,22 +1766,19 @@ class CVEnsemble:
             raise
 
     def predict_proba(self, X):
-        """Average predictions from all CV models"""
+        """Average predictions with optimal sparse handling"""
         if not self.is_fitted:
             raise ValueError("Ensemble not fitted yet")
 
         try:
-            # FIXED: Convert to dense if any model needs it
-            needs_dense_conversion = self.base_model_name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
+            # Prepare data format for the base model type
+            X_model_format = self._prepare_data_for_model(X, self.base_model_name)
 
             if self.models:
                 valid_predictions = []
                 for model in self.models:
                     try:
-                        proba = model.predict_proba(X)
+                        proba = model.predict_proba(X_model_format)
                         valid_predictions.append(proba)
                     except Exception as e:
                         print(f"Warning: CV model prediction failed: {e}")
@@ -1774,7 +1786,6 @@ class CVEnsemble:
                 if valid_predictions:
                     return np.mean(valid_predictions, axis=0)
 
-            # Fallback
             n_samples = safe_array_length(X)
             return np.ones((n_samples, self.n_classes)) / self.n_classes
 
@@ -1807,6 +1818,18 @@ class ParametricEnsemble:
             max_iter=1000
         )
         self.is_fitted = False
+        
+    def _needs_dense_conversion(self, model_name: str) -> bool:
+        """Check if a specific model needs dense matrix conversion"""
+        model_clean = model_name.lower().replace('_', '')
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        return any(dense_model in model_clean for dense_model in dense_only_models)
+
+    def _prepare_data_for_model(self, X, model_name: str):
+        """Prepare data in the right format (sparse/dense) for a specific model"""
+        if sparse.issparse(X) and self._needs_dense_conversion(model_name):
+            return X.toarray()
+        return X
 
     def _generate_hyperparameter_variations(self, model_name: str, version: int):
         """Generate different hyperparameter sets for each model version"""
@@ -1867,51 +1890,43 @@ class ParametricEnsemble:
         return variations[version % len(variations)]
 
     def fit(self, X, y):
-        """Fit parametric ensemble with multiple model versions"""
+        """Fit parametric ensemble with optimal sparse handling"""
         try:
-            # Convert to dense if any model needs it
-            needs_dense_conversion = any(name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-                                       for name in self.model_names)
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
-
             # Create multiple versions of each base model
             for model_name in self.model_names:
+                # Prepare data format for this model type
+                X_model_format = self._prepare_data_for_model(X, model_name)
                 self.parametric_models[model_name] = []
 
                 for version in range(self.n_versions):
-                    # Get hyperparameter variations
                     hp_variations = self._generate_hyperparameter_variations(model_name, version)
-
-                    # Create model with variations
                     model = BaseModelFactory.create_model(model_name, self.n_classes, **hp_variations)
 
                     try:
-                        model.fit(X, y)
+                        model.fit(X_model_format, y)
                         self.parametric_models[model_name].append(model)
                     except Exception as e:
                         print(f"Warning: Parametric model {model_name} version {version} failed: {e}")
 
-            # Create meta-features from all parametric models
+            # Create meta-features with appropriate data formats
             meta_features = []
             n_samples = safe_array_length(X)
 
             for model_name, models in self.parametric_models.items():
+                # Prepare data format for this model type
+                X_model_format = self._prepare_data_for_model(X, model_name)
+                
                 for model in models:
                     try:
-                        # Use cross-validation to get out-of-fold predictions
                         skf = StratifiedKFold(n_splits=3, shuffle=True, random_state=Config.RANDOM_STATE)
                         cv_preds = np.zeros((n_samples, self.n_classes))
-
                         y_array = np.array(y) if not isinstance(y, np.ndarray) else y
 
-                        for train_idx, val_idx in skf.split(X, y_array):
-                            X_train_fold = safe_array_indexing(X, train_idx)
-                            X_val_fold = safe_array_indexing(X, val_idx)
+                        for train_idx, val_idx in skf.split(X_model_format, y_array):
+                            X_train_fold = safe_array_indexing(X_model_format, train_idx)
+                            X_val_fold = safe_array_indexing(X_model_format, val_idx)
                             y_train_fold = y_array[train_idx]
 
-                            # Create fresh model for this fold
                             fold_model = BaseModelFactory.create_model(
                                 model_name, self.n_classes,
                                 **self._generate_hyperparameter_variations(model_name, len(models))
@@ -1923,7 +1938,6 @@ class ParametricEnsemble:
                     except Exception as e:
                         print(f"Warning: Meta-feature generation failed for {model_name}: {e}")
 
-            # Train meta-learner if we have meta-features
             if meta_features:
                 meta_X = np.column_stack(meta_features)
                 self.meta_learner.fit(meta_X, y)
@@ -1937,35 +1951,28 @@ class ParametricEnsemble:
             raise
 
     def predict_proba(self, X):
-        """Predict using parametric ensemble"""
+        """Predict using parametric ensemble with optimal sparse handling"""
         if not self.is_fitted:
             raise ValueError("Ensemble not fitted yet")
 
         try:
-            # Convert to dense if needed
-            needs_dense_conversion = any(name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-                                       for name in self.model_names)
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
-
-            # Get predictions from all parametric models
             base_predictions = []
 
             for model_name, models in self.parametric_models.items():
+                # Prepare data format for this model type
+                X_model_format = self._prepare_data_for_model(X, model_name)
+                
                 for model in models:
                     try:
-                        pred = model.predict_proba(X)
+                        pred = model.predict_proba(X_model_format)
                         base_predictions.append(pred)
                     except Exception as e:
                         print(f"Warning: Prediction failed for parametric {model_name}: {e}")
 
             if base_predictions:
-                # Use meta-learner for final prediction
                 meta_X = np.column_stack(base_predictions)
                 return self.meta_learner.predict_proba(meta_X)
             else:
-                # Fallback to uniform probabilities
                 n_samples = safe_array_length(X)
                 return np.ones((n_samples, self.n_classes)) / self.n_classes
 
@@ -1988,17 +1995,23 @@ class StackingRidgeEnsemble:
         self.n_classes = n_classes
         self.meta_learner = Ridge(alpha=1.0, random_state=Config.RANDOM_STATE)
         self.is_fitted = False
+        
+    def _needs_dense_conversion(self, model_name: str) -> bool:
+        """Check if a specific model needs dense matrix conversion"""
+        model_clean = model_name.lower().replace('_', '')
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        return any(dense_model in model_clean for dense_model in dense_only_models)
+
+    def _prepare_data_for_model(self, X, model_name: str):
+        """Prepare data in the right format (sparse/dense) for a specific model"""
+        if sparse.issparse(X) and self._needs_dense_conversion(model_name):
+            return X.toarray()
+        return X
 
     def fit(self, X, y):
-        """Fit stacking ensemble with Ridge meta-learner"""
+        """Fit stacking ensemble with Ridge meta-learner and optimal sparse handling"""
         try:
-            # Similar to StackingEnsemble but with Ridge regression
-            needs_dense_conversion = any(name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-                                       for name in self.model_names)
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
-
+            # Keep X in original format - convert per model as needed
             skf = StratifiedKFold(n_splits=Config.CV_FOLDS, shuffle=True, random_state=Config.RANDOM_STATE)
 
             meta_features = []
@@ -2010,8 +2023,11 @@ class StackingRidgeEnsemble:
 
                 for train_idx, val_idx in skf.split(X, y_array):
                     try:
-                        X_train_fold = safe_array_indexing(X, train_idx)
-                        X_val_fold = safe_array_indexing(X, val_idx)
+                        # Prepare data specifically for this model
+                        X_model_format = self._prepare_data_for_model(X, name)
+                        
+                        X_train_fold = safe_array_indexing(X_model_format, train_idx)
+                        X_val_fold = safe_array_indexing(X_model_format, val_idx)
                         y_train_fold = y_array[train_idx]
 
                         model_copy = BaseModelFactory.create_model(name, self.n_classes)
@@ -2025,10 +2041,11 @@ class StackingRidgeEnsemble:
                 for class_idx in range(self.n_classes):
                     meta_features.append(cv_preds[:, class_idx])
 
-            # Train base models on full data
+            # Train base models on full data with appropriate format
             for name in self.model_names:
                 try:
-                    self.base_models[name].fit(X, y)
+                    X_model_format = self._prepare_data_for_model(X, name)
+                    self.base_models[name].fit(X_model_format, y)
                 except Exception as e:
                     print(f"Warning: Ridge stacking full training failed for {name}: {e}")
 
@@ -2052,22 +2069,18 @@ class StackingRidgeEnsemble:
             raise
 
     def predict_proba(self, X):
-        """Predict probabilities using Ridge stacking"""
+        """Predict probabilities with optimal sparse handling"""
         if not self.is_fitted:
             raise ValueError("Ensemble not fitted yet")
 
         try:
-            needs_dense_conversion = any(name.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp']
-                                       for name in self.model_names)
-
-            if sparse.issparse(X) and needs_dense_conversion:
-                X = X.toarray()
-
-            # Get base model predictions
+            # Get base model predictions with per-model data preparation
             base_features = []
             for name in self.model_names:
                 try:
-                    pred = self.base_models[name].predict_proba(X)
+                    # Prepare data specifically for this model
+                    X_model_format = self._prepare_data_for_model(X, name)
+                    pred = self.base_models[name].predict_proba(X_model_format)
                     for class_idx in range(self.n_classes):
                         base_features.append(pred[:, class_idx])
                 except Exception as e:
@@ -2372,7 +2385,7 @@ class ModelEvaluator:
             self.logger.error(f"Quick evaluation failed for {model_name}: {str(e)}")
             return {'accuracy': 0.0, 'weighted_f1': 0.0, 'training_time': float('inf'), 'validation_based': False}
 
-    def comprehensive_cv_evaluate(self, model_name: str, config: Dict[str, Any], cv_folds: int = 5) -> Dict[str, Any]:
+    def comprehensive_cv_evaluate(self, model_name: str, config: Dict[str, Any], cv_folds: int = 3) -> Dict[str, Any]:
         """Comprehensive cross-validation for all model types including ensembles"""
         try:
             from sklearn.model_selection import StratifiedKFold
@@ -2516,7 +2529,7 @@ class ModelEvaluator:
                 y_train_use = y_train_use.values
 
             # 1. Comprehensive Cross-Validation
-            cv_results = self.comprehensive_cv_evaluate(model_name, config, cv_folds=5)
+            cv_results = self.comprehensive_cv_evaluate(model_name, config, cv_folds=3)
 
             # Validate data integrity before bootstrap
             if len(y_train_use) == 0 or len(X_train_use) == 0:
@@ -2540,7 +2553,7 @@ class ModelEvaluator:
                 }
 
             # 2. Bootstrap Analysis for confidence intervals
-            bootstrap_analyzer = BootstrapAnalyzer(n_bootstrap=500)
+            bootstrap_analyzer = BootstrapAnalyzer(n_bootstrap=100)
 
             # Training with progress updates
             self.logger.info(f"Starting model training...")
@@ -2831,7 +2844,7 @@ class SystematicConfigurationGenerator:
             # Single algorithm variants
             variants.update({
                 'solo': {'ensemble_type': 'none'},
-                'cv': {'ensemble_type': 'cv_ensemble', 'cv_folds': 5},
+                'cv': {'ensemble_type': 'cv_ensemble', 'cv_folds': 3},
                 'parametric': {'ensemble_type': 'parametric_ensemble', 'n_versions': 3}
             })
         else:
@@ -2951,7 +2964,7 @@ class StatisticalTester:
 class BootstrapAnalyzer:
     """Bootstrap analysis for confidence intervals and stability assessment"""
 
-    def __init__(self, n_bootstrap: int = 1000, confidence_level: float = 0.95):
+    def __init__(self, n_bootstrap: int = 100, confidence_level: float = 0.95):
         self.n_bootstrap = n_bootstrap
         self.confidence_level = confidence_level
         self.logger = logging.getLogger(__name__)
