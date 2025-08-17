@@ -29,9 +29,25 @@
     "lightgbm_naivebayes",
     "xgboost_naivebayes",
     "randomforest_naivebayes",
-    "lightgbm_catboost_naivebayes"
+    "lightgbm_catboost_naivebayes",
+    "lightgbm_catboost_advancedsvm",
+    "xgboost_catboost_advancedsvm",
+    "xgboost_catboost_naivebayes",
+    "catboost_solo",
+    "xgboost_cv_ensemble",
+    "lightgbm_cv_ensemble",
+    "catboost_randomforest",
+    "catboost_advancedsvm_randomforest",
+    "lightgbm_neuralnetwork",
+    "xgboost_neuralnetwork",
+    "xgboost_neuralnetwork_naivebayes",
+    "xgboost_neuralnetwork_randomforest",
+    "lightgbm_neuralnetwork_advancedsvm",
+    "lightgbm_neuralnetwork_naivebayes",
+    "lightgbm_neuralnetwork_randomforest",
+    "catboost_randomforest_naivebayes"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-16T18:37:30.351525"
+  "timestamp": "2025-08-17T16:30:29.021801"
 }

@@ -828,16 +828,14 @@ def monitor_resources():
 def cleanup_memory():
     """Force garbage collection and memory cleanup"""
     gc.collect()
-
-def safe_array_length(arr):
-    """Safely get the length of an array, handling both dense and sparse matrices"""
-    if sparse.issparse(arr):
-        return arr.shape[0]
-    elif hasattr(arr, 'shape') and len(arr.shape) > 0:
-        return arr.shape
-    elif hasattr(arr, '__len__'):
-        return len(arr)
-    else:
+    
+def safe_array_length(arr) -> int:
+    """Return the number of samples (first dimension) as an int for any array-like."""
+    try:
+        if hasattr(arr, 'shape') and arr.shape is not None and len(arr.shape) >= 1:
+            return int(arr.shape[0])
+        return int(len(arr))
+    except Exception:
         return 0
 
 def safe_array_indexing(arr, indices):
@@ -849,10 +847,30 @@ def safe_array_indexing(arr, indices):
 
 def safe_len(arr):
     """Safe wrapper for len() that handles sparse matrices"""
-    if sparse.issparse(arr):
-        return arr.shape
-    else:
-        return len(arr)
+    # if sparse.issparse(arr):
+    #     return arr.shape
+    # else:
+    #     return len(arr)
+    return safe_array_length(arr)
+    
+def get_n_samples(arr):
+    """UNIVERSAL: Get number of samples from any array type safely"""
+    # try:
+    #     if sparse.issparse(arr):
+    #         try:
+    #             return arr.shape  # Always use shape for sparse
+    #         except:
+    #             return arr.shape[0]  # Always use shape for sparse
+    #     elif hasattr(arr, 'shape') and len(arr.shape) > 0:
+    #         return arr.shape  # FIXED: Get first dimension only
+    #     elif hasattr(arr, '__len__'):
+    #         return len(arr)     # Use len() only for lists/pandas
+    #     else:
+    #         return 0
+    # except Exception:
+    #     return 0
+    return safe_array_length(arr)
+
 
 def safe_pandas_indexing(df_or_series, indices):
     """Safely index pandas DataFrame or Series using iloc for integer indices"""
@@ -1496,7 +1514,7 @@ class StackingEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -1606,7 +1624,7 @@ class VotingEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -1676,7 +1694,7 @@ class WeightedEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -1754,7 +1772,7 @@ class CVEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -1854,7 +1872,7 @@ class ParametricEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -2031,7 +2049,7 @@ class StackingRidgeEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -2380,7 +2398,7 @@ class ModelEvaluator:
             # Handle sparse matrix conversion
             if sparse.issparse(X_sample):
                 base_models = config.get('base_models', [])
-                needs_dense = any(model.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+                needs_dense = any(model.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm']
                                 for model in base_models)
                 if needs_dense:
                     X_sample = X_sample.toarray()
@@ -2418,16 +2436,16 @@ class ModelEvaluator:
             return {'accuracy': 0.0, 'weighted_f1': 0.0, 'training_time': float('inf'), 'validation_based': False}
 
     def comprehensive_cv_evaluate(self, model_name: str, config: Dict[str, Any], cv_folds: int = 3) -> Dict[str, Any]:
-        """FIXED: Comprehensive cross-validation with proper dimension handling"""
+        """FIXED: Comprehensive cross-validation with proper sparse handling"""
         try:
             from sklearn.model_selection import StratifiedKFold
-
             print(f"Running comprehensive {cv_folds}-fold CV for {model_name}")
-
+            
             # Prepare data with enhanced validation
             X_full = self.X_train_split
             y_full = self.y_train_split
             
+            # Handle sparse conversion consistently
             if sparse.issparse(X_full):
                 base_models = config.get('base_models', [])
                 needs_dense = any(model.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm']
@@ -2435,48 +2453,41 @@ class ModelEvaluator:
                 if needs_dense:
                     X_full = X_full.toarray()
             
-            # FIXED: Ensure proper array formats and dimension consistency
+            # FIXED: Ensure proper array formats - keep sparse when possible
             if hasattr(y_full, 'values'):
                 y_full = y_full.values
             y_full = np.asarray(y_full).flatten()
             
-            # FIXED: Ensure X is properly formatted
-            if hasattr(X_full, 'values'):
+            # FIXED: Only convert X to dense numpy if it's not sparse and needs conversion
+            if not sparse.issparse(X_full) and hasattr(X_full, 'values'):
                 X_full = X_full.values
-            X_full = np.asarray(X_full)
+            if not sparse.issparse(X_full):
+                X_full = np.asarray(X_full)
             
-            # Validate data dimensions with detailed logging
-            if len(y_full) == 0:
+            # Validate data dimensions with safe checking
+            if get_n_samples(y_full) == 0:
                 self.logger.error("No training data available for CV")
                 return {'cv_failed': True, 'error': 'No training data'}
             
-            # FIXED: Use safe shape checking
-            def safe_get_shape(arr):
-                try:
-                    if hasattr(arr, 'shape'):
-                        shape_val = arr.shape[0]
-                        return int(shape_val) if not isinstance(shape_val, tuple) else int(shape_val)
-                    else:
-                        return len(arr)
-                except:
-                    return 0
-            
-            x_samples = safe_get_shape(X_full)
-            y_samples = safe_get_shape(y_full)
+            x_samples = get_n_samples(X_full)
+            y_samples = get_n_samples(y_full)
             
             if x_samples != y_samples:
                 self.logger.error(f"X and y dimension mismatch: X={x_samples}, y={y_samples}")
                 # Try to fix the mismatch
                 min_samples = min(x_samples, y_samples)
                 if min_samples > 0:
-                    X_full = X_full[:min_samples]
+                    if sparse.issparse(X_full):
+                        X_full = X_full[:min_samples]
+                    else:
+                        X_full = X_full[:min_samples]
                     y_full = y_full[:min_samples]
                     self.logger.info(f"Truncated to {min_samples} samples for consistency")
                 else:
                     return {'cv_failed': True, 'error': 'Dimension mismatch cannot be resolved'}
 
             skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=Config.RANDOM_STATE)
-
+            
             cv_scores = {
                 'accuracy': [],
                 'weighted_f1': [],
@@ -2484,14 +2495,20 @@ class ModelEvaluator:
                 'weighted_recall': [],
                 'roc_auc_ovr': []
             }
-
+            
             fold_times = []
-
+            
             for fold, (train_idx, val_idx) in enumerate(skf.split(X_full, y_full)):
                 print(f"Processing fold {fold + 1}/{cv_folds}")
-
-                X_train_fold = X_full[train_idx]
-                X_val_fold = X_full[val_idx]
+                
+                # FIXED: Safe indexing for both sparse and dense
+                if sparse.issparse(X_full):
+                    X_train_fold = X_full[train_idx]
+                    X_val_fold = X_full[val_idx]
+                else:
+                    X_train_fold = X_full[train_idx]
+                    X_val_fold = X_full[val_idx]
+                
                 y_train_fold = y_full[train_idx]
                 y_val_fold = y_full[val_idx]
 
@@ -2577,7 +2594,7 @@ class ModelEvaluator:
             # OPTIMIZED: Do conversion once and reuse
             if sparse.issparse(X_train_use):
                 base_models = config.get('base_models', [])
-                needs_dense = any(model.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+                needs_dense = any(model.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm']
                                 for model in base_models)
                 if needs_dense:
                     print(f"Converting sparse matrices to dense for compatibility...")
@@ -2608,21 +2625,26 @@ class ModelEvaluator:
             # FIXED: Safe data validation using helper function
             def safe_get_shape(arr):
                 """Safely get the first dimension of an array"""
+                # try:
+                #     if hasattr(arr, 'shape'):
+                #         shape_val = arr.shape[0]
+                #         # Ensure we return an integer, not a tuple
+                #         return int(shape_val) if not isinstance(shape_val, tuple) else int(shape_val)
+                #     else:
+                #         return len(arr)
+                # except:
+                #     return 0
+                
                 try:
-                    if hasattr(arr, 'shape'):
-                        shape_val = arr.shape[0]
-                        # Ensure we return an integer, not a tuple
-                        return int(shape_val) if not isinstance(shape_val, tuple) else int(shape_val)
-                    else:
-                        return len(arr)
-                except:
+                    return safe_array_length(arr)
+                except Exception:
                     return 0
 
-            train_samples = safe_get_shape(X_train_use)
-            train_labels = safe_get_shape(y_train_use)
-            test_samples = safe_get_shape(X_test_use)
-            test_labels = safe_get_shape(self.y_test)
-            
+            train_samples = get_n_samples(X_train_use)
+            train_labels = get_n_samples(y_train_use)
+            test_samples = get_n_samples(X_test_use)
+            test_labels = get_n_samples(self.y_test)
+                        
             if train_labels == 0 or train_samples == 0:
                 print("No training data available for evaluation")
                 return {
@@ -2641,6 +2663,9 @@ class ModelEvaluator:
             training_start = time.time()
             print(f"Starting model training...")
             print(f"Training set size: {train_samples} samples, {safe_get_shape(X_train_use[0:1])} features" if train_samples > 0 else "Training set size: unknown")
+            
+            n_features = X_train_use.shape[1] if hasattr(X_train_use, 'shape') and len(X_train_use.shape) > 1 else "unknown"
+            print(f"Training set size: {train_samples} samples, {n_features} features" if train_samples > 0 else "Training set size: unknown")
             
             model.fit(X_train_use, y_train_use)
             training_time = time.time() - training_start
@@ -2683,7 +2708,7 @@ class ModelEvaluator:
             # 2. Validation set predictions with SAFE shape checking
             val_pred_start = time.time()
             print(f"Predicting probabilities for VALIDATION set...")
-            val_samples = safe_get_shape(X_val_eval)
+            val_samples = get_n_samples(X_val_eval)
             print(f"Validation set shape: ({val_samples}, {X_val_eval.shape[1] if hasattr(X_val_eval, 'shape') else 'unknown'})")
             
             # FIXED: Safe shape comparison
@@ -2755,34 +2780,41 @@ class ModelEvaluator:
             # FIXED: Enhanced bootstrap data validation
             bootstrap_start = time.time()
             print(f"Starting bootstrap analysis...")
-            bootstrap_analyzer = self._get_adaptive_bootstrap_analyzer(model_name, len(X_test_use))
+            bootstrap_analyzer = self._get_adaptive_bootstrap_analyzer(model_name, get_n_samples(X_test_use))
             
+            # CRITICAL VALIDATION: Check data before bootstrap with proper sparse handling
             try:
                 y_test_array = self.y_test.values if hasattr(self.y_test, 'values') else np.array(self.y_test)
                 y_test_array = np.asarray(y_test_array).flatten()
                 
-                # CRITICAL VALIDATION: Check data before bootstrap
-                if len(y_test_array) == 0 or len(X_test_use) == 0:
+                # FIXED: Use safe sparse-aware length checking
+                x_test_samples = get_n_samples(X_test_use)
+                y_test_samples = len(y_test_array)
+                
+                if y_test_samples == 0 or x_test_samples == 0:
                     print(f"Skipping bootstrap: empty data arrays")
                     test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
-                elif len(X_test_use) != len(y_test_array):
-                    print(f"Skipping bootstrap: data shape mismatch X={len(X_test_use)}, y={len(y_test_array)}")
-                    test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
-                elif X_test_use.ndim == 0 or y_test_array.ndim == 0:
-                    print(f"Skipping bootstrap: invalid array dimensions X.ndim={X_test_use.ndim}, y.ndim={y_test_array.ndim}")
+                elif x_test_samples != y_test_samples:
+                    print(f"Skipping bootstrap: data shape mismatch X={x_test_samples}, y={y_test_samples}")
                     test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
                 else:
                     # Proceed with bootstrap only if data is valid
-                    if len(X_test_use) > 3000:
+                    if x_test_samples > 3000:
                         print(f"Using bootstrap subsample for large dataset...")
-                        sample_indices = np.random.choice(len(X_test_use), 2000, replace=False)
-                        X_bootstrap = X_test_use[sample_indices]
+                        sample_indices = np.random.choice(x_test_samples, 2000, replace=False)
+                        
+                        # FIXED: Handle sparse matrix subsampling properly
+                        if sparse.issparse(X_test_use):
+                            X_bootstrap = X_test_use[sample_indices]
+                        else:
+                            X_bootstrap = X_test_use[sample_indices]
                         y_bootstrap = y_test_array[sample_indices]
                         test_bootstrap = bootstrap_analyzer.bootstrap_model_performance(model, X_bootstrap, y_bootstrap)
                     else:
                         test_bootstrap = bootstrap_analyzer.bootstrap_model_performance(model, X_test_use, y_test_array)
                         
                     print(f"Bootstrap analysis completed with {test_bootstrap.get('success_rate', 0):.2%} success rate")
+                    
             except Exception as bootstrap_error:
                 print(f"Bootstrap analysis failed: {bootstrap_error}")
                 test_bootstrap = bootstrap_analyzer._get_fallback_bootstrap_result()
@@ -2871,7 +2903,7 @@ class ModelEvaluator:
         """Prepare all data formats once to avoid repeated conversions"""
         base_models = config.get('base_models', [])
         needs_dense = any(model.lower().replace('_', '') in 
-                        ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier']
+                        ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm']
                         for model in base_models)
         
         if sparse.issparse(self.X_train) and needs_dense:
@@ -2889,28 +2921,17 @@ class ModelEvaluator:
     def _predict_proba_batched_safe(self, model, X, batch_size=None):
         """SAFE batched prediction with proper shape handling"""
         
-        # Safe shape extraction
-        def safe_get_length(arr):
-            try:
-                if hasattr(arr, 'shape'):
-                    shape_val = arr.shape[0]
-                    return int(shape_val) if not isinstance(shape_val, tuple) else int(shape_val)
-                else:
-                    return len(arr)
-            except:
-                return 0
-        
-        n_samples = safe_get_length(X)
+        n_samples = get_n_samples(X)
         
         # Dynamic batch sizing based on model complexity and available memory
         if batch_size is None:
             model_name = model.__class__.__name__.lower()
             if 'tabflex' in model_name or 'mixture' in model_name:
-                batch_size = min(256, max(1, n_samples // 10))  # Ensure at least 1
+                batch_size = min(256, max(1, n_samples // 10))
             elif 'deepgbm' in model_name:
-                batch_size = min(512, max(1, n_samples // 5))   # Ensure at least 1
+                batch_size = min(512, max(1, n_samples // 5))
             else:
-                batch_size = min(2000, max(1, n_samples // 2))  # Ensure at least 1
+                batch_size = min(2000, max(1, n_samples // 2))
         
         print(f"Using adaptive batch size: {batch_size}")
         
@@ -2921,11 +2942,12 @@ class ModelEvaluator:
             batch_start = i * batch_size
             batch_end = min((i + 1) * batch_size, n_samples)
             
-            if i % max(1, n_batches // 10) == 0:  # Progress every 10%
+            if i % max(1, n_batches // 10) == 0:
                 print(f"Batch progress: {i+1}/{n_batches} ({100*(i+1)/n_batches:.1f}%)")
             
             try:
-                if hasattr(X, 'shape') and len(X.shape) > 1:
+                # FIXED: Safe indexing for both sparse and dense
+                if sparse.issparse(X):
                     X_batch = X[batch_start:batch_end]
                 else:
                     X_batch = X[batch_start:batch_end]
@@ -2935,12 +2957,12 @@ class ModelEvaluator:
                 
             except Exception as e:
                 print(f"Batch {i+1} failed: {e}")
-                # Fallback prediction
-                n_classes = getattr(model, 'n_classes_', 3)
+                # FIXED: Use consistent n_classes
+                n_classes = getattr(model, 'n_classes_', self.n_classes)
                 fallback = np.ones((batch_end - batch_start, n_classes)) / n_classes
                 all_probas.append(fallback)
         
-        return np.vstack(all_probas) if all_probas else np.ones((n_samples, 3)) / 3
+        return np.vstack(all_probas) if all_probas else np.ones((n_samples, self.n_classes)) / self.n_classes
     
 class EnsembleSelectionFramework:
     """Systematic ensemble type selection with theoretical justification"""
@@ -3243,9 +3265,8 @@ class BootstrapAnalyzer:
             'fallback_reason': 'dimensionality_error'
         }
 
-    def bootstrap_model_performance(self, model, X: np.ndarray, y: np.ndarray,
-                              metric_func=None) -> Dict[str, Any]:
-        """OPTIMIZED: Adaptive bootstrap with memory and complexity awareness"""
+    def bootstrap_model_performance(self, model, X: np.ndarray, y: np.ndarray, metric_func=None) -> Dict[str, Any]:
+        """FIXED: Bootstrap with proper sparse matrix handling"""
         if metric_func is None:
             metric_func = lambda y_true, y_pred: f1_score(y_true, y_pred, average='weighted')
 
@@ -3257,8 +3278,24 @@ class BootstrapAnalyzer:
                 X = X.values
                 
             y = np.asarray(y).flatten()
-            X = np.asarray(X)
-            n_samples = len(y)
+            # DON'T convert sparse X to dense array here - keep it sparse
+            
+            # CRITICAL FIX: Use safe length checking for sparse matrices
+            # if sparse.issparse(X):
+            #     n_samples = X.shape[0]  # FIXED: Use shape instead of len()
+            # else:
+            #     X = np.asarray(X)
+            #     n_samples = len(X)
+            
+            # WITH:
+            n_samples = get_n_samples(X)
+            if not sparse.issparse(X):
+                X = np.asarray(X)
+            
+            # Validate we have matching dimensions
+            if len(y) != n_samples:
+                self.logger.error(f"X and y length mismatch: X={n_samples}, y={len(y)}")
+                return self._get_fallback_bootstrap_result()
             
             # ADAPTIVE LIMITS based on dataset size and memory
             memory_info = monitor_resources()
@@ -3266,12 +3303,12 @@ class BootstrapAnalyzer:
             
             # Dynamic bootstrap settings
             if high_memory or n_samples > 10000:
-                actual_n_bootstrap = min(15, self.n_bootstrap)  # Severely reduced
-                max_sample_size = min(2000, n_samples // 2)    # Much smaller samples
+                actual_n_bootstrap = min(15, self.n_bootstrap)
+                max_sample_size = min(2000, n_samples // 2)
                 self.logger.warning(f"High memory/large dataset: reducing bootstrap to {actual_n_bootstrap} iterations, {max_sample_size} samples each")
             elif n_samples > 5000:
-                actual_n_bootstrap = min(25, self.n_bootstrap)  # Moderately reduced
-                max_sample_size = min(5000, n_samples)         # Limited sample size
+                actual_n_bootstrap = min(25, self.n_bootstrap)
+                max_sample_size = min(5000, n_samples)
                 self.logger.info(f"Large dataset: reducing bootstrap to {actual_n_bootstrap} iterations, {max_sample_size} samples each")
             else:
                 actual_n_bootstrap = self.n_bootstrap
@@ -3283,26 +3320,29 @@ class BootstrapAnalyzer:
 
             bootstrap_scores = []
             successful_bootstraps = 0
-            max_failures = min(20, actual_n_bootstrap // 3)  # Allow some failures
+            max_failures = min(20, actual_n_bootstrap // 3)
             failures = 0
 
-            # PROGRESS TRACKING for user feedback
             progress_interval = max(1, actual_n_bootstrap // 5)
 
             for i in range(actual_n_bootstrap):
                 if failures > max_failures:
-                    self.logger.warning(f"Too many bootstrap failures ({failures}), stopping early")
+                    print(f"Too many bootstrap failures ({failures}), stopping early")
                     break
                     
                 if i % progress_interval == 0:
-                    self.logger.info(f"Bootstrap progress: {i+1}/{actual_n_bootstrap} ({100*(i+1)/actual_n_bootstrap:.1f}%)")
+                    print(f"Bootstrap progress: {i+1}/{actual_n_bootstrap} ({100*(i+1)/actual_n_bootstrap:.1f}%)")
                     
                 try:
                     # OPTIMIZED: Use smaller sample size
                     bootstrap_sample_size = min(max_sample_size, n_samples)
                     indices = np.random.choice(n_samples, bootstrap_sample_size, replace=True)
                     
-                    X_boot = X[indices]
+                    # FIXED: Handle sparse matrix indexing properly
+                    if sparse.issparse(X):
+                        X_boot = X[indices]  # Sparse matrices support fancy indexing
+                    else:
+                        X_boot = X[indices]
                     y_boot = y[indices]
                     
                     # Validate bootstrap sample
@@ -3319,8 +3359,8 @@ class BootstrapAnalyzer:
                             y_pred = model.predict(X_boot)
                     except Exception as pred_error:
                         failures += 1
-                        if failures <= 3:  # Reduced logging
-                            self.logger.warning(f"Bootstrap prediction failed: {pred_error}")
+                        if failures <= 3:
+                            print(f"Bootstrap prediction failed: {pred_error}")
                         continue
 
                     # Calculate metric
@@ -3334,17 +3374,17 @@ class BootstrapAnalyzer:
                     except Exception as metric_error:
                         failures += 1
                         if failures <= 3:
-                            self.logger.warning(f"Bootstrap metric calculation failed: {metric_error}")
+                            print(f"Bootstrap metric calculation failed: {metric_error}")
                         continue
 
                 except Exception as bootstrap_error:
                     failures += 1
                     if failures <= 3:
-                        self.logger.warning(f"Bootstrap iteration {i} failed: {bootstrap_error}")
+                        print(f"Bootstrap iteration {i} failed: {bootstrap_error}")
                     continue
 
             # Check if we have enough successful bootstraps
-            min_successful = max(5, actual_n_bootstrap // 5)  # Relaxed requirement
+            min_successful = max(5, actual_n_bootstrap // 5)
             if len(bootstrap_scores) < min_successful:
                 self.logger.warning(f"Insufficient successful bootstraps: {len(bootstrap_scores)}/{actual_n_bootstrap}")
                 return self._get_fallback_bootstrap_result()
@@ -3357,14 +3397,14 @@ class BootstrapAnalyzer:
             ci_lower = np.percentile(bootstrap_scores, lower_percentile)
             ci_upper = np.percentile(bootstrap_scores, upper_percentile)
 
-            self.logger.info(f"Bootstrap completed: {successful_bootstraps}/{actual_n_bootstrap} successful samples")
+            print(f"Bootstrap completed: {successful_bootstraps}/{actual_n_bootstrap} successful samples")
 
             return {
                 'mean': float(np.mean(bootstrap_scores)),
                 'std': float(np.std(bootstrap_scores)),
                 'confidence_interval': (float(ci_lower), float(ci_upper)),
                 'confidence_level': self.confidence_level,
-                'bootstrap_scores': bootstrap_scores[:50],  # Limit stored scores
+                'bootstrap_scores': bootstrap_scores[:50],
                 'n_bootstrap': successful_bootstraps,
                 'success_rate': successful_bootstraps / actual_n_bootstrap,
                 'adaptive_limits_used': {
@@ -3375,7 +3415,7 @@ class BootstrapAnalyzer:
             }
 
         except Exception as e:
-            self.logger.error(f"Bootstrap analysis failed: {str(e)}")
+            print(f"Bootstrap analysis failed: {str(e)}")
             return self._get_fallback_bootstrap_result()
 
     def _get_fallback_bootstrap_result(self):

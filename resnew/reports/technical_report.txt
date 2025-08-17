@@ -1,144 +1,9 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-16 18:38:39
+Generated: 2025-08-17 11:58:02
 
 DETAILED MODEL PERFORMANCE:
 ----------------------------------------
-
-NAIVEBAYES_SOLO:
-  Train Performance:
-    Accuracy: 0.2637
-    F1-Score: 0.2301
-    Precision: 0.7911
-    Recall: 0.2637
-  Test Performance:
-    Accuracy: 0.1928
-    F1-Score: 0.1958
-    Precision: 0.5811
-    Recall: 0.1928
-  Computational Metrics:
-    Training Time: 0.36s
-    Memory Usage: 1.40%
-
-XGBOOST_LIGHTGBM_NAIVEBAYES:
-  Train Performance:
-    Accuracy: 0.9368
-    F1-Score: 0.9391
-    Precision: 0.9485
-    Recall: 0.9368
-  Test Performance:
-    Accuracy: 0.7965
-    F1-Score: 0.8037
-    Precision: 0.8138
-    Recall: 0.7965
-  Computational Metrics:
-    Training Time: 41.98s
-    Memory Usage: 0.70%
-
-LIGHTGBM_RANDOMFOREST_NAIVEBAYES:
-  Train Performance:
-    Accuracy: 0.4678
-    F1-Score: 0.4825
-    Precision: 0.8230
-    Recall: 0.4678
-  Test Performance:
-    Accuracy: 0.3853
-    F1-Score: 0.4150
-    Precision: 0.7384
-    Recall: 0.3853
-  Computational Metrics:
-    Training Time: 5.40s
-    Memory Usage: 1.60%
-
-XGBOOST_RANDOMFOREST_NAIVEBAYES:
-  Train Performance:
-    Accuracy: 0.5748
-    F1-Score: 0.6105
-    Precision: 0.8350
-    Recall: 0.5748
-  Test Performance:
-    Accuracy: 0.4717
-    F1-Score: 0.5235
-    Precision: 0.7429
-    Recall: 0.4717
-  Computational Metrics:
-    Training Time: 60.60s
-    Memory Usage: 0.00%
-
-RANDOMFOREST_KNN_NAIVEBAYES:
-  Train Performance:
-    Accuracy: 0.4750
-    F1-Score: 0.5149
-    Precision: 0.8121
-    Recall: 0.4750
-  Test Performance:
-    Accuracy: 0.3588
-    F1-Score: 0.4166
-    Precision: 0.6522
-    Recall: 0.3588
-  Computational Metrics:
-    Training Time: 6.90s
-    Memory Usage: 1.30%
-
-LIGHTGBM_NAIVEBAYES:
-  Train Performance:
-    Accuracy: 0.2637
-    F1-Score: 0.2301
-    Precision: 0.7911
-    Recall: 0.2637
-  Test Performance:
-    Accuracy: 0.1928
-    F1-Score: 0.1958
-    Precision: 0.5811
-    Recall: 0.1928
-  Computational Metrics:
-    Training Time: 4.29s
-    Memory Usage: 1.60%
-
-XGBOOST_NAIVEBAYES:
-  Train Performance:
-    Accuracy: 0.2637
-    F1-Score: 0.2301
-    Precision: 0.7911
-    Recall: 0.2637
-  Test Performance:
-    Accuracy: 0.1928
-    F1-Score: 0.1958
-    Precision: 0.5811
-    Recall: 0.1928
-  Computational Metrics:
-    Training Time: 89.94s
-    Memory Usage: 5.10%
-
-RANDOMFOREST_NAIVEBAYES:
-  Train Performance:
-    Accuracy: 0.2637
-    F1-Score: 0.2301
-    Precision: 0.7911
-    Recall: 0.2637
-  Test Performance:
-    Accuracy: 0.1928
-    F1-Score: 0.1958
-    Precision: 0.5811
-    Recall: 0.1928
-  Computational Metrics:
-    Training Time: 4.39s
-    Memory Usage: 4.70%
-
-LIGHTGBM_CATBOOST_NAIVEBAYES:
-  Train Performance:
-    Accuracy: 0.8971
-    F1-Score: 0.9025
-    Precision: 0.9213
-    Recall: 0.8971
-  Test Performance:
-    Accuracy: 0.7860
-    F1-Score: 0.7956
-    Precision: 0.8095
-    Recall: 0.7860
-  Computational Metrics:
-    Training Time: 11.07s
-    Memory Usage: 1.00%
 
 LIGHTGBM_CATBOOST_ADVANCEDSVM:
   Train Performance:
@@ -152,8 +17,8 @@ LIGHTGBM_CATBOOST_ADVANCEDSVM:
     Precision: 0.8374
     Recall: 0.8457
   Computational Metrics:
-    Training Time: 85.62s
-    Memory Usage: 2.60%
+    Training Time: 716.04s
+    Memory Usage: 32.40%
 
 XGBOOST_CATBOOST_ADVANCEDSVM:
   Train Performance:
@@ -167,5 +32,20 @@ XGBOOST_CATBOOST_ADVANCEDSVM:
     Precision: 0.8369
     Recall: 0.8392
   Computational Metrics:
-    Training Time: 93.97s
-    Memory Usage: 0.90%
+    Training Time: 572.74s
+    Memory Usage: 0.00%
+
+XGBOOST_CATBOOST_NAIVEBAYES:
+  Train Performance:
+    Accuracy: 0.9184
+    F1-Score: 0.9193
+    Precision: 0.9221
+    Recall: 0.9184
+  Test Performance:
+    Accuracy: 0.8175
+    F1-Score: 0.8138
+    Precision: 0.8112
+    Recall: 0.8175
+  Computational Metrics:
+    Training Time: 46.01s
+    Memory Usage: 1.20%
