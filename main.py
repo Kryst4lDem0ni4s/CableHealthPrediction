@@ -22,11 +22,21 @@ warnings.filterwarnings('ignore')
 import lightgbm as lgb
 import xgboost as xgb
 import sys
-sys.path.append(r'C:\Users\Khwaish\.vscode\CableHealthExp\DeepGBM')
+sys.path.append(r'C:\Users\Karthikey\Documents\GitHub\CableHealthPrediction\DeepGBM')
+sys.path.append(r'C:\Users\Karthikey\Documents\GitHub\CableHealthPrediction')
 # Then try to import
 try:
-    from DeepGBM.models.deepgbm import DeepGBM  # Or whatever the main module is called
-    print("DeepGBM imported successfully!")
+    try:
+        from DeepGBM.models.deepgbm import DeepGBM  # Or whatever the main module is called
+        print("DeepGBM imported successfully!")
+    except:
+        print("from DeepGBM.models.deepgbm import DeepGBM did not work")
+        try:
+            from models.deepgbm import DeepGBM
+            print("DeepGBM successfully imported")
+        except:
+            print("from models.deepgbm import DeepGBM did not work")
+
 except ImportError as e:
     print(f"Import failed: {e}")
     
@@ -899,6 +909,222 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.validation import check_X_y, check_array
 
+class DeepGBMWrapper(BaseEstimator, ClassifierMixin):
+    """Scikit-learn compatible wrapper for DeepGBM model"""
+    
+    def __init__(self, 
+                 embedding_size=4,
+                 h_depth=2, 
+                 deep_layers=[32, 32],
+                 num_model='gbdt2nn',
+                 task='classification',
+                 device='auto',
+                 use_real_deepgbm=True,
+                 random_state=None):
+        
+        self.embedding_size = embedding_size
+        self.h_depth = h_depth
+        self.deep_layers = deep_layers
+        self.num_model = num_model
+        self.task = task
+        self.device = device
+        self.use_real_deepgbm = use_real_deepgbm
+        self.random_state = random_state
+        
+        # Metadata extracted from ColumnTransformer
+        self.nume_input_size = None
+        self.cate_field_size = None
+        self.feature_sizes = None
+        
+        # Model and preprocessing components
+        self.model_ = None
+        self.label_encoder_ = None
+        self.n_classes_ = None
+        self.column_transformer_ = None
+        
+    def build_feature_metadata_from_transformer(self, column_transformer):
+        """Extract feature metadata from ColumnTransformer (fitted or unfitted)"""
+        nume_input_size = 0
+        cate_field_size = 0
+        feature_sizes = []
+        
+        # Use 'transformers' (unfitted) or 'transformers_' (fitted)
+        transformers = getattr(column_transformer, 'transformers_', 
+                            getattr(column_transformer, 'transformers', []))
+        
+        for name, transformer, features in transformers:
+            if name == 'num':
+                # Count numerical features
+                if isinstance(features, (list, np.ndarray)):
+                    nume_input_size = len(features)
+                else:
+                    nume_input_size = len(features) if hasattr(features, '__len__') else 0
+            elif name == 'cat':
+                # For unfitted transformers, we can't get categories yet
+                if hasattr(transformer, 'categories_'):
+                    cate_field_size = len(transformer.categories_)
+                    feature_sizes = [len(cats) for cats in transformer.categories_]
+                else:
+                    # Estimate based on feature count - this is a fallback
+                    if isinstance(features, (list, np.ndarray)):
+                        cate_field_size = len(features)
+                        feature_sizes = [10] * cate_field_size  # Rough estimate
+                    else:
+                        cate_field_size = 1
+                        feature_sizes = [2]
+        
+        self.nume_input_size = nume_input_size
+        self.cate_field_size = cate_field_size
+        self.feature_sizes = feature_sizes
+        self.column_transformer_ = column_transformer
+        
+        return {
+            'nume_input_size': nume_input_size,
+            'cate_field_size': cate_field_size, 
+            'feature_sizes': feature_sizes
+        }
+    
+    def _setup_device(self):
+        """Setup computation device"""
+        if self.device == 'auto':
+            return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        return torch.device(self.device)
+    
+    def _initialize_deepgbm_model(self):
+        """Initialize the actual DeepGBM model"""
+        if self.use_real_deepgbm:
+            try:
+                from DeepGBM.models.deepgbm import DeepGBM
+                
+                device = self._setup_device()
+                
+                self.model_ = DeepGBM(
+                    nume_input_size=self.nume_input_size,
+                    cate_field_size=self.cate_field_size,
+                    feature_sizes=self.feature_sizes,
+                    embedding_size=self.embedding_size,
+                    h_depth=self.h_depth,
+                    deep_layers=self.deep_layers,
+                    num_model=self.num_model,
+                    task=self.task,
+                    used_features=None,  # Auto-detect
+                    tree_layers=None,    # Auto-configure  
+                    output_w=None,       # Auto-configure
+                    output_b=None        # Auto-configure
+                ).to(device)
+                
+                print(f"Real DeepGBM initialized on {device}")
+                return True
+                
+            except ImportError as e:
+                print(f"DeepGBM not available: {e}. Using LightGBM fallback.")
+                self.use_real_deepgbm = False
+                return self._initialize_deepgbm_model()  # Recursive fallback
+        
+        else:
+            # LightGBM fallback with DeepGBM-like settings
+            import lightgbm as lgb
+            
+            self.model_ = lgb.LGBMClassifier(
+                objective='multiclass' if self.task != 'regression' else 'regression',
+                num_class=self.n_classes_ if self.task != 'regression' else None,
+                n_estimators=300,
+                learning_rate=0.05,
+                max_depth=12,
+                num_leaves=127,
+                feature_fraction=0.8,
+                bagging_fraction=0.8,
+                min_data_in_leaf=20,
+                verbosity=-1,
+                random_state=self.random_state
+            )
+            
+            print("DeepGBM fallback (LightGBM) initialized")
+            return False
+    
+    def _prepare_data_for_deepgbm(self, X):
+        """Prepare data in DeepGBM format (separate numeric and categorical)
+        
+        Args:
+            X: Preprocessed data from ColumnTransformer
+            
+        Returns:
+            tuple: (Xg_numeric, Xd_categorical) for DeepGBM
+        """
+        if not self.use_real_deepgbm:
+            return X  # LightGBM uses preprocessed features directly
+        
+        # For real DeepGBM, we need to separate numeric and categorical data
+        # This assumes ColumnTransformer output: [numeric_features, onehot_categorical_features]
+        
+        if self.nume_input_size > 0:
+            Xg = X[:, :self.nume_input_size]  # Numeric features
+        else:
+            Xg = np.zeros((X.shape[0], 1))  # Placeholder if no numeric
+            
+        if self.cate_field_size > 0:
+            # Convert one-hot back to categorical indices for DeepGBM
+            categorical_start = self.nume_input_size
+            Xd_onehot = X[:, categorical_start:]
+            
+            # Convert one-hot encoding back to categorical indices
+            Xd = np.zeros((X.shape[0], self.cate_field_size), dtype=np.int64)
+            
+            col_idx = 0
+            for i, vocab_size in enumerate(self.feature_sizes):
+                onehot_slice = Xd_onehot[:, col_idx:col_idx + vocab_size]
+                Xd[:, i] = np.argmax(onehot_slice, axis=1)
+                col_idx += vocab_size
+        else:
+            Xd = np.zeros((X.shape[0], 1), dtype=np.int64)  # Placeholder
+            
+        return torch.FloatTensor(Xg), torch.LongTensor(Xd)
+    
+    def fit(self, X, y):
+        """Fit DeepGBM model"""
+        # Setup label encoding
+        self.label_encoder_ = LabelEncoder()
+        y_encoded = self.label_encoder_.fit_transform(y)
+        self.n_classes_ = len(self.label_encoder_.classes_)
+        
+        # Initialize model
+        model_is_real = self._initialize_deepgbm_model()
+        
+        if model_is_real:
+            # Real DeepGBM training
+            Xg, Xd = self._prepare_data_for_deepgbm(X)
+            y_tensor = torch.LongTensor(y_encoded)
+            
+            # DeepGBM training loop would go here
+            # For now, simplified interface
+            self.model_.fit(Xg, Xd, y_tensor)  # Pseudo-interface
+        else:
+            # LightGBM fallback
+            self.model_.fit(X, y_encoded)
+        
+        return self
+    
+    def predict_proba(self, X):
+        """Predict class probabilities"""
+        if self.use_real_deepgbm:
+            Xg, Xd = self._prepare_data_for_deepgbm(X)
+            with torch.no_grad():
+                outputs, _ = self.model_(Xg, Xd)
+                # Convert to probabilities
+                if self.task != 'regression':
+                    probs = torch.softmax(outputs, dim=-1)
+                    return probs.cpu().numpy()
+                else:
+                    return outputs.cpu().numpy()
+        else:
+            return self.model_.predict_proba(X)
+    
+    def predict(self, X):
+        """Predict class labels"""
+        probabilities = self.predict_proba(X)
+        predictions = np.argmax(probabilities, axis=1)
+        return self.label_encoder_.inverse_transform(predictions)
+
 class TabFlexClassifier(BaseEstimator, ClassifierMixin):
     """Scikit-learn compatible wrapper for TabFlex model"""
     
@@ -1227,24 +1453,34 @@ class BaseModelFactory:
                 # DeepGBM implementation (fallback to LightGBM with deeper trees if DeepGBM not available)
                 try:
                     # Import and create DeepGBM with correct parameters
-                    from DeepGBM.models.deepgbm import DeepGBM
+                    from models.deepgbm import DeepGBM
                     
                     # DeepGBM doesn't take n_classes directly - it infers from data
-                    return DeepGBM(
-                        task='classification',  # Use 'task' instead of 'objective'
-                        nume_input_size=None,   # Will need to be set during training
-                        used_features=None,     # Will need to be set during training  
-                        tree_layers=None,       # Will be auto-configured
-                        output_w=None,          # Will be auto-configured
-                        output_b=None,          # Will be auto-configured
-                        cate_field_size=None,   # Will be determined from data
-                        feature_sizes=None,     # Will be determined from data
-                        embedding_size=4,       # Default value
-                        h_depth=2,             # Default value
-                        deep_layers=[32, 32],   # Default value
-                        num_model='gbdt2nn',    # Default value
+                    # return DeepGBM(
+                    #     task='classification',  # Use 'task' instead of 'objective'
+                    #     nume_input_size=None,   # Will need to be set during training
+                    #     used_features=None,     # Will need to be set during training  
+                    #     tree_layers=None,       # Will be auto-configured
+                    #     output_w=None,          # Will be auto-configured
+                    #     output_b=None,          # Will be auto-configured
+                    #     cate_field_size=None,   # Will be determined from data
+                    #     feature_sizes=None,     # Will be determined from data
+                    #     embedding_size=4,       # Default value
+                    #     h_depth=2,             # Default value
+                    #     deep_layers=[32, 32],   # Default value
+                    #     num_model='gbdt2nn',    # Default value
+                    #     **kwargs
+                    # )
+                    return DeepGBMWrapper(
+                        embedding_size=kwargs.get('embedding_size', 4),
+                        h_depth=kwargs.get('h_depth', 2),
+                        deep_layers=kwargs.get('deep_layers', [32, 32]),
+                        task='classification',
+                        random_state=Config.RANDOM_STATE,
+                        use_real_deepgbm=True,  # Set to False for testing with LightGBM fallback
                         **kwargs
                     )
+
                 except ImportError as e:
                     print(f"DeepGBM not available: {e}. Using enhanced LightGBM fallback.")
                     # Enhanced LightGBM fallback with DeepGBM-like settings
@@ -4559,6 +4795,9 @@ class ModelComparisonPipeline:
                     ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features)
                 ]
             )
+
+            deepgbm_model = DeepGBMWrapper(use_real_deepgbm=True)
+            deepgbm_model.build_feature_metadata_from_transformer(preprocessor)
 
             # Split data
             X_train, X_test, y_train, y_test = train_test_split(
