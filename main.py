@@ -910,8 +910,11 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.validation import check_X_y, check_array
 
 class DeepGBMWrapper(BaseEstimator, ClassifierMixin):
-    """Scikit-learn compatible wrapper for DeepGBM model"""
-    
+    # Class-level defaults for metadata (fallback if not set)
+    default_nume_input_size = 0
+    default_cate_field_size = 0
+    default_feature_sizes = []
+
     def __init__(self, 
                  embedding_size=4,
                  h_depth=2, 
@@ -931,16 +934,61 @@ class DeepGBMWrapper(BaseEstimator, ClassifierMixin):
         self.use_real_deepgbm = use_real_deepgbm
         self.random_state = random_state
         
-        # Metadata extracted from ColumnTransformer
-        self.nume_input_size = None
-        self.cate_field_size = None
-        self.feature_sizes = None
+        # Metadata (can be set globally or per-instance)
+        self.nume_input_size = DeepGBMWrapper.default_nume_input_size
+        self.cate_field_size = DeepGBMWrapper.default_cate_field_size
+        self.feature_sizes = DeepGBMWrapper.default_feature_sizes
         
         # Model and preprocessing components
         self.model_ = None
         self.label_encoder_ = None
         self.n_classes_ = None
         self.column_transformer_ = None
+
+    @classmethod
+    def set_global_metadata(cls, nume_input_size, cate_field_size, feature_sizes):
+        """Set class-level default metadata for all instances"""
+        cls.default_nume_input_size = nume_input_size
+        cls.default_cate_field_size = cate_field_size
+        cls.default_feature_sizes = feature_sizes
+        print(f"Global DeepGBM metadata set: num={nume_input_size}, cat_fields={cate_field_size}, feature_sizes={feature_sizes}")
+
+    def _initialize_deepgbm_model(self):
+        """Initialize the actual DeepGBM model"""
+        # Set default metadata if missing
+        if self.nume_input_size is None or self.cate_field_size is None or self.feature_sizes is None:
+            print("Warning: Metadata not set. Using defaults (may reduce accuracy).")
+            self.nume_input_size = max(1, self.nume_input_size or 0)
+            self.cate_field_size = max(0, self.cate_field_size or 0) 
+            self.feature_sizes = self.feature_sizes or []
+
+        try:
+            # Setup device
+            device = self._setup_device()
+            
+            # Create the actual DeepGBM model
+            self.model_ = DeepGBM(
+                nume_input_size=self.nume_input_size,
+                cate_field_size=self.cate_field_size,
+                feature_sizes=self.feature_sizes,
+                embedding_size=self.embedding_size,
+                h_depth=self.h_depth,
+                deep_layers=self.deep_layers,
+                num_model=self.num_model,
+                task=self.task,
+                used_features=None,  # Auto-detect
+                tree_layers=None,    # Auto-configure  
+                output_w=None,       # Auto-configure
+                output_b=None        # Auto-configure
+            ).to(device)
+            
+            print(f"DeepGBM initialized successfully on {device}")
+            return True
+            
+        except Exception as e:
+            print(f"DeepGBM initialization failed: {e}")
+            # Don't use fallback - raise the error
+            raise ImportError(f"DeepGBM could not be initialized: {e}")
         
     def build_feature_metadata_from_transformer(self, column_transformer):
         """Extract feature metadata from ColumnTransformer (fitted or unfitted)"""
@@ -990,57 +1038,55 @@ class DeepGBMWrapper(BaseEstimator, ClassifierMixin):
             return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         return torch.device(self.device)
     
-    def _initialize_deepgbm_model(self):
-        """Initialize the actual DeepGBM model"""
-        if self.use_real_deepgbm:
-            try:
-                from DeepGBM.models.deepgbm import DeepGBM
+    # def _initialize_deepgbm_model(self):
+    #     """Initialize the actual DeepGBM model"""
+    #     if self.use_real_deepgbm:
+    #         try:                
+    #             device = self._setup_device()
                 
-                device = self._setup_device()
+    #             self.model_ = DeepGBM(
+    #                 nume_input_size=self.nume_input_size,
+    #                 cate_field_size=self.cate_field_size,
+    #                 feature_sizes=self.feature_sizes,
+    #                 embedding_size=self.embedding_size,
+    #                 h_depth=self.h_depth,
+    #                 deep_layers=self.deep_layers,
+    #                 num_model=self.num_model,
+    #                 task=self.task,
+    #                 used_features=None,  # Auto-detect
+    #                 tree_layers=None,    # Auto-configure  
+    #                 output_w=None,       # Auto-configure
+    #                 output_b=None        # Auto-configure
+    #             ).to(device)
                 
-                self.model_ = DeepGBM(
-                    nume_input_size=self.nume_input_size,
-                    cate_field_size=self.cate_field_size,
-                    feature_sizes=self.feature_sizes,
-                    embedding_size=self.embedding_size,
-                    h_depth=self.h_depth,
-                    deep_layers=self.deep_layers,
-                    num_model=self.num_model,
-                    task=self.task,
-                    used_features=None,  # Auto-detect
-                    tree_layers=None,    # Auto-configure  
-                    output_w=None,       # Auto-configure
-                    output_b=None        # Auto-configure
-                ).to(device)
+    #             print(f"Real DeepGBM initialized on {device}")
+    #             return True
                 
-                print(f"Real DeepGBM initialized on {device}")
-                return True
-                
-            except ImportError as e:
-                print(f"DeepGBM not available: {e}. Using LightGBM fallback.")
-                self.use_real_deepgbm = False
-                return self._initialize_deepgbm_model()  # Recursive fallback
+    #         except ImportError as e:
+    #             print(f"DeepGBM not available: {e}. Using LightGBM fallback.")
+    #             self.use_real_deepgbm = False
+    #             return self._initialize_deepgbm_model()  # Recursive fallback
         
-        else:
-            # LightGBM fallback with DeepGBM-like settings
-            import lightgbm as lgb
+    #     else:
+    #         # LightGBM fallback with DeepGBM-like settings
+    #         import lightgbm as lgb
             
-            self.model_ = lgb.LGBMClassifier(
-                objective='multiclass' if self.task != 'regression' else 'regression',
-                num_class=self.n_classes_ if self.task != 'regression' else None,
-                n_estimators=300,
-                learning_rate=0.05,
-                max_depth=12,
-                num_leaves=127,
-                feature_fraction=0.8,
-                bagging_fraction=0.8,
-                min_data_in_leaf=20,
-                verbosity=-1,
-                random_state=self.random_state
-            )
+    #         self.model_ = lgb.LGBMClassifier(
+    #             objective='multiclass' if self.task != 'regression' else 'regression',
+    #             num_class=self.n_classes_ if self.task != 'regression' else None,
+    #             n_estimators=300,
+    #             learning_rate=0.05,
+    #             max_depth=12,
+    #             num_leaves=127,
+    #             feature_fraction=0.8,
+    #             bagging_fraction=0.8,
+    #             min_data_in_leaf=20,
+    #             verbosity=-1,
+    #             random_state=self.random_state
+    #         )
             
-            print("DeepGBM fallback (LightGBM) initialized")
-            return False
+    #         print("DeepGBM fallback (LightGBM) initialized")
+    #         return False
     
     def _prepare_data_for_deepgbm(self, X):
         """Prepare data in DeepGBM format (separate numeric and categorical)
@@ -1087,20 +1133,37 @@ class DeepGBMWrapper(BaseEstimator, ClassifierMixin):
         y_encoded = self.label_encoder_.fit_transform(y)
         self.n_classes_ = len(self.label_encoder_.classes_)
         
-        # Initialize model
-        model_is_real = self._initialize_deepgbm_model()
+        # Initialize model FIRST
+        self._initialize_deepgbm_model()
         
-        if model_is_real:
-            # Real DeepGBM training
-            Xg, Xd = self._prepare_data_for_deepgbm(X)
-            y_tensor = torch.LongTensor(y_encoded)
+        # Ensure model was created successfully
+        if self.model_ is None:
+            raise RuntimeError("DeepGBM model was not initialized properly")
+        
+        # Prepare data for DeepGBM
+        Xg, Xd = self._prepare_data_for_deepgbm(X)
+        y_tensor = torch.LongTensor(y_encoded)
+        
+        # Move to device
+        device = self._setup_device()
+        Xg = Xg.to(device)
+        Xd = Xd.to(device) 
+        y_tensor = y_tensor.to(device)
+        
+        # Train the model
+        try:
+            # DeepGBM training - you'll need to implement the actual training loop
+            # This is a simplified version - DeepGBM needs a proper training loop
+            self.model_.train()
             
-            # DeepGBM training loop would go here
-            # For now, simplified interface
-            self.model_.fit(Xg, Xd, y_tensor)  # Pseudo-interface
-        else:
-            # LightGBM fallback
-            self.model_.fit(X, y_encoded)
+            # You'll need to implement the actual training logic here
+            # For now, this is a placeholder that needs to be completed
+            print("DeepGBM training started...")
+            # Add your DeepGBM training loop here
+            
+        except Exception as e:
+            print(f"DeepGBM training failed: {e}")
+            raise
         
         return self
     
@@ -1451,10 +1514,7 @@ class BaseModelFactory:
             # Add these to BaseModelFactory.create_model method after the NGBoost block:
             elif 'deepgbm' in model_name_clean:
                 # DeepGBM implementation (fallback to LightGBM with deeper trees if DeepGBM not available)
-                try:
-                    # Import and create DeepGBM with correct parameters
-                    from models.deepgbm import DeepGBM
-                    
+                try:                    
                     # DeepGBM doesn't take n_classes directly - it infers from data
                     # return DeepGBM(
                     #     task='classification',  # Use 'task' instead of 'objective'
@@ -4796,20 +4856,26 @@ class ModelComparisonPipeline:
                 ]
             )
 
-            deepgbm_model = DeepGBMWrapper(use_real_deepgbm=True)
-            deepgbm_model.build_feature_metadata_from_transformer(preprocessor)
-
-            # Split data
+            # Split data (before fitting preprocessor)
             X_train, X_test, y_train, y_test = train_test_split(
                 X_df, y, test_size=Config.TEST_SIZE, random_state=Config.RANDOM_STATE, stratify=y
             )
 
-            # Apply preprocessing
+            # Fit and transform (preprocessor is now fitted here)
             self.X_train = preprocessor.fit_transform(X_train)
             self.X_test = preprocessor.transform(X_test)
             self.y_train = y_train
             self.y_test = y_test
             self.n_classes = len(np.unique(y))
+
+            # Now extract metadata from the *fitted* preprocessor
+            metadata = DeepGBMWrapper().build_feature_metadata_from_transformer(preprocessor)
+            DeepGBMWrapper.set_global_metadata(
+                metadata['nume_input_size'],
+                metadata['cate_field_size'],
+                metadata['feature_sizes']
+            )
+           
 
             # Initialize evaluator
             self.evaluator = ModelEvaluator(self.X_train, self.X_test,
