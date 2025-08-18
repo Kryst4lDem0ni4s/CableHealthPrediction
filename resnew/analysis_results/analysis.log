@@ -1244,3 +1244,374 @@ Processing heavy complexity batch: 65 models
 --- Processing catboost_randomforest_naivebayes (20/65) ---
 2025-08-17 16:28:57,261 - INFO - Stage 1: Quick assessment...
 2025-08-17 16:29:00,857 - INFO - Stage 2: Full evaluation...
+2025-08-17 16:29:58,793 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 16:29:58,798 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 16:30:27,295 - INFO - Generating comprehensive visualizations for catboost_randomforest_naivebayes...
+2025-08-17 16:30:29,021 - INFO - Individual model visualizations completed for catboost_randomforest_naivebayes
+2025-08-17 16:30:29,038 - INFO - Checkpoint and CSV files updated for catboost_randomforest_naivebayes
+2025-08-17 16:30:34,491 - INFO - 
+--- Processing xgboost_neuralnetwork_advancedsvm (21/65) ---
+2025-08-17 16:30:34,497 - INFO - Stage 1: Quick assessment...
+2025-08-17 16:30:46,105 - INFO - Stage 2: Full evaluation...
+2025-08-17 17:04:11,013 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 17:04:11,018 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 17:26:56,415 - WARNING - xgboost_neuralnetwork_advancedsvm flagged: high complexity, minimal improvement
+2025-08-17 17:26:56,416 - INFO - Generating comprehensive visualizations for xgboost_neuralnetwork_advancedsvm...
+2025-08-17 17:26:58,478 - INFO - Individual model visualizations completed for xgboost_neuralnetwork_advancedsvm
+2025-08-17 17:26:58,521 - INFO - Checkpoint and CSV files updated for xgboost_neuralnetwork_advancedsvm
+2025-08-17 17:26:59,191 - INFO - 
+--- Processing catboost_neuralnetwork (22/65) ---
+2025-08-17 17:26:59,201 - INFO - Stage 1: Quick assessment...
+2025-08-17 17:27:03,320 - INFO - Stage 2: Full evaluation...
+2025-08-17 17:28:01,803 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 17:28:01,810 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 17:28:19,021 - INFO - Generating comprehensive visualizations for catboost_neuralnetwork...
+2025-08-17 17:28:20,824 - INFO - Individual model visualizations completed for catboost_neuralnetwork
+2025-08-17 17:28:20,842 - INFO - Checkpoint and CSV files updated for catboost_neuralnetwork
+2025-08-17 17:34:09,372 - INFO - 
+--- Processing catboost_randomforest_logisticregression (23/65) ---
+2025-08-17 17:34:09,383 - INFO - Stage 1: Quick assessment...
+2025-08-17 17:34:12,727 - INFO - Stage 2: Full evaluation...
+2025-08-17 17:34:47,900 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 17:34:47,912 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 17:34:50,146 - INFO - Generating comprehensive visualizations for catboost_randomforest_logisticregression...
+2025-08-17 17:34:54,560 - INFO - Individual model visualizations completed for catboost_randomforest_logisticregression
+2025-08-17 17:34:54,596 - INFO - Checkpoint and CSV files updated for catboost_randomforest_logisticregression
+2025-08-17 17:34:54,922 - INFO - 
+--- Processing lightgbm_advancedsvm_naivebayes (24/65) ---
+2025-08-17 17:34:54,932 - INFO - Stage 1: Quick assessment...
+2025-08-17 17:35:13,946 - INFO - Stage 2: Full evaluation...
+2025-08-17 18:16:13,294 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 18:16:13,302 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 18:56:22,174 - WARNING - lightgbm_advancedsvm_naivebayes flagged: high complexity, minimal improvement
+2025-08-17 18:56:22,176 - INFO - Generating comprehensive visualizations for lightgbm_advancedsvm_naivebayes...
+2025-08-17 18:56:24,277 - INFO - Individual model visualizations completed for lightgbm_advancedsvm_naivebayes
+2025-08-17 18:56:24,306 - INFO - Checkpoint and CSV files updated for lightgbm_advancedsvm_naivebayes
+2025-08-17 19:37:33,682 - INFO - 
+--- Processing xgboost_randomforest_neuralnetwork (25/65) ---
+2025-08-17 19:37:33,689 - INFO - Stage 1: Quick assessment...
+2025-08-17 19:37:38,392 - INFO - Stage 2: Full evaluation...
+2025-08-17 19:39:53,458 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 19:39:53,464 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 19:39:56,093 - INFO - Generating comprehensive visualizations for xgboost_randomforest_neuralnetwork...
+2025-08-17 19:39:57,895 - INFO - Individual model visualizations completed for xgboost_randomforest_neuralnetwork
+2025-08-17 19:39:57,926 - INFO - Checkpoint and CSV files updated for xgboost_randomforest_neuralnetwork
+2025-08-17 19:39:58,393 - INFO - 
+--- Processing advancedsvm_solo (26/65) ---
+2025-08-17 19:39:58,400 - INFO - Stage 1: Quick assessment...
+2025-08-17 19:40:04,897 - INFO - Stage 2: Full evaluation...
+2025-08-17 20:11:13,397 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 20:11:13,404 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 20:43:18,731 - WARNING - advancedsvm_solo flagged: high complexity, minimal improvement
+2025-08-17 20:43:18,732 - INFO - Generating comprehensive visualizations for advancedsvm_solo...
+2025-08-17 20:43:23,763 - INFO - Individual model visualizations completed for advancedsvm_solo
+2025-08-17 20:43:23,848 - INFO - Checkpoint and CSV files updated for advancedsvm_solo
+2025-08-17 21:29:41,176 - INFO - 
+--- Processing neuralnetwork_solo (27/65) ---
+2025-08-17 21:29:41,194 - INFO - Stage 1: Quick assessment...
+2025-08-17 21:29:42,581 - INFO - Stage 2: Full evaluation...
+2025-08-17 21:30:08,982 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 21:30:08,998 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 21:30:09,764 - INFO - Generating comprehensive visualizations for neuralnetwork_solo...
+2025-08-17 21:30:14,797 - INFO - Individual model visualizations completed for neuralnetwork_solo
+2025-08-17 21:30:14,883 - INFO - Checkpoint and CSV files updated for neuralnetwork_solo
+2025-08-17 21:30:15,954 - INFO - 
+--- Processing catboost_naivebayes (28/65) ---
+2025-08-17 21:30:15,967 - INFO - Stage 1: Quick assessment...
+2025-08-17 21:30:24,569 - INFO - Stage 2: Full evaluation...
+2025-08-17 21:32:28,842 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 21:32:28,857 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 21:33:45,716 - INFO - Generating comprehensive visualizations for catboost_naivebayes...
+2025-08-17 21:33:50,726 - INFO - Individual model visualizations completed for catboost_naivebayes
+2025-08-17 21:33:50,788 - INFO - Checkpoint and CSV files updated for catboost_naivebayes
+2025-08-17 21:49:28,147 - INFO - 
+--- Processing catboost_logisticregression (29/65) ---
+2025-08-17 21:49:28,161 - INFO - Stage 1: Quick assessment...
+2025-08-17 21:49:31,661 - INFO - Stage 2: Full evaluation...
+2025-08-17 21:50:00,562 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 21:50:00,594 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 21:50:01,373 - INFO - Generating comprehensive visualizations for catboost_logisticregression...
+2025-08-17 21:50:05,929 - INFO - Individual model visualizations completed for catboost_logisticregression
+2025-08-17 21:50:05,980 - INFO - Checkpoint and CSV files updated for catboost_logisticregression
+2025-08-17 21:50:06,393 - INFO - 
+--- Processing deepgbm_solo (30/65) ---
+2025-08-17 21:50:06,412 - INFO - Stage 1: Quick assessment...
+2025-08-17 21:50:06,535 - INFO - Stage 2: Full evaluation...
+2025-08-17 21:50:08,797 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 21:50:08,813 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 21:50:08,973 - INFO - Generating comprehensive visualizations for deepgbm_solo...
+2025-08-17 21:50:13,699 - INFO - Individual model visualizations completed for deepgbm_solo
+2025-08-17 21:50:13,741 - INFO - Checkpoint and CSV files updated for deepgbm_solo
+2025-08-17 21:59:13,372 - INFO - 
+--- Processing deepgbm_lightgbm_randomforest (31/65) ---
+2025-08-17 21:59:13,381 - WARNING - High memory usage: 91.9%
+2025-08-17 21:59:13,558 - INFO - Stage 1: Quick assessment...
+2025-08-17 21:59:14,450 - INFO - Stage 2: Full evaluation...
+2025-08-17 21:59:24,948 - WARNING - Using ULTRA-FAST bootstrap: 10 iterations, 1000 samples
+2025-08-17 21:59:24,956 - WARNING - Using ULTRA-FAST bootstrap: 10 iterations, 1000 samples
+2025-08-17 21:59:24,964 - WARNING - High memory/large dataset: reducing bootstrap to 10 iterations, 1000 samples each
+2025-08-17 21:59:25,495 - INFO - Generating comprehensive visualizations for deepgbm_lightgbm_randomforest...
+2025-08-17 21:59:27,187 - INFO - Individual model visualizations completed for deepgbm_lightgbm_randomforest
+2025-08-17 21:59:27,213 - INFO - Checkpoint and CSV files updated for deepgbm_lightgbm_randomforest
+2025-08-17 21:59:27,418 - INFO - 
+--- Processing deepgbm_advancedsvm (32/65) ---
+2025-08-17 21:59:27,424 - WARNING - High memory usage: 92.0%
+2025-08-17 21:59:27,591 - INFO - Stage 1: Quick assessment...
+2025-08-17 21:59:36,381 - INFO - Stage 2: Full evaluation...
+2025-08-17 22:33:37,427 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 22:33:37,436 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 22:57:33,138 - WARNING - deepgbm_advancedsvm flagged: high complexity, minimal improvement
+2025-08-17 22:57:33,139 - INFO - Generating comprehensive visualizations for deepgbm_advancedsvm...
+2025-08-17 22:57:35,124 - INFO - Individual model visualizations completed for deepgbm_advancedsvm
+2025-08-17 22:57:35,167 - INFO - Checkpoint and CSV files updated for deepgbm_advancedsvm
+2025-08-17 23:47:07,421 - INFO - User requested early termination
+2025-08-17 23:47:07,422 - INFO - Generating comprehensive final analysis...
+2025-08-17 23:47:13,468 - INFO - Comprehensive reports generated successfully
+2025-08-17 23:47:13,468 - INFO - Comprehensive final analysis completed!
+2025-08-17 23:47:13,468 - INFO - All reports and visualizations saved to:
+2025-08-17 23:47:13,469 - INFO -    - CSV Results: resnew/analysis_results/
+2025-08-17 23:47:13,469 - INFO -    - Visual Reports: resnew/plots/
+2025-08-17 23:47:13,469 - INFO -    - Text Reports: resnew/reports/
+2025-08-17 23:47:54,036 - INFO - Starting comprehensive model analysis pipeline...
+2025-08-17 23:47:54,036 - INFO - Loading and preprocessing data...
+2025-08-17 23:47:54,131 - INFO - Real dataset loaded successfully!
+2025-08-17 23:47:54,145 - INFO - Numerical features: 31
+2025-08-17 23:47:54,146 - INFO - Categorical features: 1
+2025-08-17 23:47:54,298 - INFO - Data preprocessing completed.
+2025-08-17 23:47:54,299 - INFO - Training set shape: (16020, 2052)
+2025-08-17 23:47:54,299 - INFO - Test set shape: (4005, 2052)
+2025-08-17 23:47:54,300 - INFO - Number of classes: 3
+2025-08-17 23:47:54,301 - INFO - Class distribution: [ 3230 14722  2073]
+2025-08-17 23:47:54,303 - INFO - Found 55 previously processed models
+2025-08-17 23:47:54,304 - INFO - 
+============================================================
+2025-08-17 23:47:54,304 - INFO - Processing TIER1: 8 models
+2025-08-17 23:47:54,305 - INFO - ============================================================
+2025-08-17 23:47:54,305 - INFO - 
+Processing medium complexity batch: 5 models
+2025-08-17 23:47:54,306 - INFO - Skipping lightgbm_solo (already processed)
+2025-08-17 23:47:54,306 - INFO - Skipping lightgbm_xgboost_ensemble (already processed)
+2025-08-17 23:47:54,306 - INFO - Skipping lightgbm_randomforest (already processed)
+2025-08-17 23:47:54,307 - INFO - Skipping xgboost_randomforest (already processed)
+2025-08-17 23:47:54,307 - INFO - Skipping xgboost_solo (already processed)
+2025-08-17 23:47:54,308 - INFO - 
+Processing heavy complexity batch: 3 models
+2025-08-17 23:47:54,308 - INFO - Skipping lightgbm_advancedsvm (already processed)
+2025-08-17 23:47:54,308 - INFO - Skipping lightgbm_advancedsvm_randomforest (already processed)
+2025-08-17 23:47:54,309 - INFO - Skipping xgboost_advancedsvm_randomforest (already processed)
+2025-08-17 23:47:54,309 - INFO - 
+============================================================
+2025-08-17 23:47:54,310 - INFO - Processing TIER2: 83 models
+2025-08-17 23:47:54,310 - INFO - ============================================================
+2025-08-17 23:47:54,313 - INFO - 
+Processing light complexity batch: 5 models
+2025-08-17 23:47:54,314 - INFO - Skipping naivebayes_solo (already processed)
+2025-08-17 23:47:54,314 - INFO - Skipping logisticregression_solo (already processed)
+2025-08-17 23:47:54,314 - INFO - Skipping knn_solo (already processed)
+2025-08-17 23:47:54,315 - INFO - Skipping ridge_solo (already processed)
+2025-08-17 23:47:54,315 - INFO - Skipping sgd_solo (already processed)
+2025-08-17 23:47:54,315 - INFO - 
+Processing medium complexity batch: 13 models
+2025-08-17 23:47:54,317 - INFO - Skipping xgboost_lightgbm_naivebayes (already processed)
+2025-08-17 23:47:54,317 - INFO - Skipping lightgbm_randomforest_naivebayes (already processed)
+2025-08-17 23:47:54,318 - INFO - Skipping xgboost_randomforest_naivebayes (already processed)
+2025-08-17 23:47:54,318 - INFO - Skipping randomforest_knn_naivebayes (already processed)
+2025-08-17 23:47:54,318 - INFO - Skipping randomforest_solo (already processed)
+2025-08-17 23:47:54,319 - INFO - Skipping lightgbm_naivebayes (already processed)
+2025-08-17 23:47:54,319 - INFO - Skipping xgboost_naivebayes (already processed)
+2025-08-17 23:47:54,319 - INFO - Skipping randomforest_naivebayes (already processed)
+2025-08-17 23:47:54,320 - INFO - Skipping lightgbm_logisticregression (already processed)
+2025-08-17 23:47:54,320 - INFO - Skipping xgboost_logisticregression (already processed)
+2025-08-17 23:47:54,320 - INFO - Skipping randomforest_logisticregression (already processed)
+2025-08-17 23:47:54,321 - INFO - Skipping lightgbm_knn (already processed)
+2025-08-17 23:47:54,321 - INFO - Skipping xgboost_knn (already processed)
+2025-08-17 23:47:54,321 - INFO - 
+Processing heavy complexity batch: 65 models
+2025-08-17 23:47:54,322 - INFO - Skipping xgboost_catboost_lightgbm (already processed)
+2025-08-17 23:47:54,322 - INFO - Skipping xgboost_advancedsvm_2model (already processed)
+2025-08-17 23:47:54,322 - INFO - Skipping xgboost_lightgbm_randomforest_linearsvm (already processed)
+2025-08-17 23:47:54,324 - INFO - Skipping lightgbm_catboost_naivebayes (already processed)
+2025-08-17 23:47:54,324 - INFO - Skipping lightgbm_catboost_advancedsvm (already processed)
+2025-08-17 23:47:54,324 - INFO - Skipping xgboost_catboost_advancedsvm (already processed)
+2025-08-17 23:47:54,325 - INFO - Skipping xgboost_catboost_naivebayes (already processed)
+2025-08-17 23:47:54,326 - INFO - Skipping catboost_solo (already processed)
+2025-08-17 23:47:54,326 - INFO - Skipping xgboost_cv_ensemble (already processed)
+2025-08-17 23:47:54,326 - INFO - Skipping lightgbm_cv_ensemble (already processed)
+2025-08-17 23:47:54,327 - INFO - Skipping catboost_randomforest (already processed)
+2025-08-17 23:47:54,328 - INFO - Skipping catboost_advancedsvm_randomforest (already processed)
+2025-08-17 23:47:54,328 - INFO - Skipping lightgbm_neuralnetwork (already processed)
+2025-08-17 23:47:54,329 - INFO - Skipping xgboost_neuralnetwork (already processed)
+2025-08-17 23:47:54,329 - INFO - Skipping xgboost_neuralnetwork_naivebayes (already processed)
+2025-08-17 23:47:54,329 - INFO - Skipping xgboost_neuralnetwork_randomforest (already processed)
+2025-08-17 23:47:54,329 - INFO - Skipping lightgbm_neuralnetwork_advancedsvm (already processed)
+2025-08-17 23:47:54,330 - INFO - Skipping lightgbm_neuralnetwork_naivebayes (already processed)
+2025-08-17 23:47:54,330 - INFO - Skipping lightgbm_neuralnetwork_randomforest (already processed)
+2025-08-17 23:47:54,330 - INFO - Skipping catboost_randomforest_naivebayes (already processed)
+2025-08-17 23:47:54,331 - INFO - Skipping xgboost_neuralnetwork_advancedsvm (already processed)
+2025-08-17 23:47:54,331 - INFO - Skipping catboost_neuralnetwork (already processed)
+2025-08-17 23:47:54,332 - INFO - Skipping catboost_randomforest_logisticregression (already processed)
+2025-08-17 23:47:54,332 - INFO - Skipping lightgbm_advancedsvm_naivebayes (already processed)
+2025-08-17 23:47:54,332 - INFO - Skipping xgboost_randomforest_neuralnetwork (already processed)
+2025-08-17 23:47:54,332 - INFO - Skipping advancedsvm_solo (already processed)
+2025-08-17 23:47:54,334 - INFO - Skipping neuralnetwork_solo (already processed)
+2025-08-17 23:47:54,334 - INFO - Skipping catboost_naivebayes (already processed)
+2025-08-17 23:47:54,334 - INFO - Skipping catboost_logisticregression (already processed)
+2025-08-17 23:47:54,334 - INFO - 
+--- Processing deepgbm_solo (30/65) ---
+2025-08-17 23:47:54,347 - INFO - Stage 1: Quick assessment...
+2025-08-17 23:47:54,457 - INFO - Stage 2: Full evaluation...
+2025-08-17 23:47:56,509 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 23:47:56,521 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 23:47:56,657 - INFO - Generating comprehensive visualizations for deepgbm_solo...
+2025-08-17 23:48:01,682 - INFO - Individual model visualizations completed for deepgbm_solo
+2025-08-17 23:48:01,732 - INFO - Checkpoint and CSV files updated for deepgbm_solo
+2025-08-17 23:49:05,661 - INFO - User requested early termination
+2025-08-17 23:49:05,662 - INFO - Generating comprehensive final analysis...
+2025-08-17 23:49:09,042 - INFO - Comprehensive reports generated successfully
+2025-08-17 23:49:09,042 - INFO - Comprehensive final analysis completed!
+2025-08-17 23:49:09,043 - INFO - All reports and visualizations saved to:
+2025-08-17 23:49:09,043 - INFO -    - CSV Results: resnew/analysis_results/
+2025-08-17 23:49:09,043 - INFO -    - Visual Reports: resnew/plots/
+2025-08-17 23:49:09,043 - INFO -    - Text Reports: resnew/reports/
+2025-08-17 23:49:34,920 - ERROR - Failed to load checkpoint: Expecting value: line 58 column 3 (char 1800)
+2025-08-17 23:49:34,977 - INFO - Starting comprehensive model analysis pipeline...
+2025-08-17 23:49:34,978 - INFO - Loading and preprocessing data...
+2025-08-17 23:49:35,063 - INFO - Real dataset loaded successfully!
+2025-08-17 23:49:35,072 - INFO - Numerical features: 31
+2025-08-17 23:49:35,072 - INFO - Categorical features: 1
+2025-08-17 23:49:35,197 - INFO - Data preprocessing completed.
+2025-08-17 23:49:35,198 - INFO - Training set shape: (16020, 2052)
+2025-08-17 23:49:35,198 - INFO - Test set shape: (4005, 2052)
+2025-08-17 23:49:35,199 - INFO - Number of classes: 3
+2025-08-17 23:49:35,200 - INFO - Class distribution: [ 3230 14722  2073]
+2025-08-17 23:49:35,201 - ERROR - Failed to load checkpoint: Expecting value: line 58 column 3 (char 1800)
+2025-08-17 23:49:35,202 - INFO - Found 0 previously processed models
+2025-08-17 23:49:35,202 - INFO - 
+============================================================
+2025-08-17 23:49:35,202 - INFO - Processing TIER1: 8 models
+2025-08-17 23:49:35,203 - INFO - ============================================================
+2025-08-17 23:49:35,203 - INFO - 
+Processing medium complexity batch: 5 models
+2025-08-17 23:49:35,205 - INFO - 
+--- Processing lightgbm_solo (1/5) ---
+2025-08-17 23:49:35,220 - INFO - Stage 1: Quick assessment...
+2025-08-17 23:49:36,602 - INFO - Stage 2: Full evaluation...
+2025-08-17 23:49:51,237 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 23:49:51,251 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 23:49:56,826 - INFO - Generating comprehensive visualizations for lightgbm_solo...
+2025-08-17 23:50:01,370 - INFO - Individual model visualizations completed for lightgbm_solo
+2025-08-17 23:50:01,372 - ERROR - Failed to load checkpoint: Expecting value: line 58 column 3 (char 1800)
+2025-08-17 23:50:01,428 - INFO - Checkpoint and CSV files updated for lightgbm_solo
+2025-08-17 23:50:01,701 - INFO - 
+--- Processing lightgbm_xgboost_ensemble (2/5) ---
+2025-08-17 23:50:01,714 - INFO - Stage 1: Quick assessment...
+2025-08-17 23:50:09,597 - INFO - Stage 2: Full evaluation...
+2025-08-17 23:50:59,230 - INFO - Starting comprehensive model analysis pipeline...
+2025-08-17 23:50:59,230 - INFO - Loading and preprocessing data...
+2025-08-17 23:50:59,321 - INFO - Real dataset loaded successfully!
+2025-08-17 23:50:59,330 - INFO - Numerical features: 31
+2025-08-17 23:50:59,330 - INFO - Categorical features: 1
+2025-08-17 23:50:59,455 - INFO - Data preprocessing completed.
+2025-08-17 23:50:59,456 - INFO - Training set shape: (16020, 2052)
+2025-08-17 23:50:59,456 - INFO - Test set shape: (4005, 2052)
+2025-08-17 23:50:59,456 - INFO - Number of classes: 3
+2025-08-17 23:50:59,457 - INFO - Class distribution: [ 3230 14722  2073]
+2025-08-17 23:50:59,460 - INFO - Found 54 previously processed models
+2025-08-17 23:50:59,460 - INFO - 
+============================================================
+2025-08-17 23:50:59,461 - INFO - Processing TIER1: 8 models
+2025-08-17 23:50:59,461 - INFO - ============================================================
+2025-08-17 23:50:59,462 - INFO - 
+Processing medium complexity batch: 5 models
+2025-08-17 23:50:59,463 - INFO - 
+--- Processing lightgbm_solo (1/5) ---
+2025-08-17 23:50:59,486 - INFO - Stage 1: Quick assessment...
+2025-08-17 23:51:00,907 - INFO - Stage 2: Full evaluation...
+2025-08-17 23:51:15,736 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 23:51:15,750 - INFO - Using NORMAL bootstrap: 30 iterations, 8000 samples
+2025-08-17 23:51:21,625 - INFO - Generating comprehensive visualizations for lightgbm_solo...
+2025-08-17 23:51:26,751 - INFO - Individual model visualizations completed for lightgbm_solo
+2025-08-17 23:51:26,796 - INFO - Checkpoint and CSV files updated for lightgbm_solo
+2025-08-17 23:51:27,063 - INFO - Skipping lightgbm_xgboost_ensemble (already processed)
+2025-08-17 23:51:27,065 - INFO - Skipping lightgbm_randomforest (already processed)
+2025-08-17 23:51:27,065 - INFO - Skipping xgboost_randomforest (already processed)
+2025-08-17 23:51:27,065 - INFO - Skipping xgboost_solo (already processed)
+2025-08-17 23:51:27,065 - INFO - 
+Processing heavy complexity batch: 3 models
+2025-08-17 23:51:27,065 - INFO - Skipping lightgbm_advancedsvm (already processed)
+2025-08-17 23:51:27,066 - INFO - Skipping lightgbm_advancedsvm_randomforest (already processed)
+2025-08-17 23:51:27,066 - INFO - Skipping xgboost_advancedsvm_randomforest (already processed)
+2025-08-17 23:51:27,066 - INFO - 
+============================================================
+2025-08-17 23:51:27,068 - INFO - Processing TIER2: 83 models
+2025-08-17 23:51:27,068 - INFO - ============================================================
+2025-08-17 23:51:27,070 - INFO - 
+Processing light complexity batch: 5 models
+2025-08-17 23:51:27,070 - INFO - Skipping naivebayes_solo (already processed)
+2025-08-17 23:51:27,071 - INFO - Skipping logisticregression_solo (already processed)
+2025-08-17 23:51:27,072 - INFO - Skipping knn_solo (already processed)
+2025-08-17 23:51:27,072 - INFO - Skipping ridge_solo (already processed)
+2025-08-17 23:51:27,073 - INFO - Skipping sgd_solo (already processed)
+2025-08-17 23:51:27,073 - INFO - 
+Processing medium complexity batch: 13 models
+2025-08-17 23:51:27,073 - INFO - Skipping xgboost_lightgbm_naivebayes (already processed)
+2025-08-17 23:51:27,074 - INFO - Skipping lightgbm_randomforest_naivebayes (already processed)
+2025-08-17 23:51:27,074 - INFO - Skipping xgboost_randomforest_naivebayes (already processed)
+2025-08-17 23:51:27,074 - INFO - Skipping randomforest_knn_naivebayes (already processed)
+2025-08-17 23:51:27,075 - INFO - Skipping randomforest_solo (already processed)
+2025-08-17 23:51:27,076 - INFO - Skipping lightgbm_naivebayes (already processed)
+2025-08-17 23:51:27,076 - INFO - Skipping xgboost_naivebayes (already processed)
+2025-08-17 23:51:27,076 - INFO - Skipping randomforest_naivebayes (already processed)
+2025-08-17 23:51:27,077 - INFO - Skipping lightgbm_logisticregression (already processed)
+2025-08-17 23:51:27,077 - INFO - Skipping xgboost_logisticregression (already processed)
+2025-08-17 23:51:27,077 - INFO - Skipping randomforest_logisticregression (already processed)
+2025-08-17 23:51:27,077 - INFO - Skipping lightgbm_knn (already processed)
+2025-08-17 23:51:27,078 - INFO - Skipping xgboost_knn (already processed)
+2025-08-17 23:51:27,078 - INFO - 
+Processing heavy complexity batch: 65 models
+2025-08-17 23:51:27,079 - INFO - Skipping xgboost_catboost_lightgbm (already processed)
+2025-08-17 23:51:27,080 - INFO - Skipping xgboost_advancedsvm_2model (already processed)
+2025-08-17 23:51:27,081 - INFO - Skipping xgboost_lightgbm_randomforest_linearsvm (already processed)
+2025-08-17 23:51:27,083 - INFO - Skipping lightgbm_catboost_naivebayes (already processed)
+2025-08-17 23:51:27,083 - INFO - Skipping lightgbm_catboost_advancedsvm (already processed)
+2025-08-17 23:51:27,084 - INFO - Skipping xgboost_catboost_advancedsvm (already processed)
+2025-08-17 23:51:27,084 - INFO - Skipping xgboost_catboost_naivebayes (already processed)
+2025-08-17 23:51:27,084 - INFO - Skipping catboost_solo (already processed)
+2025-08-17 23:51:27,086 - INFO - Skipping xgboost_cv_ensemble (already processed)
+2025-08-17 23:51:27,086 - INFO - Skipping lightgbm_cv_ensemble (already processed)
+2025-08-17 23:51:27,086 - INFO - Skipping catboost_randomforest (already processed)
+2025-08-17 23:51:27,087 - INFO - Skipping catboost_advancedsvm_randomforest (already processed)
+2025-08-17 23:51:27,087 - INFO - Skipping lightgbm_neuralnetwork (already processed)
+2025-08-17 23:51:27,088 - INFO - Skipping xgboost_neuralnetwork (already processed)
+2025-08-17 23:51:27,088 - INFO - Skipping xgboost_neuralnetwork_naivebayes (already processed)
+2025-08-17 23:51:27,089 - INFO - Skipping xgboost_neuralnetwork_randomforest (already processed)
+2025-08-17 23:51:27,089 - INFO - Skipping lightgbm_neuralnetwork_advancedsvm (already processed)
+2025-08-17 23:51:27,090 - INFO - Skipping lightgbm_neuralnetwork_naivebayes (already processed)
+2025-08-17 23:51:27,090 - INFO - Skipping lightgbm_neuralnetwork_randomforest (already processed)
+2025-08-17 23:51:27,090 - INFO - Skipping catboost_randomforest_naivebayes (already processed)
+2025-08-17 23:51:27,090 - INFO - Skipping xgboost_neuralnetwork_advancedsvm (already processed)
+2025-08-17 23:51:27,091 - INFO - Skipping catboost_neuralnetwork (already processed)
+2025-08-17 23:51:27,091 - INFO - Skipping catboost_randomforest_logisticregression (already processed)
+2025-08-17 23:51:27,091 - INFO - Skipping lightgbm_advancedsvm_naivebayes (already processed)
+2025-08-17 23:51:27,092 - INFO - Skipping xgboost_randomforest_neuralnetwork (already processed)
+2025-08-17 23:51:27,092 - INFO - Skipping advancedsvm_solo (already processed)
+2025-08-17 23:51:27,092 - INFO - Skipping neuralnetwork_solo (already processed)
+2025-08-17 23:51:27,092 - INFO - Skipping catboost_naivebayes (already processed)
+2025-08-17 23:51:27,094 - INFO - Skipping catboost_logisticregression (already processed)
+2025-08-17 23:51:27,094 - INFO - 
+--- Processing deepgbm_solo (30/65) ---
+2025-08-17 23:51:27,106 - INFO - Stage 1: Quick assessment...
+2025-08-17 23:51:27,218 - INFO - Stage 2: Full evaluation...
+2025-08-17 23:51:29,467 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 23:51:29,484 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-17 23:51:29,617 - INFO - Generating comprehensive visualizations for deepgbm_solo...
+2025-08-17 23:51:34,346 - INFO - Individual model visualizations completed for deepgbm_solo
+2025-08-17 23:51:34,395 - INFO - Checkpoint and CSV files updated for deepgbm_solo
+2025-08-17 23:58:18,108 - INFO - User requested early termination
+2025-08-17 23:58:18,108 - INFO - Generating comprehensive final analysis...
+2025-08-17 23:58:21,725 - INFO - Comprehensive reports generated successfully
+2025-08-17 23:58:21,726 - INFO - Comprehensive final analysis completed!
+2025-08-17 23:58:21,726 - INFO - All reports and visualizations saved to:
+2025-08-17 23:58:21,726 - INFO -    - CSV Results: resnew/analysis_results/
+2025-08-17 23:58:21,726 - INFO -    - Visual Reports: resnew/plots/
+2025-08-17 23:58:21,728 - INFO -    - Text Reports: resnew/reports/

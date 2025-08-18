@@ -1,7 +1,7 @@
-CUMULATIVE ANALYSIS REPORT - Updated: 2025-08-17 16:30:29
+CUMULATIVE ANALYSIS REPORT - Updated: 2025-08-17 23:51:34
 ================================================================================
-Total Models Processed: 66
-Successful Models: 48
+Total Models Processed: 82
+Successful Models: 64
 Failed Models: 18
 Early Stopped Models: 0
 
@@ -9,11 +9,11 @@ TOP 10 PERFORMERS (All Time):
 ----------------------------------------
 catboost_advancedsvm_randomforest: F1=1.0000, Acc=nan
 lightgbm_neuralnetwork_advancedsvm: F1=1.0000, Acc=nan
+xgboost_neuralnetwork_advancedsvm: F1=1.0000, Acc=nan
+lightgbm_advancedsvm_naivebayes: F1=1.0000, Acc=nan
+advancedsvm_solo: F1=1.0000, Acc=nan
+deepgbm_advancedsvm: F1=1.0000, Acc=nan
 lightgbm_solo: F1=0.0000, Acc=nan
 lightgbm_xgboost_ensemble: F1=0.0000, Acc=nan
 lightgbm_randomforest: F1=0.0000, Acc=nan
 xgboost_randomforest: F1=0.0000, Acc=nan
-xgboost_solo: F1=0.0000, Acc=nan
-lightgbm_advancedsvm: F1=0.0000, Acc=nan
-lightgbm_advancedsvm_randomforest: F1=0.0000, Acc=nan
-xgboost_advancedsvm_randomforest: F1=0.0000, Acc=nan

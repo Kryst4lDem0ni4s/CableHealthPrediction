@@ -1,6 +1,5 @@
 {
   "completed_models": [
-    "lightgbm_solo",
     "lightgbm_xgboost_ensemble",
     "lightgbm_randomforest",
     "xgboost_randomforest",
@@ -45,9 +44,19 @@
     "lightgbm_neuralnetwork_advancedsvm",
     "lightgbm_neuralnetwork_naivebayes",
     "lightgbm_neuralnetwork_randomforest",
-    "catboost_randomforest_naivebayes"
+    "catboost_randomforest_naivebayes",
+    "xgboost_neuralnetwork_advancedsvm",
+    "catboost_neuralnetwork",
+    "catboost_randomforest_logisticregression",
+    "lightgbm_advancedsvm_naivebayes",
+    "xgboost_randomforest_neuralnetwork",
+    "advancedsvm_solo",
+    "neuralnetwork_solo",
+    "catboost_naivebayes",
+    "catboost_logisticregression",
+    "lightgbm_solo"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-17T16:30:29.021801"
+  "timestamp": "2025-08-17T23:51:34.348643"
 }

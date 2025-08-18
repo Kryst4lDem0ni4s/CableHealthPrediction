@@ -1231,8 +1231,18 @@ class BaseModelFactory:
                     
                     # DeepGBM doesn't take n_classes directly - it infers from data
                     return DeepGBM(
-                        objective='classification',  # Use correct parameter names
-                        random_state=Config.RANDOM_STATE,
+                        task='classification',  # Use 'task' instead of 'objective'
+                        nume_input_size=None,   # Will need to be set during training
+                        used_features=None,     # Will need to be set during training  
+                        tree_layers=None,       # Will be auto-configured
+                        output_w=None,          # Will be auto-configured
+                        output_b=None,          # Will be auto-configured
+                        cate_field_size=None,   # Will be determined from data
+                        feature_sizes=None,     # Will be determined from data
+                        embedding_size=4,       # Default value
+                        h_depth=2,             # Default value
+                        deep_layers=[32, 32],   # Default value
+                        num_model='gbdt2nn',    # Default value
                         **kwargs
                     )
                 except ImportError as e:

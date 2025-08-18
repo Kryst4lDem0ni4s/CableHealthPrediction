@@ -1,51 +1,36 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-17 11:58:02
+Generated: 2025-08-17 23:58:21
 
 DETAILED MODEL PERFORMANCE:
 ----------------------------------------
 
-LIGHTGBM_CATBOOST_ADVANCEDSVM:
+LIGHTGBM_SOLO:
   Train Performance:
-    Accuracy: 0.9115
-    F1-Score: 0.9079
-    Precision: 0.9121
-    Recall: 0.9115
+    Accuracy: 0.9525
+    F1-Score: 0.9536
+    Precision: 0.9594
+    Recall: 0.9525
   Test Performance:
-    Accuracy: 0.8457
-    F1-Score: 0.8323
-    Precision: 0.8374
-    Recall: 0.8457
-  Computational Metrics:
-    Training Time: 716.04s
-    Memory Usage: 32.40%
-
-XGBOOST_CATBOOST_ADVANCEDSVM:
-  Train Performance:
-    Accuracy: 0.8934
-    F1-Score: 0.8841
-    Precision: 0.9002
-    Recall: 0.8934
-  Test Performance:
-    Accuracy: 0.8392
-    F1-Score: 0.8165
+    Accuracy: 0.8292
+    F1-Score: 0.8321
     Precision: 0.8369
-    Recall: 0.8392
+    Recall: 0.8292
   Computational Metrics:
-    Training Time: 572.74s
-    Memory Usage: 0.00%
+    Training Time: 3.61s
+    Memory Usage: 0.20%
 
-XGBOOST_CATBOOST_NAIVEBAYES:
+DEEPGBM_SOLO:
   Train Performance:
-    Accuracy: 0.9184
-    F1-Score: 0.9193
-    Precision: 0.9221
-    Recall: 0.9184
+    Accuracy: 0.6381
+    F1-Score: 0.6635
+    Precision: 0.7884
+    Recall: 0.6381
   Test Performance:
-    Accuracy: 0.8175
-    F1-Score: 0.8138
-    Precision: 0.8112
-    Recall: 0.8175
+    Accuracy: 0.5423
+    F1-Score: 0.5765
+    Precision: 0.6872
+    Recall: 0.5423
   Computational Metrics:
-    Training Time: 46.01s
-    Memory Usage: 1.20%
+    Training Time: 0.64s
+    Memory Usage: 0.10%
