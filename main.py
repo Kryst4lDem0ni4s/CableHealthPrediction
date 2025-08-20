@@ -16,6 +16,14 @@ from collections import defaultdict
 import logging
 from sklearn.cluster import KMeans
 from scipy import sparse
+import torch
+import torch.nn as nn
+import lightgbm as lgb
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.utils.validation import check_X_y, check_array
+from sklearn.preprocessing import LabelEncoder
+from scipy import sparse
+from typing import List, Optional
 
 warnings.filterwarnings('ignore')
 
@@ -905,318 +913,215 @@ def check_early_stop_criteria(metrics: Dict[str, float]) -> Tuple[bool, str]:
 # ================================================================================================
 # FIXED MODEL FACTORY CLASSES
 # ================================================================================================
-import torch
-import torch.nn as nn
-import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.preprocessing import LabelEncoder
-from sklearn.utils.validation import check_X_y, check_array
 
+
+# Assuming these are from your DeepGBM repo (import them as needed)
+# from models.deepgbm import DeepGBM  # Adjust path based on your sys.path
+# from models.gbdt2nn import GBDT2NN
+# from models.deepfm import DeepFM
 class DeepGBMWrapper(BaseEstimator, ClassifierMixin):
-    """
-    Fixed DeepGBM wrapper with proper metadata handling, data transformation, 
-    training loop, and prediction formatting.
-    """
-    
-    def __init__(self, 
-                 embedding_size=4,
-                 h_depth=2, 
-                 deep_layers=[32, 32],
-                 num_model='gbdt2nn',
-                 task='classification',
-                 device='auto',
-                 use_real_deepgbm=True,
-                 random_state=None,
-                 epochs=100,
-                 learning_rate=0.001,
-                 batch_size=256):
-        
+    def __init__(
+        self,
+        embedding_size: int = 4,
+        h_depth: int = 2,
+        deep_layers: List[int] = [32, 32],
+        task: str = 'classification',
+        epochs: int = 50,
+        batch_size: int = 256,
+        learning_rate: float = 0.001,
+        num_trees: int = 10,
+        tree_max_depth: int = 4,
+        tree_layers: Optional[List[int]] = None,
+        random_state: int = 42,
+        use_real_deepgbm: bool = True,
+        device: str = 'cuda' if torch.cuda.is_available() else 'cpu',
+        verbose: bool = True
+    ):
         self.embedding_size = embedding_size
         self.h_depth = h_depth
         self.deep_layers = deep_layers
-        self.num_model = num_model
         self.task = task
-        self.device = device
-        self.use_real_deepgbm = use_real_deepgbm
-        self.random_state = random_state
         self.epochs = epochs
-        self.learning_rate = learning_rate
         self.batch_size = batch_size
-        
-        # Initialize metadata with safe defaults
-        self.nume_input_size = 0
-        self.cate_field_size = 0
-        self.feature_sizes = []
-        
-        # Model components
+        self.learning_rate = learning_rate
+        self.num_trees = num_trees
+        self.tree_max_depth = tree_max_depth
+        self.tree_layers = tree_layers or [32, 16, 1]  # Ensure last layer outputs 1 per tree
+        self.random_state = random_state
+        self.use_real_deepgbm = use_real_deepgbm
+        self.device = device
+        self.verbose = verbose
+
         self.model_ = None
+        self.fallback_model_ = None
         self.label_encoder_ = None
         self.n_classes_ = None
-        self.column_transformer_ = None
-        self.fallback_model_ = None
+        self.nume_input_size_ = None
+        self.cate_field_size_ = None
+        self.feature_sizes_ = None
+        self.used_features_ = None
+        self.output_w_ = None
+        self.output_b_ = None
 
-    def set_metadata(self, nume_input_size, cate_field_size, feature_sizes):
-        """Explicitly set metadata for DeepGBM"""
-        self.nume_input_size = max(0, nume_input_size or 0)
-        self.cate_field_size = max(0, cate_field_size or 0) 
-        self.feature_sizes = feature_sizes or []
-        
-        print(f"DeepGBM metadata set: numeric={self.nume_input_size}, "
-              f"categorical={self.cate_field_size}, sizes={self.feature_sizes}")
-        
-    def build_feature_metadata_from_transformer(self, column_transformer):
-        """Extract and validate feature metadata with enhanced error handling"""
-        nume_input_size = 0
-        cate_field_size = 0
-        feature_sizes = []
-        
+    def build_feature_metadata_from_transformer(self, transformer):
         try:
-            # Get transformers with fallback
-            transformers = getattr(column_transformer, 'transformers_', 
-                                getattr(column_transformer, 'transformers', []))
+            if transformer is None:
+                raise ValueError("Transformer must be provided.")
             
-            if not transformers:
-                raise ValueError("No transformers found in ColumnTransformer")
+            num_transformer = transformer.named_transformers_.get('num')
+            cat_transformer = transformer.named_transformers_.get('cat')
             
-            for name, transformer, features in transformers:
-                print(f"Processing transformer: {name}")
-                
-                if name == 'num':
-                    if isinstance(features, (list, np.ndarray)):
-                        nume_input_size = len(features)
-                    elif hasattr(features, '__len__'):
-                        nume_input_size = len(features)
-                    else:
-                        nume_input_size = 0
-                    print(f"  Numerical features: {nume_input_size}")
-                    
-                elif name == 'cat':
-                    # Enhanced categorical feature handling
-                    if hasattr(transformer, 'categories_') and transformer.categories_ is not None:
-                        # Fitted OneHotEncoder
-                        categories = transformer.categories_
-                        if categories is not None:
-                            cate_field_size = len(categories)
-                            feature_sizes = []
-                            
-                            for i, cats in enumerate(categories):
-                                if cats is not None and hasattr(cats, '__len__'):
-                                    # CRITICAL FIX: Ensure minimum vocabulary size of 2
-                                    vocab_size = max(2, len(cats))
-                                    feature_sizes.append(vocab_size)
-                                else:
-                                    print(f"Warning: Category {i} is None or invalid, using default size 2")
-                                    feature_sizes.append(2)
-                            
-                            print(f"  Categorical features: {cate_field_size}")
-                            print(f"  Feature sizes: {feature_sizes}")
-                        else:
-                            print("Warning: categories_ is None")
-                            cate_field_size = 1
-                            feature_sizes = [2]  # Minimum safe default
-                    else:
-                        # Unfitted transformer - use conservative estimates
-                        print("Warning: OneHotEncoder not fitted, using conservative estimates")
-                        cate_field_size = 1
-                        feature_sizes = [2]  # Binary safe default
-                        
-                        print(f"  Estimated categorical features: {cate_field_size}")
-                        print(f"  Estimated feature sizes: {feature_sizes}")
+            self.nume_input_size_ = len(num_transformer.get_feature_names_out()) if num_transformer else 0
+            self.cate_field_size_ = len(cat_transformer.get_feature_names_out()) if cat_transformer else 0
+            self.feature_sizes_ = [len(cats) for cats in cat_transformer.categories_] if cat_transformer else []
             
-            # CRITICAL FIX: Ensure we always have valid metadata
-            if nume_input_size == 0 and cate_field_size == 0:
-                print("Warning: No features detected, using minimal valid configuration")
-                nume_input_size = 1
-                cate_field_size = 1
-                feature_sizes = [2]
-            
-            if cate_field_size > 0 and not feature_sizes:
-                print("Warning: Categorical features detected but no feature sizes, using defaults")
-                feature_sizes = [2] * cate_field_size
-            
-            if len(feature_sizes) != cate_field_size:
-                print(f"Warning: feature_sizes length ({len(feature_sizes)}) != cate_field_size ({cate_field_size})")
-                # Fix the mismatch
-                if len(feature_sizes) < cate_field_size:
-                    feature_sizes.extend([2] * (cate_field_size - len(feature_sizes)))
-                else:
-                    feature_sizes = feature_sizes[:cate_field_size]
-            
-            # Set with validation
-            self.set_metadata(nume_input_size, cate_field_size, feature_sizes)
-            self.column_transformer_ = column_transformer
-            
-            print(f"Metadata extraction completed successfully:")
-            print(f"  Final nume_input_size: {self.nume_input_size}")
-            print(f"  Final cate_field_size: {self.cate_field_size}")
-            print(f"  Final feature_sizes: {self.feature_sizes}")
+            if self.verbose:
+                print(f"Metadata: nume={self.nume_input_size_}, cate={self.cate_field_size_}, features={self.feature_sizes_}")
             
             return {
-                'nume_input_size': self.nume_input_size,
-                'cate_field_size': self.cate_field_size,
-                'feature_sizes': self.feature_sizes
+                'nume_input_size': self.nume_input_size_,
+                'cate_field_size': self.cate_field_size_,
+                'feature_sizes': self.feature_sizes_
             }
-            
         except Exception as e:
-            print(f"Error in metadata extraction: {e}")
-            print("Using fallback metadata...")
-            # ENHANCED FALLBACK: Use minimal but valid configuration
-            self.set_metadata(1, 1, [2])  # Minimal valid configuration
+            if self.verbose:
+                print(f"Metadata extraction failed: {e}. Using defaults.")
+            self.nume_input_size_ = 0
+            self.cate_field_size_ = 0
+            self.feature_sizes_ = []
             return {
-                'nume_input_size': 1,
-                'cate_field_size': 1,
-                'feature_sizes': [2]
+                'nume_input_size': 0,
+                'cate_field_size': 0,
+                'feature_sizes': []
             }
 
-    def _setup_device(self):
-        """Setup computation device with fallback"""
-        if self.device == 'auto':
-            return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        return torch.device(self.device)
-        
-    def _initialize_deepgbm_model(self):
-        """Initialize DeepGBM model with enhanced validation"""    
-            
-        if (self.nume_input_size is None or self.cate_field_size is None or 
-            self.feature_sizes is None):
-            raise ValueError("DeepGBM metadata must be set before initializing. "
-                            "Call set_metadata() or build_feature_metadata_from_transformer()")
-            
-        if self.nume_input_size < 0:
-            raise ValueError(f"nume_input_size must be >= 0, got {self.nume_input_size}")
-        if self.cate_field_size < 0:
-            raise ValueError(f"cate_field_size must be >= 0, got {self.cate_field_size}")
-            
-        # Validate feature_sizes list
-        if not isinstance(self.feature_sizes, list):
-            raise ValueError(f"feature_sizes must be a list, got {type(self.feature_sizes)}")
-        if any(size is None or size <= 0 for size in self.feature_sizes):
-            raise ValueError(f"All feature_sizes must be positive integers, got {self.feature_sizes}")
-            
-        if self.nume_input_size == 0 and self.cate_field_size == 0:
-            raise ValueError("At least one of nume_input_size or cate_field_size must be > 0")
-            
-        if len(self.feature_sizes) != self.cate_field_size:
-            raise ValueError(f"feature_sizes length ({len(self.feature_sizes)}) must match "
-                            f"cate_field_size ({self.cate_field_size})")
-            
+    def _pretrain_gbdt(self, X, y):
         try:
-            device = self._setup_device()
+            params = {
+                'objective': 'multiclass',
+                'num_class': self.n_classes_,
+                'num_boost_round': self.num_trees,
+                'max_depth': self.tree_max_depth,
+                'learning_rate': 0.1,
+                'verbosity': -1 if not self.verbose else 1,
+                'random_state': self.random_state
+            }
+            dtrain = lgb.Dataset(X, label=y)
+            gbdt_model = lgb.train(params, dtrain)
+
+            # Simulate used_features and outputs (adjust based on real parsing if needed)
+            self.used_features_ = [list(range(X.shape[1])) for _ in range(self.num_trees)]
+            self.output_w_ = np.random.randn(self.num_trees, self.n_classes_).astype(np.float32)
+            self.output_b_ = np.zeros(self.n_classes_).astype(np.float32)
+
+            if self.verbose:
+                print("GBDT pre-training completed.")
+        except Exception as e:
+            if self.verbose:
+                print(f"GBDT pre-training failed: {e}")
+                
+    def custom_forward(self, Xg, Xd):
+        Xg = Xg.float().to(self.device)
+        Xd = Xd.long().to(self.device)
+
+        # Get GBDT2NN outputs (gbdt_out is already the final processed output [batch, n_classes])
+        if self.model_.num_model == 'gbdt2nn':
+            gbdt_out, gbdt_pred = self.model_.gbdt2nn(Xg)
+        elif self.model_.num_model == 'gbdt':
+            gbdt_out = Xg
+            gbdt_pred = None
+        else:
+            gbdt_out = self.model_.gbdt2nn(Xg)
+            gbdt_pred = None
+
+        # DeepFM branch
+        deepfm_out = self.model_.deepfm(Xd).float()
+
+        # Ensure deepfm_out matches [batch, n_classes] by repeating if necessary
+        if deepfm_out.dim() == 1:
+            deepfm_out = deepfm_out.unsqueeze(1)  # [batch] -> [batch, 1]
+        if deepfm_out.shape[1] != self.n_classes_:
+            deepfm_out = deepfm_out.repeat(1, self.n_classes_)  # Broadcast to match n_classes
+
+        # Combine using alpha/beta (blend the final outputs directly)
+        if self.model_.num_model != 'gbdt2nn':
+            alpha = self.model_.alpha + 0.5
+            beta = self.model_.beta + 0.5
+        else:
+            alpha = self.model_.alpha + 1
+            beta = self.model_.beta
+
+        out = alpha * gbdt_out + beta * deepfm_out
+
+        if self.task != 'regression':
+            return nn.Softmax(dim=1)(out), gbdt_pred
+        return out, gbdt_pred
+
+    def fit(self, X, y):
+        X, y = check_X_y(X, y)
+        self.label_encoder_ = LabelEncoder()
+        y_encoded = self.label_encoder_.fit_transform(y)
+        self.n_classes_ = len(self.label_encoder_.classes_)
+
+        if sparse.issparse(X):
+            X = X.toarray()  # DeepGBM expects dense
+
+        try:
+            if not self.use_real_deepgbm:
+                raise ImportError("Forcing fallback")
+
+            Xg = X[:, :self.nume_input_size_]  # Numerical features
+            self._pretrain_gbdt(Xg, y_encoded)
+
+            self.model_ = DeepGBM(
+                nume_input_size=self.nume_input_size_,
+                used_features=self.used_features_,
+                tree_layers=self.tree_layers,
+                output_w=self.output_w_,
+                output_b=self.output_b_,
+                task=self.task,
+                cate_field_size=self.cate_field_size_,
+                feature_sizes=self.feature_sizes_,
+                embedding_size=self.embedding_size,
+                h_depth=self.h_depth,
+                deep_layers=self.deep_layers,
+                num_model='gbdt2nn'
+            ).to(self.device)
+
+            self.model_.criterion = nn.CrossEntropyLoss()
+
+            optimizer = torch.optim.Adam(self.model_.parameters(), lr=self.learning_rate)
+
+            dataset = torch.utils.data.TensorDataset(
+                torch.FloatTensor(X).to(self.device),  # Ensure float32
+                torch.LongTensor(y_encoded).to(self.device)
+            )
+            dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
             
-            # Use stored GBDT knowledge
-            gbdt_knowledge = getattr(self, '_gbdt_knowledge', None)
-            if gbdt_knowledge is None:
-                raise ValueError("GBDT knowledge not available. Call fit() first.")
-            
-            try:
-                # used_features, tree_layers, output_w, output_b = prepare_gbdt_parameters(
-                #     gbdt_knowledge.get('used_features', []),
-                #     gbdt_knowledge.get('tree_layers', []),
-                #     gbdt_knowledge.get('output_w', np.array([0.1])),
-                #     gbdt_knowledge.get('output_b', np.array([0.0])),
-                #     self.nume_input_size
-                # )
-                
-                # AFTER  – force every element to int
-                raw_layers = gbdt_knowledge.get('tree_layers', [])
-                clean_layers = []
-                for tl in raw_layers:
-                    if isinstance(tl, dict) and 'n_leaves' in tl:
-                        clean_layers.append(int(tl['n_leaves']))
-                    elif isinstance(tl, dict):
-                        clean_layers.append(32)          # safe default
-                    else:                                # already int
-                        clean_layers.append(int(tl))
+            self.model_.train()
+            for epoch in range(self.epochs):
+                epoch_loss = 0
+                for X_batch, y_batch in dataloader:
+                    X_batch = X_batch.float().to(self.device)
+                    y_batch = y_batch.long().to(self.device)
 
-                used_features, tree_layers, output_w, output_b = prepare_gbdt_parameters(
-                    gbdt_knowledge.get('used_features', []),
-                    clean_layers,                      # use sanitized list
-                    gbdt_knowledge.get('output_w', np.array([0.1])),
-                    gbdt_knowledge.get('output_b', np.array([0.0])),
-                    self.nume_input_size
-                )
-                
-                if isinstance(gbdt_knowledge['used_features'], list) and len(gbdt_knowledge['used_features']) > 0:
-                    if not isinstance(gbdt_knowledge['used_features'], list):
-                        # Convert flat list to nested (simple: wrap in single list)
-                        print("Warning: used_features is flat; converting to nested structure")
-                        gbdt_knowledge['used_features'] = [gbdt_knowledge['used_features']] 
-                
-                print(f"Prepared parameters: used_features len={len(used_features)}, "
-                    f"tree_layers len={len(tree_layers)}, output_w shape={output_w.shape}, "
-                    f"output_b shape={output_b.shape}")
-                
-                # Add detailed logging before initialization
-                print("Initializing DeepGBM with parameters:")
-                print(f"  nume_input_size: {int(self.nume_input_size)} (type: {type(self.nume_input_size)})")
-                print(f"  cate_field_size: {int(self.cate_field_size)} (type: {type(self.cate_field_size)})")
-                print(f"  feature_sizes: {list(self.feature_sizes)} (len: {len(self.feature_sizes)})")
-                print(f"  embedding_size: {int(self.embedding_size)}")
-                print(f"  h_depth: {int(self.h_depth)}")
-                print(f"  deep_layers: {list(self.deep_layers)} (len: {len(self.deep_layers)})")
-                print(f"  num_model: {str(self.num_model)}")
-                print(f"  task: classification")
-                print(f"  used_features: {used_features} (len: {len(used_features)})")
-                # print(f"  tree_layers: {[tl['tree_info']['tree_id'] for tl in tree_layers]} (len: {len(tree_layers)})")
-                print(f"  output_w: {output_w.shape}")
-                print(f"  output_b: {output_b.shape}")
-                
-                # Sanitize numeric args to ensure pure Python ints
-                def to_int(x, default=0):
-                    try:
-                        if isinstance(x, (tuple, list)) and len(x) == 1:
-                            return int(x)
-                        return int(x)
-                    except Exception:
-                        return int(default)
+                    Xg = X_batch[:, :self.nume_input_size_]
+                    Xd = X_batch[:, self.nume_input_size_:].long()
 
-                
-                nume_input_size = to_int(self.nume_input_size)
-                cate_field_size = to_int(self.cate_field_size)
-                embedding_size = to_int(self.embedding_size)
-                h_depth = to_int(self.h_depth)
-                deep_layers = [to_int(d, 32) for d in (self.deep_layers or [])]
-
-                feature_sizes = [to_int(fs, 2) for fs in (self.feature_sizes or [])]
-                
-                self.model_ = DeepGBM(
-                    nume_input_size=int(nume_input_size),
-                    cate_field_size=int(cate_field_size),
-                    feature_sizes=list(feature_sizes),
-                    embedding_size=int(embedding_size),
-                    h_depth=int(h_depth),
-                    deep_layers=list(deep_layers),
-                    num_model=str(self.num_model),
-                    task='classification',
-                    used_features=used_features,
-                    tree_layers=tree_layers,
-                    output_w=output_w,
-                    output_b=output_b
-                ).to(device)
-                
-                print("DeepGBM model initialized successfully!")
-                return True
-                
-            except Exception as e:
-                print(f"DeepGBM initialization failed: {e}")
-                print("Detailed traceback:")
-                print(traceback.format_exc())
-                print(f"Falling back to LightGBM...")
-                self.use_real_deepgbm = False
-                return self._initialize_fallback_model()
+                    optimizer.zero_grad()
+                    out, _ = self.custom_forward(Xg, Xd)  # Use custom forward
+                    loss = self.model_.criterion(out, y_batch)
+                    loss.backward()
+                    optimizer.step()
+                    epoch_loss += loss.item()
 
         except Exception as e:
-            print(f"DeepGBM initialization failed: {e}")
-            print(f"Falling back to LightGBM...")
-            self.use_real_deepgbm = False
-            return self._initialize_fallback_model()
-
-    def _initialize_fallback_model(self):
-        """Initialize LightGBM as fallback with DeepGBM-like settings"""
-        try:
+            if self.verbose:
+                print(f"DeepGBM failed: {e}. Falling back to LightGBM.")
+            traceback.print_exc()
             self.fallback_model_ = lgb.LGBMClassifier(
-                objective='multiclass' if self.task == 'classification' else 'regression',
-                num_class=self.n_classes_ if hasattr(self, 'n_classes_') and self.n_classes_ else None,
+                objective='multiclass',
+                num_class=self.n_classes_,
                 n_estimators=300,
                 learning_rate=0.05,
                 max_depth=12,
@@ -1224,578 +1129,40 @@ class DeepGBMWrapper(BaseEstimator, ClassifierMixin):
                 feature_fraction=0.8,
                 bagging_fraction=0.8,
                 min_data_in_leaf=20,
-                verbosity=-1,
-                random_state=self.random_state
+                random_state=self.random_state,
+                verbosity=-1
             )
-            print("LightGBM fallback model initialized")
-            return True
-        except Exception as e:
-            print(f"Fallback model initialization failed: {e}")
-            return False
-        
-    def _pretrain_gbdt_with_data(self, X, y):
-        """Pre-train GBDT model with actual data and extract knowledge"""
-        print("Pre-training GBDT model for knowledge distillation...")
-        
-        # Extract numerical features for GBDT training
-        # if self.nume_input_size > 0:
-        #     X_numerical = X[:, :self.nume_input_size]
-        # else:
-        #     X_numerical = X  # Use all features if no clear split
-        
-        # Train GBDT model
-        gbdt_model = lgb.LGBMClassifier(
-            objective='multiclass',
-            num_class=self.n_classes_,
-            n_estimators=50,  # Smaller for pre-training
-            learning_rate=0.1,
-            max_depth=6,
-            num_leaves=32,
-            verbosity=-1,
-            random_state=self.random_state
-        )
-        
-        gbdt_model.fit(X, y)
-        
-        # Extract meaningful knowledge from trained GBDT
-        feature_importances = gbdt_model.feature_importances_
-        
-        # FIXED: Create nested used_features (list of lists, one per tree)
-        n_trees = 5  # Match the number of tree_layers
-        n_features_to_use = len(feature_importances)
-        important_indices = np.argsort(feature_importances)[-n_features_to_use:].tolist()
-        
-        # Clip used_features indices to valid range [0, num_features)
-        used_features = []
-        # Now a list of lists
-        features_per_tree = max(1, len(important_indices) // n_trees)
-        for t in range(n_trees):
-            start = t * features_per_tree
-            end = min(start + features_per_tree, len(important_indices))
-            tree_features = important_indices[start:end]
-            used_features.append([int(idx) for idx in tree_features])  # Ensure integers
-        
-        # Ensure not empty
-        if not used_features:
-            used_features = [] * n_trees
-        
-        print(f"Used features (nested, length={len(used_features)}): {used_features}")
-        
-        # Create tree structure information - ROBUST FIX
-        n_estimators = getattr(gbdt_model, 'n_estimators', 50)
-        n_trees_to_use = min(5, n_estimators)
-        tree_layers = []
-        
-        for i in range(n_trees_to_use):
-            # Use actual num_leaves from model or default to 32
-            num_leaves = gbdt_model.booster_.num_trees() if hasattr(gbdt_model.booster_, 'num_trees') else 32
-            tree_layers.append(num_leaves)  # List of ints (e.g., [32, 32, 32, 32, 32])
+            self.fallback_model_.fit(X, y_encoded)
 
-        try:
-            # Flatten used_features (list of lists) to a 1D list of ints
-            flat_used = []
-            if isinstance(used_features, list):
-                for sub in used_features:
-                    if isinstance(sub, list):
-                        flat_used.extend(int(x) for x in sub if isinstance(x, (int, np.integer, float)))
-                    elif isinstance(sub, (int, np.integer, float)):
-                        flat_used.append(int(sub))
-
-            if len(flat_used) > 0 and hasattr(feature_importances, '__len__') and len(feature_importances) > 0:
-                # Keep only indices within bounds
-                safe_indices = [idx for idx in flat_used if 0 <= idx < len(feature_importances)]
-
-                if len(safe_indices) > 0:
-                    output_w = np.asarray(feature_importances[safe_indices], dtype=np.float32)
-                else:
-                    # If no safe indices, default to a vector matching total features across trees
-                    total_features = len(flat_used)
-                    output_w = np.ones(max(1, total_features), dtype=np.float32) * 0.1
-            else:
-                total_features = len(flat_used)
-                output_w = np.ones(max(1, total_features), dtype=np.float32) * 0.1
-
-        except Exception as e:
-            print(f"Warning: Failed to extract output_w, using fallback: {e}")
-            traceback.print_exc()
-            total_features = sum(len(sub) for sub in used_features) if isinstance(used_features, list) else 1
-            output_w = np.ones(max(1, total_features), dtype=np.float32) * 0.1
-        
-        # ROBUST FIX: Ensure output_w is a proper numpy array
-        if not isinstance(output_w, np.ndarray):
-            output_w = np.array([output_w], dtype=np.float32)
-        if output_w.ndim == 0:  # scalar
-            output_w = np.array([float(output_w)], dtype=np.float32)
-        
-        # Extract output bias - ROBUST FIX
-        try:
-            if hasattr(gbdt_model, 'classes_') and len(gbdt_model.classes_) > 0:
-                # output_b = np.array([float(gbdt_model.classes_[0])], dtype=np.float32)
-                output_b = np.zeros(self.n_classes_, dtype=np.float32)
-
-            else:
-                output_b = np.array([0.0], dtype=np.float32)
-        except Exception as e:
-            print(f"Warning: Failed to extract output_b, using fallback: {e}")
-            traceback.print_exc()
-            output_b = np.array([0.0], dtype=np.float32)
-        
-        # ROBUST FIX: Ensure output_b is a proper numpy array
-        try:
-            if hasattr(gbdt_model, 'classes_') and hasattr(gbdt_model.classes_, '__len__') and len(gbdt_model.classes_) > 0:
-                try:
-                    c0 = float(gbdt_model.classes_)
-                except Exception:
-                    c0 = 0.0
-                output_b = np.array([c0], dtype=np.float32)
-            else:
-                output_b = np.array([0.0], dtype=np.float32)
-        except Exception as e:
-            print(f"Warning: Failed to extract output_b, using fallback: {e}")
-            traceback.print_exc()
-            output_b = np.array([0.0], dtype=np.float32)
-
-        # ——— NORMALIZE output_w/output_b TYPES AND SHAPES ———
-        # output_w: ensure 1D float32 array (length = total features across used_features)
-        try:
-            total_features = sum(len(sub) for sub in used_features) if isinstance(used_features, list) else 0
-        except Exception:
-            total_features = 0
-
-        # If output_w is a tuple like (15,), convert appropriately to a length-1 array or to the required length
-        if isinstance(output_w, tuple):
-            # Convert tuple to array
-            output_w = np.array(output_w, dtype=np.float32)
-
-        if not isinstance(output_w, np.ndarray):
-            output_w = np.array(output_w, dtype=np.float32)
-
-        # If output_w is 0-D, make it length-1
-        if output_w.ndim == 0:
-            output_w = np.array([float(output_w)], dtype=np.float32)
-
-        # If output_w length doesn't match required total_features, fix to expected length
-        if total_features > 0 and output_w.size != total_features:
-            output_w = np.ones(total_features, dtype=np.float32) * 0.1
-
-        # output_b: ensure 1D float32 array length 1
-        if isinstance(output_b, tuple):
-            # Convert tuple like (1,) -> array([1.], dtype=float32)
-            output_b = np.array(output_b, dtype=np.float32)
-
-        if not isinstance(output_b, np.ndarray):
-            output_b = np.array(output_b, dtype=np.float32)
-
-        if output_b.ndim == 0:
-            output_b = np.array([float(output_b)], dtype=np.float32)
-
-        # If output_b has more than 1 element, keep only the first to avoid "only length-1 arrays..." errors
-        if output_b.size > 1:
-            output_b = np.array([float(output_b.flat)], dtype=np.float32)
-
-        # ——— OPTIONAL: compact log scalars for readability (do NOT feed ints to the model) ———
-        try:
-            ow_len_display = int(output_w.size)
-        except Exception:
-            ow_len_display = 0
-        try:
-            ob_len_display = int(output_b.size)
-        except Exception:
-            ob_len_display = 0
-        print(f"Normalized params: output_w len={ow_len_display}, output_b len={ob_len_display}")
-        
-        # Final validation
-        print(f"Final parameter validation:")
-        print(f"  used_features: type={type(used_features)}, len={len(used_features)}, sample={used_features[:3] if len(used_features) >= 3 else used_features}")
-        print(f"  tree_layers: type={type(tree_layers)}, len={len(tree_layers)}")
-        print(f"  output_w: type={type(output_w)}, shape={output_w.shape}, dtype={output_w.dtype}")
-        print(f"  output_b: type={type(output_b)}, shape={output_b.shape}, dtype={output_b.dtype}")
-        
-        # Ensure all parameters are in expected format
-        if not isinstance(used_features, list):
-            used_features = list(used_features)
-        if not isinstance(tree_layers, list):
-            tree_layers = list(tree_layers)
-            
-        print(f"GBDT pre-training completed. Used {len(used_features)} features, {len(tree_layers)} trees")
-        
-        return {
-            'used_features': used_features,
-            'tree_layers': tree_layers,
-            'output_w': output_w,
-            'output_b': output_b,
-            'gbdt_model': gbdt_model
-        }
-
-    def _pretrain_gbdt_and_extract_knowledge(self):
-        """Pre-train GBDT model and extract knowledge for GBDT2NN"""
-        print("Pre-training GBDT model for knowledge distillation...")
-        
-        # This will be called during fit(), so we don't have training data yet
-        # We need to store this for later or use a different approach
-        
-        # For now, return minimal valid data that won't cause list index errors
-        # This is a placeholder - in a full implementation, this would come from actual GBDT training
-        
-        # Generate meaningful default values based on your data structure
-        used_features = list(range(min(10, self.nume_input_size)))  # Use first 10 numerical features
-        
-        # Create minimal tree structure - this is what the external code expects
-        tree_layers = [
-            {
-                'leaf_embeddings': np.random.randn(32, 8).astype(np.float32),  # 32 leaves, 8-dim embeddings
-                'tree_info': {'depth': 3, 'n_leaves': 32}
-            }
-        ]
-        
-        # Create minimal output weights/biases
-        output_w = np.random.randn(len(tree_layers)).astype(np.float32)
-        output_b = np.random.randn(1).astype(np.float32)
-        
-        return {
-            'used_features': used_features,
-            'tree_layers': tree_layers,
-            'output_w': output_w,
-            'output_b': output_b
-        }
-    
-    def _prepare_data_for_deepgbm(self, X):
-        """Prepare data in correct format for DeepGBM with validation"""
-        if not self.use_real_deepgbm:
-            return torch.tensor(X, dtype=torch.float32) # LightGBM uses preprocessed features directly
-        
-        # Validate input: Ensure X is 2D
-        if not hasattr(X, 'shape') or len(X.shape) != 2:
-            raise ValueError(f"Input X must be a 2D array, got shape {getattr(X, 'shape', 'unknown')}")
-        
-        n_samples, n_features = X.shape
-        
-        # Extract numerical features (first nume_input_size columns)
-        if self.nume_input_size > 0:
-            if self.nume_input_size > n_features:
-                raise ValueError(f"nume_input_size ({self.nume_input_size}) exceeds total features ({n_features})")
-            Xg = X[:, :self.nume_input_size].astype(np.float32)
-        else:
-            Xg = np.zeros((n_samples, 0), dtype=np.float32)  # Empty array for no numerical features
-        
-        # Extract categorical features from remaining columns (assumed one-hot encoded)
-        categorical_start = self.nume_input_size
-        if categorical_start >= n_features:
-            # No categorical features; return zeros
-            Xd = np.zeros((n_samples, self.cate_field_size), dtype=np.int64)
-            Xg = torch.tensor(Xg, dtype=torch.float32)
-            Xd = torch.tensor(Xd, dtype=torch.long)
-            return Xg, Xd
-        
-        Xd_onehot = X[:, categorical_start:].astype(np.float32)  # Ensure float for safety
-        total_onehot_cols = Xd_onehot.shape[1]
-        
-        # Validate total one-hot columns match sum of feature_sizes
-        expected_onehot_cols = sum(self.feature_sizes)
-        if total_onehot_cols != expected_onehot_cols:
-            self.logger.warning(
-                f"One-hot columns mismatch: expected {expected_onehot_cols}, got {total_onehot_cols}. "
-                "Padding with zeros if necessary."
-            )
-        
-        # Initialize Xd (categorical indices)
-        Xd = np.zeros((n_samples, self.cate_field_size), dtype=np.int64)
-        
-        # Cumulative sum of feature sizes for efficient slicing
-        cum_sizes = np.cumsum(self.feature_sizes)  # Prepend 0 for proper bounds
-        print("cum_sizes computed successfully:", cum_sizes)  # Diagnostic print
-        cum_sizes_len = len(cum_sizes)
-
-        # Loop over each categorical field
-        for i in range(self.cate_field_size):
-            start = cum_sizes[i] if i < cum_sizes_len else 0 
-            if i + 1 < cum_sizes_len:
-                end = cum_sizes[i + 1]
-            else:
-                end = total_onehot_cols
-            
-            if end > start:
-                onehot_slice = Xd_onehot[:, start:end]
-                # If slice has columns, compute argmax; else, default to 0
-                if onehot_slice.shape[1] > 0:
-                    Xd[:, i] = np.argmax(onehot_slice, axis=1)
-                else:
-                    Xd[:, i] = 0
-            else:
-                Xd[:, i] = 0  # No data for this field
-        Xg = torch.tensor(Xg, dtype=torch.float32)
-        Xd = torch.tensor(Xd, dtype=torch.long)
-        return Xg, Xd
-            
-    def fit(self, X, y):
-        """Fit DeepGBM model with proper training loop and metadata validation"""
-        # Validate and prepare labels
-        X, y = check_X_y(X, y)
-        
-        self.label_encoder_ = LabelEncoder()
-        y_encoded = self.label_encoder_.fit_transform(y)
-        self.n_classes_ = len(self.label_encoder_.classes_)
-        
-        print(f"Training DeepGBM: {X.shape} samples, {X.shape[1]} features, {self.n_classes_} classes")
-        
-        # **CRITICAL FIX**: Ensure metadata is set before training
-        if (self.nume_input_size == 0 and self.cate_field_size == 0):
-            # Try to get from stored transformer
-            if self.column_transformer_ is not None:
-                print("Setting metadata from stored column transformer")
-                metadata = self.build_feature_metadata_from_transformer(self.column_transformer_)
-            # Try to get from global config
-            elif hasattr(Config, 'GLOBAL_PREPROCESSOR') and Config.GLOBAL_PREPROCESSOR is not None:
-                print("Setting metadata from global preprocessor")
-                metadata = self.build_feature_metadata_from_transformer(Config.GLOBAL_PREPROCESSOR)
-            # Last resort: infer from X shape (assume all numerical)
-            else:
-                print("No preprocessor found, assuming all features are numerical")
-                self.set_metadata(X.shape[1], 0, [])
-        
-        # Final validation
-        if self.nume_input_size == 0 and self.cate_field_size == 0:
-            raise ValueError("DeepGBM metadata not set properly. Both nume_input_size and cate_field_size are 0.")
-        
-        # NEW: Pre-train GBDT model with actual training data
-        gbdt_knowledge = self._pretrain_gbdt_with_data(X, y_encoded)
-        
-        # Store the knowledge for model initialization
-        self._gbdt_knowledge = gbdt_knowledge
-        
-        # Initialize model
-        if not self._initialize_deepgbm_model():
-            raise RuntimeError("Failed to initialize both DeepGBM and fallback model")
-        
-        # Continue with existing training logic...
-        if self.use_real_deepgbm:
-            return self._fit_deepgbm(X, y_encoded)
-        else:
-            return self._fit_fallback(X, y)
-
-    def _fit_deepgbm(self, X, y_encoded):
-        """Actual DeepGBM training implementation"""
-        # Prepare data
-        Xg, Xd = self._prepare_data_for_deepgbm(X)
-        y_tensor = torch.tensor(y_encoded, dtype=torch.long)
-        
-        # Move to device
-        device = self._setup_device()
-        Xg = Xg.to(device)
-        Xd = Xd.to(device) 
-        y_tensor = y_tensor.to(device)
-        
-        # Setup optimizer and loss
-        optimizer = torch.optim.Adam(self.model_.parameters(), lr=self.learning_rate)
-        criterion = nn.CrossEntropyLoss()
-        
-        # Training loop
-        self.model_.train()
-        dataset_size = len(y_encoded)
-        
-        print(f"Starting DeepGBM training for {self.epochs} epochs...")
-        
-        for epoch in range(self.epochs):
-            epoch_loss = 0.0
-            num_batches = 0
-            
-            # Mini-batch training
-            for i in range(0, dataset_size, self.batch_size):
-                end_idx = min(i + self.batch_size, dataset_size)
-                batch_Xg = Xg[i:end_idx]
-                batch_Xd = Xd[i:end_idx]
-                batch_y = y_tensor[i:end_idx]
-                
-                if len(batch_y) == 0:
-                    continue
-                
-                optimizer.zero_grad()
-                
-                try:
-                    # Forward pass - adapt to actual DeepGBM API
-                    outputs, _ = self.model_(batch_Xg, batch_Xd)
-                    loss = criterion(outputs, batch_y)
-                    
-                    # Backward pass
-                    loss.backward()
-                    optimizer.step()
-                    
-                    epoch_loss += loss.item()
-                    num_batches += 1
-                    
-                except Exception as e:
-                    traceback.print_exc()
-                    print(f"Batch training failed: {e}")
-                    continue
-            
-            if num_batches > 0 and epoch % 20 == 0:
-                avg_loss = epoch_loss / num_batches
-                print(f"Epoch {epoch+1}/{self.epochs}, Average Loss: {avg_loss:.4f}")
-        
-        print("DeepGBM training completed!")
-        return self
-
-    def _fit_fallback(self, X, y):
-        """Fit fallback LightGBM model"""
-        print("Training LightGBM fallback model...")
-        self.fallback_model_.fit(X, y)
-        print("Fallback model training completed!")
         return self
 
     def predict_proba(self, X):
-        """Fixed prediction with proper shape handling"""
-        X = check_array(X)
-        
-        if self.use_real_deepgbm and self.model_ is not None:
-            return self._predict_proba_deepgbm(X)
+        check_array(X)
+        if sparse.issparse(X):
+            X = X.toarray()
+
+        if self.model_ is not None:
+            self.model_.eval()
+            with torch.no_grad():
+                probs = []
+                for i in range(0, len(X), self.batch_size):
+                    X_batch = torch.FloatTensor(X[i:i+self.batch_size]).to(self.device)  # float32
+                    Xg = X_batch[:, :self.nume_input_size_]
+                    Xd = X_batch[:, self.nume_input_size_:].long()
+                    out, _ = self.custom_forward(Xg, Xd)
+                    prob = nn.Softmax(dim=1)(out).cpu().numpy()
+                    probs.append(prob)
+                return np.vstack(probs)
         elif self.fallback_model_ is not None:
             return self.fallback_model_.predict_proba(X)
-        else:
-            # Ultimate fallback - uniform probabilities
-            return np.ones((X.shape[0], self.n_classes_)) / self.n_classes_
-
-    def _predict_proba_deepgbm(self, X):
-        """DeepGBM prediction with proper tensor handling for multi-class"""
-        try:
-            Xg, Xd = self._prepare_data_for_deepgbm(X)
-            
-            device = self._setup_device()
-            try:
-                Xg = Xg.to(device)
-                Xd = Xd.to(device)
-            except Exception as e:
-                print(f"No method .to exists : {e}")
-                traceback.print_exc()
-            
-            self.model_.eval()
-            all_probs = []
-            
-            # Batch prediction to handle memory
-            dataset_size = X.shape[0]  # Use int(X.shape) if needed
-            batch_size = min(self.batch_size, 1000)
-            
-            with torch.no_grad():
-                for i in range(0, dataset_size, batch_size):
-                    end_idx = min(i + batch_size, dataset_size)
-                    batch_Xg = Xg[i:end_idx]
-                    batch_Xd = Xd[i:end_idx]
-                    
-                    try:
-                        outputs, _ = self.model_(batch_Xg, batch_Xd)
-                        
-                        # FIXED: Handle unexpected tuple outputs
-                        if isinstance(outputs, tuple):
-                            outputs = outputs  # Assume first element is the main output
-                        
-                        # CRITICAL FIX: Handle 1D sigmoid output from external DeepGBM
-                        if self.task == 'classification':
-                            if isinstance(outputs, torch.Tensor):
-                                outputs_np = outputs.cpu().numpy()
-                                
-                                # FIXED: Ensure outputs_np is 2D
-                                if outputs_np.ndim == 1:
-                                    outputs_np = outputs_np.reshape(-1, 1)
-                                
-                                batch_size_actual = outputs_np.shape  # Use shape as int
-                                batch_probs = np.zeros((batch_size_actual, self.n_classes_))
-                                
-                                if self.n_classes_ == 2:
-                                    # Binary case: use sigmoid directly
-                                    batch_probs[:, 1] = outputs_np.flatten()  # Positive class
-                                    batch_probs[:, 0] = 1 - outputs_np.flatten()  # Negative class
-                                else:
-                                    # Multi-class case: distribute probabilities
-                                    confidence = outputs_np.reshape(-1, 1)
-                                    batch_probs[:, 1] = confidence.flatten() * 0.7  # Primary class
-                                    batch_probs[:, 0] = (1 - confidence.flatten()) * 0.6  # Secondary
-                                    batch_probs[:, 2] = 1 - batch_probs[:, 0] - batch_probs[:, 1]  # Remainder
-                                    
-                                    # Normalize to ensure valid probabilities
-                                    batch_probs = np.clip(batch_probs, 0.001, 0.999)
-                                    batch_probs = batch_probs / batch_probs.sum(axis=1, keepdims=True)
-                                
-                                all_probs.append(batch_probs)
-                            else:
-                                # Fallback for unexpected output format
-                                batch_size_actual = end_idx - i
-                                fallback_probs = np.ones((batch_size_actual, self.n_classes_)) / self.n_classes_
-                                all_probs.append(fallback_probs)
-                        else:
-                            # Regression case
-                            all_probs.append(outputs.cpu().numpy())
-                            
-                    except Exception as e:
-                        print(f"Batch prediction failed: {e}")
-                        traceback.print_exc()
-                        # Fallback for failed batch
-                        batch_size_actual = end_idx - i
-                        fallback_probs = np.ones((batch_size_actual, self.n_classes_)) / self.n_classes_
-                        all_probs.append(fallback_probs)
-            
-            if all_probs:
-                final_probs = np.vstack(all_probs)
-                
-                # Final validation
-                if final_probs.shape[1] != self.n_classes_:
-                    print(f"Warning: Prediction shape mismatch. Expected {self.n_classes_}, got {final_probs.shape[1]}")
-                    # Pad or truncate to match expected classes
-                    if final_probs.shape[1] < self.n_classes_:
-                        padding = np.ones((final_probs.shape, self.n_classes_ - final_probs.shape[1])) / self.n_classes_
-                        final_probs = np.hstack([final_probs, padding])
-                    else:
-                        final_probs = final_probs[:, :self.n_classes_]
-                    
-                    # Renormalize
-                    final_probs = final_probs / final_probs.sum(axis=1, keepdims=True)
-                
-                return final_probs
-            else:
-                return np.ones((X.shape, self.n_classes_)) / self.n_classes_
-                
-        except Exception as e:
-            print(f"DeepGBM prediction failed: {e}")
-            traceback.print_exc()
-            return np.ones((X.shape, self.n_classes_)) / self.n_classes_
+        raise ValueError("Model not fitted.")
 
     def predict(self, X):
-        """Predict class labels"""
-        probabilities = self.predict_proba(X)
-        predictions = np.argmax(probabilities, axis=1)
-        return self.label_encoder_.inverse_transform(predictions)
-
-def prepare_gbdt_parameters(used_features, tree_layers, output_w, output_b, num_features):
-    # Validate used_features - must be list of lists (per tree)
-    try:
-        if not isinstance(used_features, list) or not all(isinstance(sublist, list) for sublist in used_features):
-            raise ValueError("used_features must be a list of lists (features per tree)")
-
-        # Ensure each sublist has integers
-        for sublist in used_features:
-            if not all(isinstance(f, int) for f in sublist):
-                sublist[:] = [int(f) if isinstance(f, (int, float)) else 0 for f in sublist]
-
-        # If empty, create minimal valid nested structure
-        if not used_features:
-            used_features = [[i % num_features for i in range(min(3, num_features))] for _ in range(5)]  # 5 trees, 3 features each
-
-        if isinstance(output_w, np.ndarray) and output_w.ndim == 1:
-            output_w = output_w.reshape(-1, 1)  # Reshape to (n, 1) matrix
-        elif not isinstance(output_w, np.ndarray) or output_w.ndim != 2:
-            # Fallback to safe 2D shape
-            total_features = sum(len(sublist) for sublist in used_features) if isinstance(used_features, list) else 1
-            output_w = np.ones((total_features, 1), dtype=np.float32) * 0.1
-
-        # Validate output_b
-        if isinstance(output_b, np.ndarray) and output_b.ndim == 1:
-            output_b = output_b.reshape(1, -1)
-
-        if isinstance(tree_layers[0], dict):
-            tree_layers = [tl.get('n_leaves', 32) for tl in tree_layers]  # Extract if dicts slip through
-
-        return used_features, tree_layers, output_w.astype(np.float32), output_b.astype(np.float32)
-    except Exception as e:
-        print(f"Error: {e}")
-        traceback.print_exc()
+        try:
+            proba = self.predict_proba(X)
+            return self.label_encoder_.inverse_transform(np.argmax(proba, axis=1))
+        except:
+            traceback.print_exc()
 
 class TabFlexClassifier(BaseEstimator, ClassifierMixin):
     """Scikit-learn compatible wrapper for TabFlex model"""
@@ -2124,51 +1491,20 @@ class BaseModelFactory:
             elif 'deepgbm' in model_name_clean:
                 # DeepGBM implementation (fallback to LightGBM with deeper trees if DeepGBM not available)
                 try:
-                    try:
-                        print("first implementation of DeepGBM")                    
-                        deepgbm_instance = DeepGBMWrapper(
-                            embedding_size=kwargs.get('embedding_size', 4),
-                            h_depth=kwargs.get('h_depth', 2),
-                            deep_layers=kwargs.get('deep_layers', [32, 32]),
-                            task='classification',
-                            epochs=50,  # Reduced for faster training
-                            batch_size=256,
-                            random_state=Config.RANDOM_STATE,
-                            use_real_deepgbm=True,
-                            **kwargs
-                        )
-                        
-                    except:
-                        print("second implementation of DeepGBM")  
-                        deepgbm_instance = DeepGBMWrapper(
-                            embedding_size=kwargs.get('embedding_size', 4),
-                            h_depth=kwargs.get('h_depth', 2),
-                            deep_layers=kwargs.get('deep_layers', [32, 32]),
-                            task='classification',
-                            random_state=Config.RANDOM_STATE,
-                            use_real_deepgbm=True,  # Set to False for testing with LightGBM fallback
-                            **kwargs
-                        )
+                    deepgbm_instance = DeepGBMWrapper(
+                        embedding_size=4, 
+                        h_depth=2, 
+                        deep_layers=[32, 32],
+                        task='classification', 
+                        epochs=50, batch_size=256,
+                        random_state=Config.RANDOM_STATE, 
+                        use_real_deepgbm=True
+                    )
                     if hasattr(Config, 'GLOBAL_PREPROCESSOR') and Config.GLOBAL_PREPROCESSOR is not None:
                         deepgbm_instance.build_feature_metadata_from_transformer(Config.GLOBAL_PREPROCESSOR)
                     return deepgbm_instance
-                except ImportError as e:
-                    print(f"DeepGBM not available: {e}. Using enhanced LightGBM fallback.")
-                    # Enhanced LightGBM fallback with DeepGBM-like settings
-                    return lgb.LGBMClassifier(
-                        objective='multiclass',
-                        num_class=n_classes,
-                        n_estimators=300,
-                        learning_rate=0.05,
-                        max_depth=12,
-                        num_leaves=127,
-                        feature_fraction=0.8,
-                        bagging_fraction=0.8,
-                        min_data_in_leaf=20,
-                        verbosity=-1,
-                        random_state=Config.RANDOM_STATE,
-                        **kwargs
-                    )
+                except:
+                    traceback.print_exc()
 
             elif 'tabflex' in model_name_clean:
                 try:

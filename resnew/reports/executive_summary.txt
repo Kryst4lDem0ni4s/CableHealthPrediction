@@ -1,22 +1,7 @@
 EXECUTIVE SUMMARY - ML MODEL COMPARATIVE ANALYSIS
 ============================================================
-Analysis Date: 2025-08-17 23:58:21
-Total Models Evaluated: 2
-Successful Completions: 2
+Analysis Date: 2025-08-20 18:16:16
+Total Models Evaluated: 0
+Successful Completions: 0
 Failed Models: 0
 Early Stopped (Poor Performance): 0
-
-TOP 5 PERFORMING MODELS (by Weighted F1-Score):
---------------------------------------------------
-
-1. lightgbm_solo
-   F1-Score: 0.8321
-   Accuracy: 0.8292
-   ROC-AUC: 0.8950
-   Training Time: 3.61s
-
-2. deepgbm_solo
-   F1-Score: 0.5765
-   Accuracy: 0.5423
-   ROC-AUC: 0.6842
-   Training Time: 0.64s

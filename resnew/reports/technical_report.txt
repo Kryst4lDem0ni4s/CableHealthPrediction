@@ -1,36 +1,3 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-17 23:58:21
-
-DETAILED MODEL PERFORMANCE:
-----------------------------------------
-
-LIGHTGBM_SOLO:
-  Train Performance:
-    Accuracy: 0.9525
-    F1-Score: 0.9536
-    Precision: 0.9594
-    Recall: 0.9525
-  Test Performance:
-    Accuracy: 0.8292
-    F1-Score: 0.8321
-    Precision: 0.8369
-    Recall: 0.8292
-  Computational Metrics:
-    Training Time: 3.61s
-    Memory Usage: 0.20%
-
-DEEPGBM_SOLO:
-  Train Performance:
-    Accuracy: 0.6381
-    F1-Score: 0.6635
-    Precision: 0.7884
-    Recall: 0.6381
-  Test Performance:
-    Accuracy: 0.5423
-    F1-Score: 0.5765
-    Precision: 0.6872
-    Recall: 0.5423
-  Computational Metrics:
-    Training Time: 0.64s
-    Memory Usage: 0.10%
+Generated: 2025-08-20 18:16:16

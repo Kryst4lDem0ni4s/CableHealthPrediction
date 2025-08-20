@@ -137,3 +137,43 @@ timestamp,model_name,status,ensemble_type,base_models,test_accuracy,test_f1,test
 2025-08-20T12:45:56.544844,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
 2025-08-20T12:47:19.715268,deepgbm_solo,early_stopped,none,['deepgbm'],F1-Score 0.045 below threshold 0.1,False
 2025-08-20T12:48:52.763052,deepgbm_solo,early_stopped,none,['deepgbm'],F1-Score 0.045 below threshold 0.1,False
+2025-08-20T13:08:12.003779,deepgbm_solo,completed,none,['deepgbm'],,False,0.8484394506866417,0.8320980826578034,0.8438016496938963,0.8484394506866417,0.8948281593449895,1.0,1.0,1.0,1.0,1.0,2.9404187202453613,1.3999999999999915
+2025-08-20T13:25:46.571465,deepgbm_solo,completed,none,['deepgbm'],,False,0.8484394506866417,0.8320980826578034,0.8438016496938963,0.8484394506866417,0.8948281593449895,1.0,1.0,1.0,1.0,1.0,2.762261152267456,1.4000000000000057
+2025-08-20T13:32:46.916590,deepgbm_solo,completed,none,['deepgbm'],,False,0.8484394506866417,0.8320980826578034,0.8438016496938963,0.8484394506866417,0.8948281593449895,1.0,1.0,1.0,1.0,1.0,3.3234822750091553,1.6000000000000085
+2025-08-20T13:45:09.124185,deepgbm_solo,completed,none,['deepgbm'],,False,0.8484394506866417,0.8320980826578034,0.8438016496938963,0.8484394506866417,0.8948281593449895,1.0,1.0,1.0,1.0,1.0,3.368379592895508,0.20000000000000284
+2025-08-20T13:58:34.965475,deepgbm_solo,completed,none,['deepgbm'],,False,0.8484394506866417,0.8320980826578034,0.8438016496938963,0.8484394506866417,0.8948281593449895,1.0,1.0,1.0,1.0,1.0,3.409806489944458,1.6999999999999886
+2025-08-20T14:25:47.229216,deepgbm_solo,completed,none,['deepgbm'],,False,0.8484394506866417,0.8320980826578034,0.8438016496938963,0.8484394506866417,0.8948281593449895,1.0,1.0,1.0,1.0,1.0,8.15767502784729,2.299999999999997
+2025-08-20T14:43:25.673404,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T14:44:19.734811,deepgbm_lightgbm_randomforest,completed,voting,"['deepgbm', 'lightgbm', 'randomforest']",,False,0.8169787765293384,0.8216867981100706,0.8299738824473806,0.8169787765293384,0.8946636339714391,0.9438202247191011,0.9453602297783866,0.9530817911243823,0.9438202247191011,0.9935186396001283,12.130452632904053,0.5
+2025-08-20T15:18:44.386761,deepgbm_solo,completed,none,['deepgbm'],,False,0.8484394506866417,0.8320980826578034,0.8438016496938963,0.8484394506866417,0.8948281593449895,1.0,1.0,1.0,1.0,1.0,10.006699800491333,1.2000000000000028
+2025-08-20T15:38:48.606314,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:38:50.163509,deepgbm_lightgbm_randomforest,early_stopped,voting,"['deepgbm', 'lightgbm', 'randomforest']",F1-Score 0.045 below threshold 0.1,False
+2025-08-20T15:42:17.369602,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:42:18.897673,deepgbm_lightgbm_randomforest,early_stopped,voting,"['deepgbm', 'lightgbm', 'randomforest']",F1-Score 0.045 below threshold 0.1,False
+2025-08-20T15:43:06.901781,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:43:08.372501,deepgbm_lightgbm_randomforest,early_stopped,voting,"['deepgbm', 'lightgbm', 'randomforest']",F1-Score 0.045 below threshold 0.1,False
+2025-08-20T15:43:16.593142,deepgbm_advancedsvm,early_stopped,voting,"['deepgbm', 'advancedsvm']",F1-Score 0.045 below threshold 0.1,False
+2025-08-20T15:43:17.531124,deepgbm_randomforest,early_stopped,voting,"['deepgbm', 'randomforest']",F1-Score 0.045 below threshold 0.1,False
+2025-08-20T15:43:18.709392,deepgbm_randomforest_naivebayes,early_stopped,voting,"['deepgbm', 'randomforest', 'naivebayes']",F1-Score 0.045 below threshold 0.1,False
+2025-08-20T15:43:26.724233,deepgbm_advancedsvm_randomforest,early_stopped,voting,"['deepgbm', 'advancedsvm', 'randomforest']",F1-Score 0.045 below threshold 0.1,False
+2025-08-20T15:43:26.751584,tabflex_solo,early_stopped,none,['tabflex'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:43:47.703166,tabflex_xgboost,completed,voting,"['tabflex', 'xgboost']",,False,0.8471910112359551,0.8316548582626974,0.8398914333964737,0.8471910112359551,0.8942696428816292,0.9555555555555556,0.9543951416385926,0.9566743477788966,0.9555555555555556,0.9953492535595412,3.8970870971679688,0
+2025-08-20T15:43:57.119574,tabflex_lightgbm,completed,voting,"['tabflex', 'lightgbm']",,False,0.8292134831460675,0.8320721511296644,0.8369389728750376,0.8292134831460675,0.8949954904433741,0.9524968789013732,0.953630652164501,0.9593968363874911,0.9524968789013732,0.9953984338378236,1.3765623569488525,0
+2025-08-20T15:55:41.672972,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:55:42.987244,deepgbm_lightgbm_randomforest,early_stopped,voting,"['deepgbm', 'lightgbm', 'randomforest']",Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:55:44.752929,deepgbm_advancedsvm,early_stopped,voting,"['deepgbm', 'advancedsvm']",Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:55:45.631502,deepgbm_randomforest,early_stopped,voting,"['deepgbm', 'randomforest']",Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:55:46.522572,deepgbm_randomforest_naivebayes,early_stopped,voting,"['deepgbm', 'randomforest', 'naivebayes']",Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:55:48.400361,deepgbm_advancedsvm_randomforest,early_stopped,voting,"['deepgbm', 'advancedsvm', 'randomforest']",Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:55:48.436426,tabflex_solo,early_stopped,none,['tabflex'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:55:50.157785,tabflex_xgboost,early_stopped,voting,"['tabflex', 'xgboost']",Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:55:50.597481,tabflex_lightgbm,early_stopped,voting,"['tabflex', 'lightgbm']",Accuracy 0.000 below threshold 0.15,False
+2025-08-20T15:56:29.938233,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T17:29:07.355507,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T17:29:10.902393,deepgbm_lightgbm_randomforest,early_stopped,voting,"['deepgbm', 'lightgbm', 'randomforest']",F1-Score 0.045 below threshold 0.1,False
+2025-08-20T17:37:27.587767,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T17:45:40.745674,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T17:46:56.140008,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T17:52:22.033188,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T17:53:31.611947,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
+2025-08-20T17:56:12.881900,deepgbm_solo,early_stopped,none,['deepgbm'],Accuracy 0.000 below threshold 0.15,False
