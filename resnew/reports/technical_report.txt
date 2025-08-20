@@ -1,51 +1,36 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-20 21:01:26
+Generated: 2025-08-20 23:47:20
 
 DETAILED MODEL PERFORMANCE:
 ----------------------------------------
 
-DEEPGBM_SOLO:
+DEEPGBM_RANDOMFOREST:
   Train Performance:
-    Accuracy: 0.8811
-    F1-Score: 0.8673
-    Precision: 0.8906
-    Recall: 0.8811
+    Accuracy: 0.8824
+    F1-Score: 0.8680
+    Precision: 0.8917
+    Recall: 0.8824
   Test Performance:
-    Accuracy: 0.7845
-    F1-Score: 0.7565
-    Precision: 0.7648
-    Recall: 0.7845
+    Accuracy: 0.7868
+    F1-Score: 0.7593
+    Precision: 0.7630
+    Recall: 0.7868
   Computational Metrics:
-    Training Time: 399.12s
-    Memory Usage: 1.80%
+    Training Time: 618.32s
+    Memory Usage: 13.80%
 
-DEEPGBM_LIGHTGBM_RANDOMFOREST:
+DEEPGBM_RANDOMFOREST_NAIVEBAYES:
   Train Performance:
-    Accuracy: 0.9664
-    F1-Score: 0.9666
-    Precision: 0.9672
-    Recall: 0.9664
+    Accuracy: 0.2637
+    F1-Score: 0.2301
+    Precision: 0.7911
+    Recall: 0.2637
   Test Performance:
-    Accuracy: 0.8292
-    F1-Score: 0.8252
-    Precision: 0.8233
-    Recall: 0.8292
+    Accuracy: 0.1928
+    F1-Score: 0.1958
+    Precision: 0.5811
+    Recall: 0.1928
   Computational Metrics:
-    Training Time: 350.43s
+    Training Time: 656.18s
     Memory Usage: 0.00%
-
-DEEPGBM_ADVANCEDSVM:
-  Train Performance:
-    Accuracy: 0.8670
-    F1-Score: 0.8472
-    Precision: 0.8808
-    Recall: 0.8670
-  Test Performance:
-    Accuracy: 0.7933
-    F1-Score: 0.7541
-    Precision: 0.7849
-    Recall: 0.7933
-  Computational Metrics:
-    Training Time: 1128.82s
-    Memory Usage: 0.40%

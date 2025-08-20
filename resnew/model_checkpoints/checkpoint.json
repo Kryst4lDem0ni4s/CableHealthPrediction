@@ -57,9 +57,11 @@
     "lightgbm_solo",
     "deepgbm_solo",
     "deepgbm_lightgbm_randomforest",
-    "deepgbm_advancedsvm"
+    "deepgbm_advancedsvm",
+    "deepgbm_randomforest",
+    "deepgbm_randomforest_naivebayes"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-20T20:12:27.650907"
+  "timestamp": "2025-08-20T23:18:54.997197"
 }
