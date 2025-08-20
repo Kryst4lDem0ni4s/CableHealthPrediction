@@ -10616,3 +10616,37 @@ Processing heavy complexity batch: 65 models
 --- Processing deepgbm_solo (30/65) ---
 2025-08-20 18:18:11,544 - INFO - Stage 1: Quick assessment...
 2025-08-20 18:18:36,678 - INFO - Stage 2: Full evaluation...
+2025-08-20 18:35:38,760 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-20 18:35:38,768 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-20 18:35:39,926 - WARNING - deepgbm_solo flagged: high complexity, minimal improvement
+2025-08-20 18:35:39,926 - INFO - Generating comprehensive visualizations for deepgbm_solo...
+2025-08-20 18:35:42,022 - INFO - Individual model visualizations completed for deepgbm_solo
+2025-08-20 18:35:42,061 - INFO - Checkpoint and CSV files updated for deepgbm_solo
+2025-08-20 18:37:24,301 - INFO - 
+--- Processing deepgbm_lightgbm_randomforest (31/65) ---
+2025-08-20 18:37:24,308 - INFO - Stage 1: Quick assessment...
+2025-08-20 18:37:47,123 - INFO - Stage 2: Full evaluation...
+2025-08-20 18:53:20,990 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-20 18:53:20,997 - INFO - Using FAST bootstrap: 20 iterations, 3000 samples
+2025-08-20 18:53:24,351 - INFO - Generating comprehensive visualizations for deepgbm_lightgbm_randomforest...
+2025-08-20 18:53:25,825 - INFO - Individual model visualizations completed for deepgbm_lightgbm_randomforest
+2025-08-20 18:53:25,843 - INFO - Checkpoint and CSV files updated for deepgbm_lightgbm_randomforest
+2025-08-20 18:53:26,014 - INFO - 
+--- Processing deepgbm_advancedsvm (32/65) ---
+2025-08-20 18:53:26,019 - INFO - Stage 1: Quick assessment...
+2025-08-20 18:53:53,476 - INFO - Stage 2: Full evaluation...
+2025-08-20 20:00:19,507 - WARNING - Using ULTRA-FAST bootstrap: 10 iterations, 1000 samples
+2025-08-20 20:00:19,525 - WARNING - Using ULTRA-FAST bootstrap: 10 iterations, 1000 samples
+2025-08-20 20:00:19,555 - WARNING - High memory/large dataset: reducing bootstrap to 10 iterations, 1000 samples each
+2025-08-20 20:12:21,994 - WARNING - deepgbm_advancedsvm flagged: high complexity, minimal improvement
+2025-08-20 20:12:21,995 - INFO - Generating comprehensive visualizations for deepgbm_advancedsvm...
+2025-08-20 20:12:27,636 - INFO - Individual model visualizations completed for deepgbm_advancedsvm
+2025-08-20 20:12:27,765 - INFO - Checkpoint and CSV files updated for deepgbm_advancedsvm
+2025-08-20 21:01:24,514 - INFO - User requested early termination
+2025-08-20 21:01:24,522 - INFO - Generating comprehensive final analysis...
+2025-08-20 21:01:26,334 - INFO - Comprehensive reports generated successfully
+2025-08-20 21:01:26,335 - INFO - Comprehensive final analysis completed!
+2025-08-20 21:01:26,335 - INFO - All reports and visualizations saved to:
+2025-08-20 21:01:26,335 - INFO -    - CSV Results: resnew/analysis_results/
+2025-08-20 21:01:26,335 - INFO -    - Visual Reports: resnew/plots/
+2025-08-20 21:01:26,335 - INFO -    - Text Reports: resnew/reports/

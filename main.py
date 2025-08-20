@@ -1119,21 +1119,6 @@ class DeepGBMWrapper(BaseEstimator, ClassifierMixin):
             if self.verbose:
                 print(f"DeepGBM failed: {e}. Falling back to LightGBM.")
             traceback.print_exc()
-            self.fallback_model_ = lgb.LGBMClassifier(
-                objective='multiclass',
-                num_class=self.n_classes_,
-                n_estimators=300,
-                learning_rate=0.05,
-                max_depth=12,
-                num_leaves=127,
-                feature_fraction=0.8,
-                bagging_fraction=0.8,
-                min_data_in_leaf=20,
-                random_state=self.random_state,
-                verbosity=-1
-            )
-            self.fallback_model_.fit(X, y_encoded)
-
         return self
 
     def predict_proba(self, X):

@@ -54,10 +54,12 @@
     "neuralnetwork_solo",
     "catboost_naivebayes",
     "catboost_logisticregression",
-    "lightgbm_solo"
+    "lightgbm_solo",
+    "deepgbm_solo",
+    "deepgbm_lightgbm_randomforest",
+    "deepgbm_advancedsvm"
   ],
   "failed_models": [],
-  "early_stopped_models": [
-  ],
-  "timestamp": "2025-08-20T17:56:12.880901"
+  "early_stopped_models": [],
+  "timestamp": "2025-08-20T20:12:27.650907"
 }
