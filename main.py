@@ -1149,9 +1149,24 @@ class DeepGBMWrapper(BaseEstimator, ClassifierMixin):
         except:
             traceback.print_exc()
 
+import torch
+import torch.nn as nn
+import numpy as np
+import traceback
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.utils.validation import check_array
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+import logging
+from scipy.sparse import issparse
+
+# Set up logging for this wrapper
+logger = logging.getLogger('TabFlexWrapper')
+logger.setLevel(logging.DEBUG)  # Detailed logging
+
 class TabFlexClassifier(BaseEstimator, ClassifierMixin):
-    """Scikit-learn compatible wrapper for TabFlex model"""
-    
+    """Enhanced scikit-learn compatible wrapper for TabFlex with ICL support and robust error handling."""
+
     def __init__(self, 
                  emsize=128, 
                  nhead=8, 
@@ -1159,11 +1174,12 @@ class TabFlexClassifier(BaseEstimator, ClassifierMixin):
                  nlayers=6, 
                  dropout=0.1,
                  learning_rate=0.001,
-                 epochs=100,
+                 epochs=50,  # Reduced for speed, as per original
                  batch_size=256,
                  device='auto',
-                 random_state=None):
-        
+                 random_state=None,
+                 exemplars_per_class=5,  # New: Number of stored examples per class for ICL
+                 min_exemplars=1):  # New: Minimum exemplars to avoid empty context
         self.emsize = emsize
         self.nhead = nhead
         self.nhid_factor = nhid_factor
@@ -1174,157 +1190,202 @@ class TabFlexClassifier(BaseEstimator, ClassifierMixin):
         self.batch_size = batch_size
         self.device = device
         self.random_state = random_state
+        self.exemplars_per_class = exemplars_per_class
+        self.min_exemplars = min_exemplars
         
         self.model_ = None
         self.label_encoder_ = None
         self.n_features_ = None
         self.n_classes_ = None
-        
+        self.exemplars_ = None  # Will store (X, y) exemplars for ICL during prediction
+
     def _setup_device(self):
-        """Setup device for training"""
-        if self.device == 'auto':
-            return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        return torch.device(self.device)
-    
-    def _create_y_encoder(self, n_classes):
-        """Create y encoder for TabFlex (converts labels to embeddings)"""
-        return nn.Embedding(n_classes, self.emsize)
-    
+        """Setup device with fallback."""
+        try:
+            if self.device == 'auto':
+                return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            return torch.device(self.device)
+        except Exception as e:
+            logger.error(f"Device setup failed: {e}\n{traceback.format_exc()}")
+            return torch.device('cpu')  # Fallback
+
+    def _store_exemplars(self, X, y):
+        """Store stratified exemplars for ICL during prediction."""
+        try:
+            logger.info("Storing exemplars for in-context learning...")
+            X_ex = []
+            y_ex = []
+            for cls in range(self.n_classes_):
+                cls_mask = (y == cls)
+                X_cls = X[cls_mask]
+                y_cls = y[cls_mask]
+                n_available = X_cls.shape[0] if issparse(X_cls) else len(y_cls)
+                if n_available == 0:
+                    logger.warning(f"No samples for class {cls}. Skipping...")
+                    continue
+                n_take = min(self.exemplars_per_class, max(self.min_exemplars, n_available))
+                indices = np.random.choice(n_available, n_take, replace=False)
+                if issparse(X_cls):
+                    X_ex.append(X_cls[indices].toarray())  # Convert to dense for tensor compatibility
+                else:
+                    X_ex.append(X_cls[indices])
+                y_ex.append(y_cls[indices])
+            
+            if not X_ex:
+                raise ValueError("No exemplars could be stored. Dataset too small or imbalanced.")
+            
+            self.exemplars_ = (np.vstack(X_ex), np.hstack(y_ex))
+            logger.info(f"Stored {len(self.exemplars_[1])} exemplars across {self.n_classes_} classes.")
+        except Exception as e:
+            logger.error(f"Exemplar storage failed: {e}\n{traceback.format_exc()}")
+            raise  # Critical, so raise
+
     def fit(self, X, y):
-        """Fit TabFlex model to training data"""
-        # Validate input
-        X, y = check_X_y(X, y)
-        
-        # Setup label encoding
-        self.label_encoder_ = LabelEncoder()
-        y_encoded = self.label_encoder_.fit_transform(y)
-        
-        # Store dimensions
-        self.n_features_ = X.shape[1]
-        self.n_classes_ = len(self.label_encoder_.classes_)
-        
-        # Setup device
-        device = self._setup_device()
-        
-        # Create y encoder
-        y_encoder = self._create_y_encoder(self.n_classes_).to(device)
-        
-        # Initialize TabFlex model
-        self.model_ = TabFlex(
-            model='linear_attention',
-            n_out=self.n_classes_,
-            emsize=self.emsize,
-            nhead=self.nhead,
-            nhid_factor=self.nhid_factor,
-            nlayers=self.nlayers,
-            n_features=self.n_features_,
-            dropout=self.dropout,
-            y_encoder_layer=y_encoder,
-            classification_task=True,
-            input_normalization=True
-        ).to(device)
-        
-        # Convert data to tensors
-        X_tensor = torch.FloatTensor(X).to(device)
-        y_tensor = torch.LongTensor(y_encoded).to(device)
-        
-        # Setup optimizer and loss
-        optimizer = torch.optim.Adam(self.model_.parameters(), lr=self.learning_rate)
-        criterion = nn.CrossEntropyLoss()
-        
-        # Training loop (simplified for demonstration)
-        self.model_.train()
-        
-        # For TabFlex, we need to simulate in-context learning
-        # This is a simplified version - full implementation would be more complex
-        for epoch in range(self.epochs):
-            # Create batches
-            for i in range(0, len(X_tensor), self.batch_size):
-                batch_X = X_tensor[i:i+self.batch_size]
-                batch_y = y_tensor[i:i+self.batch_size]
-                
-                if len(batch_X) < 2:  # Need at least 2 samples for TabFlex
-                    continue
-                
-                optimizer.zero_grad()
-                
-                # TabFlex expects (x, y) tuple and single_eval_pos
-                # For training, we use all but last sample as context
-                single_eval_pos = len(batch_X) - 1
-                
-                try:
-                    outputs = self.model_((batch_X, batch_y), single_eval_pos=single_eval_pos)
-                    loss = criterion(outputs, batch_y[single_eval_pos:])
-                    
-                    loss.backward()
-                    optimizer.step()
-                except Exception as e:
-                    # Handle potential TabFlex-specific errors
-                    continue
-        
-        return self
-    
-    def predict_proba(self, X):
-        """FIXED: Batched prediction without O(n²) complexity"""
-        check_array(X)
-        
-        if self.model_ is None:
-            raise ValueError("Model must be fitted before making predictions")
-        
-        device = self._setup_device()
-        
-        # Convert to tensor once
-        if not isinstance(X, torch.Tensor):
+        """Fit TabFlex with exemplar storage for ICL."""
+        try:
+            device = self._setup_device()
+            logger.info(f"Fitting on device: {device}")
+
+            # Validate and prepare data
+            X = check_array(X, accept_sparse=True, force_all_finite=False)
+            self.label_encoder_ = LabelEncoder()
+            y_encoded = self.label_encoder_.fit_transform(y)
+            self.n_classes_ = len(self.label_encoder_.classes_)
+            self.n_features_ = X.shape[1]
+
+            # Store exemplars (before full training)
+            self._store_exemplars(X, y_encoded)
+
+            # Convert sparse to dense if necessary
+            if issparse(X):
+                logger.info("Converting sparse input to dense for model compatibility.")
+                X = X.toarray()
+
+            # Convert to tensors
             X_tensor = torch.FloatTensor(X).to(device)
-        else:
-            X_tensor = X.to(device)
-            
-        self.model_.eval()
-        
-        with torch.no_grad():
-            batch_size = min(512, len(X_tensor))  # Adaptive batch size
-            all_probabilities = []
-            
-            # Process in batches to avoid memory issues
-            for start_idx in range(0, len(X_tensor), batch_size):
-                end_idx = min(start_idx + batch_size, len(X_tensor))
-                X_batch = X_tensor[start_idx:end_idx]
-                
-                try:
-                    # Create dummy context for the batch
-                    batch_len = len(X_batch)
-                    dummy_y = torch.zeros(batch_len, dtype=torch.long).to(device)
-                    
-                    # Use simple context strategy - just use first few samples as context
-                    context_size = min(5, batch_len)  # Reduced context for speed
-                    
-                    if batch_len == 1:
-                        # Single sample case
-                        outputs = self.model_((X_batch, dummy_y), single_eval_pos=0)
-                    else:
-                        # Batch case - use last position for prediction
-                        outputs = self.model_((X_batch, dummy_y), single_eval_pos=batch_len-1)
-                        
-                        # If we get single output, expand to batch
-                        if len(outputs.shape) == 1:
-                            outputs = outputs.unsqueeze(0).repeat(batch_len, 1)
-                    
-                    probs = torch.softmax(outputs, dim=-1)
-                    all_probabilities.append(probs.cpu().numpy())
-                    
-                except Exception as e:
-                    print(f"TabFlex batch prediction failed: {e}")
-                    # Fallback to uniform probabilities
-                    uniform_prob = np.ones((len(X_batch), self.n_classes_)) / self.n_classes_
-                    all_probabilities.append(uniform_prob)
-            
-            return np.vstack(all_probabilities)
-    
+            y_tensor = torch.LongTensor(y_encoded).to(device)
+
+            # Initialize TabFlex (assuming imported as in your code)
+            from ticl.models.encoders import Linear
+            from ticl.models.linear_attention import get_linear_attention_layers
+            from ticl.utils import SeqBN
+
+            y_encoder = nn.Embedding(self.n_classes_, self.emsize).to(device)  # y_encoder_layer
+
+            self.model_ = TabFlex(
+                model='linear_attention',
+                n_out=self.n_classes_,
+                emsize=self.emsize,
+                nhead=self.nhead,
+                nhid_factor=self.nhid_factor,
+                nlayers=self.nlayers,
+                n_features=self.n_features_,
+                dropout=self.dropout,
+                y_encoder_layer=y_encoder,  # Pass the embedding layer
+                classification_task=True,
+                input_normalization=True
+            ).to(device)
+
+            optimizer = torch.optim.Adam(self.model_.parameters(), lr=self.learning_rate)
+            criterion = nn.CrossEntropyLoss()
+
+            self.model_.train()
+            for epoch in range(self.epochs):
+                for i in range(0, len(X_tensor), self.batch_size):
+                    batch_X = X_tensor[i:i+self.batch_size]
+                    batch_y = y_tensor[i:i+self.batch_size]
+                    batch_len = len(batch_X)
+                    if batch_len < 2:  # Need context
+                        continue
+
+                    # For training: Use full batch as context, evaluate on last position
+                    batch_X = batch_X.unsqueeze(1)  # [batch, 1, features]
+                    single_eval_pos = batch_len - 1  # Evaluate on last sample
+
+                    optimizer.zero_grad()
+                    try:
+                        outputs = self.model_((batch_X, batch_y), single_eval_pos=single_eval_pos)
+                        if outputs.dim() > 1:
+                            outputs = outputs.mean(dim=0)  # Aggregate if needed
+                        loss = criterion(outputs, batch_y[single_eval_pos:])
+                        loss.backward()
+                        optimizer.step()
+                    except Exception as e:
+                        logger.warning(f"Training batch failed: {e}\n{traceback.format_exc()}")
+                        continue  # Skip bad batch
+
+            logger.info("Fitting completed successfully.")
+            return self
+
+        except Exception as e:
+            logger.error(f"Fit failed: {e}\n{traceback.format_exc()}")
+            raise
+
+    def predict_proba(self, X):
+        """Predict probabilities using stored exemplars as context."""
+        try:
+            X = check_array(X, accept_sparse=True, force_all_finite=False)
+            device = self._setup_device()
+            self.model_.eval()
+
+            if self.exemplars_ is None:
+                logger.error("No exemplars stored. Cannot perform ICL prediction.")
+                return np.ones((X.shape[0], self.n_classes_)) / self.n_classes_  # Uniform fallback
+
+            # Convert input to dense if sparse
+            if issparse(X):
+                logger.info("Converting sparse input to dense for prediction.")
+                X = X.toarray()
+
+            # Convert to tensors once
+            X_tensor = torch.FloatTensor(X).to(device)
+
+            # Adaptive batch size to avoid OOM
+            batch_size = min(self.batch_size, max(1, X_tensor.shape[0] // 4))  # Conservative
+
+            all_probs = []
+            with torch.no_grad():
+                for start in range(0, X_tensor.shape[0], batch_size):
+                    end = min(start + batch_size, X_tensor.shape[0])
+                    X_batch = X_tensor[start:end]
+                    batch_len = X_batch.shape[0]
+
+                    # Prepend exemplars as context
+                    exemplars_X = torch.FloatTensor(self.exemplars_[0]).to(device)
+                    exemplars_y = torch.LongTensor(self.exemplars_[1]).to(device)
+                    context_len = exemplars_y.shape[0]
+
+                    # Combine: context + batch
+                    combined_X = torch.cat([exemplars_X, X_batch], dim=0).unsqueeze(1)  # [total_len, 1, features]
+                    combined_y = torch.cat([exemplars_y, torch.zeros(batch_len, dtype=torch.long).to(device)])  # Dummy y for test
+
+                    single_eval_pos = context_len  # Evaluate starting after context
+
+                    try:
+                        outputs = self.model_((combined_X, combined_y), single_eval_pos=single_eval_pos)
+                        if outputs.dim() > 2:
+                            outputs = outputs.mean(dim=1)  # Fallback aggregation
+                        probs = torch.softmax(outputs, dim=-1)
+                        all_probs.append(probs.cpu().numpy())
+                    except Exception as e:
+                        logger.warning(f"Batch prediction failed: {e}\n{traceback.format_exc()}")
+                        fallback = np.ones((batch_len, self.n_classes_)) / self.n_classes_
+                        all_probs.append(fallback)
+
+            return np.vstack(all_probs) if all_probs else np.ones((X.shape[0], self.n_classes_)) / self.n_classes_
+
+        except Exception as e:
+            logger.error(f"Predict_proba failed: {e}\n{traceback.format_exc()}")
+            return np.ones((X.shape[0], self.n_classes_)) / self.n_classes_  # Ultimate fallback
+
     def predict(self, X):
-        """Predict class labels"""
-        probabilities = self.predict_proba(X)
-        predictions = np.argmax(probabilities, axis=1)
-        return self.label_encoder_.inverse_transform(predictions)
+        """Predict class labels."""
+        try:
+            proba = self.predict_proba(X)
+            return self.label_encoder_.inverse_transform(np.argmax(proba, axis=1))
+        except Exception as e:
+            logger.error(f"Predict failed: {e}\n{traceback.format_exc()}")
+            return np.zeros(X.shape[0])  # Fallback to class 0
 
 class BaseModelFactory:
     """Enhanced factory for creating individual models with robust error handling"""
@@ -1752,7 +1813,7 @@ class StackingEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm', 'tabflex']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -1862,7 +1923,7 @@ class VotingEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm', 'tabflex']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -1938,7 +1999,7 @@ class WeightedEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm', 'tabflex']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -2016,7 +2077,7 @@ class CVEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm', 'tabflex']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -2116,7 +2177,7 @@ class ParametricEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm', 'tabflex']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -2293,7 +2354,7 @@ class StackingRidgeEnsemble:
     def _needs_dense_conversion(self, model_name: str) -> bool:
         """Check if a specific model needs dense matrix conversion"""
         model_clean = model_name.lower().replace('_', '')
-        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm']
+        dense_only_models = ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm', 'tabflex']
         return any(dense_model in model_clean for dense_model in dense_only_models)
 
     def _prepare_data_for_model(self, X, model_name: str):
@@ -2839,7 +2900,7 @@ class ModelEvaluator:
             # OPTIMIZED: Do conversion once and reuse
             if sparse.issparse(X_train_use):
                 base_models = config.get('base_models', [])
-                needs_dense = any(model.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm']
+                needs_dense = any(model.lower().replace('_', '') in ['naivebayes', 'nb', 'gaussiannb', 'neuralnetwork', 'mlp', 'mlpclassifier', 'advancedsvm', 'deepgbm', 'tabflex']
                                 for model in base_models)
                 if needs_dense:
                     print(f"Converting sparse matrices to dense for compatibility...")

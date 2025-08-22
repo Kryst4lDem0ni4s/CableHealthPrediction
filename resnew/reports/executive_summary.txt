@@ -1,22 +1,7 @@
 EXECUTIVE SUMMARY - ML MODEL COMPARATIVE ANALYSIS
 ============================================================
-Analysis Date: 2025-08-20 23:47:20
-Total Models Evaluated: 2
-Successful Completions: 2
+Analysis Date: 2025-08-22 10:42:27
+Total Models Evaluated: 0
+Successful Completions: 0
 Failed Models: 0
 Early Stopped (Poor Performance): 0
-
-TOP 5 PERFORMING MODELS (by Weighted F1-Score):
---------------------------------------------------
-
-1. deepgbm_randomforest
-   F1-Score: 0.7593
-   Accuracy: 0.7868
-   ROC-AUC: 0.7918
-   Training Time: 618.32s
-
-2. deepgbm_randomforest_naivebayes
-   F1-Score: 0.1958
-   Accuracy: 0.1928
-   ROC-AUC: 0.7059
-   Training Time: 656.18s

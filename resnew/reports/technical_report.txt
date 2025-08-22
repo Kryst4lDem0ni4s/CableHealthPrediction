@@ -1,36 +1,3 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-20 23:47:20
-
-DETAILED MODEL PERFORMANCE:
-----------------------------------------
-
-DEEPGBM_RANDOMFOREST:
-  Train Performance:
-    Accuracy: 0.8824
-    F1-Score: 0.8680
-    Precision: 0.8917
-    Recall: 0.8824
-  Test Performance:
-    Accuracy: 0.7868
-    F1-Score: 0.7593
-    Precision: 0.7630
-    Recall: 0.7868
-  Computational Metrics:
-    Training Time: 618.32s
-    Memory Usage: 13.80%
-
-DEEPGBM_RANDOMFOREST_NAIVEBAYES:
-  Train Performance:
-    Accuracy: 0.2637
-    F1-Score: 0.2301
-    Precision: 0.7911
-    Recall: 0.2637
-  Test Performance:
-    Accuracy: 0.1928
-    F1-Score: 0.1958
-    Precision: 0.5811
-    Recall: 0.1928
-  Computational Metrics:
-    Training Time: 656.18s
-    Memory Usage: 0.00%
+Generated: 2025-08-22 10:42:27
