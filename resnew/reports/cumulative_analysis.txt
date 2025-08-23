@@ -1,7 +1,7 @@
-CUMULATIVE ANALYSIS REPORT - Updated: 2025-08-22 11:28:45
+CUMULATIVE ANALYSIS REPORT - Updated: 2025-08-22 23:33:18
 ================================================================================
-Total Models Processed: 124
-Successful Models: 87
+Total Models Processed: 134
+Successful Models: 97
 Failed Models: 18
 Early Stopped Models: 19
 
@@ -16,4 +16,4 @@ deepgbm_advancedsvm: F1=1.0000, Acc=nan
 deepgbm_solo: F1=1.0000, Acc=nan
 deepgbm_advancedsvm: F1=1.0000, Acc=nan
 tabflex_solo: F1=1.0000, Acc=nan
-lightgbm_solo: F1=0.0000, Acc=nan
+ngboost_advancedsvm: F1=1.0000, Acc=nan

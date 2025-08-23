@@ -1,7 +1,40 @@
 EXECUTIVE SUMMARY - ML MODEL COMPARATIVE ANALYSIS
 ============================================================
-Analysis Date: 2025-08-22 10:42:27
-Total Models Evaluated: 0
-Successful Completions: 0
+Analysis Date: 2025-08-23 00:00:41
+Total Models Evaluated: 13
+Successful Completions: 13
 Failed Models: 0
 Early Stopped (Poor Performance): 0
+
+TOP 5 PERFORMING MODELS (by Weighted F1-Score):
+--------------------------------------------------
+
+1. tabflex_lightgbm
+   F1-Score: 0.8200
+   Accuracy: 0.8407
+   ROC-AUC: 0.8950
+   Training Time: 162.88s
+
+2. ngboost_xgboost_catboost
+   F1-Score: 0.8171
+   Accuracy: 0.8400
+   ROC-AUC: 0.8894
+   Training Time: 67.79s
+
+3. ngboost_randomforest
+   F1-Score: 0.7890
+   Accuracy: 0.8225
+   ROC-AUC: 0.8516
+   Training Time: 53.20s
+
+4. tabflex_xgboost
+   F1-Score: 0.7763
+   Accuracy: 0.8170
+   ROC-AUC: 0.8943
+   Training Time: 479.04s
+
+5. ngboost_solo
+   F1-Score: 0.7749
+   Accuracy: 0.8157
+   ROC-AUC: 0.8526
+   Training Time: 20.38s

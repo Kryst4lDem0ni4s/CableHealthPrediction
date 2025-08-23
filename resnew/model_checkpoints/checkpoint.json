@@ -63,9 +63,19 @@
     "deepgbm_advancedsvm_randomforest",
     "tabflex_solo",
     "tabflex_xgboost",
-    "tabflex_lightgbm"
+    "tabflex_lightgbm",
+    "ngboost_solo",
+    "ngboost_advancedsvm",
+    "ngboost_xgboost_catboost",
+    "ngboost_randomforest",
+    "ngboost_randomforest_naivebayes",
+    "ngboost_neuralnetwork",
+    "ngboost_advancedsvm_randomforest",
+    "ngboost_neuralnetwork_advancedsvm",
+    "ngboost_neuralnetwork_naivebayes",
+    "ngboost_neuralnetwork_randomforest"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-22T11:28:45.630594"
+  "timestamp": "2025-08-22T23:33:18.427634"
 }
