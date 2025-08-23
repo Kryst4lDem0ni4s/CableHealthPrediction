@@ -73,9 +73,16 @@
     "ngboost_advancedsvm_randomforest",
     "ngboost_neuralnetwork_advancedsvm",
     "ngboost_neuralnetwork_naivebayes",
-    "ngboost_neuralnetwork_randomforest"
+    "ngboost_neuralnetwork_randomforest",
+    "mixture_of_experts_lightgbm_advancedsvm",
+    "mixture_of_experts_lightgbm_naivebayes",
+    "mixture_of_experts_lightgbm_linear_model",
+    "mixture_of_experts_xgboost_advancedsvm",
+    "mixture_of_experts_xgboost_naivebayes",
+    "mixture_of_experts_xgboost_linear_model",
+    "stacked_lightgbm_xgboost_catboost_ridge"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-22T23:33:18.427634"
+  "timestamp": "2025-08-23T19:35:16.912352"
 }

@@ -1,201 +1,126 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-23 00:00:41
+Generated: 2025-08-23 20:38:01
 
 DETAILED MODEL PERFORMANCE:
 ----------------------------------------
 
-TABFLEX_SOLO:
+MIXTURE_OF_EXPERTS_LIGHTGBM_ADVANCEDSVM:
   Train Performance:
-    Accuracy: 0.7352
-    F1-Score: 0.6230
-    Precision: 0.5405
-    Recall: 0.7352
+    Accuracy: 0.9999
+    F1-Score: 0.9999
+    Precision: 0.9999
+    Recall: 0.9999
   Test Performance:
-    Accuracy: 0.7351
-    F1-Score: 0.6228
-    Precision: 0.5403
-    Recall: 0.7351
+    Accuracy: 0.7960
+    F1-Score: 0.7798
+    Precision: 0.7777
+    Recall: 0.7960
   Computational Metrics:
-    Training Time: 365.62s
-    Memory Usage: 0.00%
+    Training Time: 611.97s
+    Memory Usage: 0.60%
 
-TABFLEX_XGBOOST:
+MIXTURE_OF_EXPERTS_LIGHTGBM_NAIVEBAYES:
   Train Performance:
-    Accuracy: 0.8561
-    F1-Score: 0.8327
-    Precision: 0.8795
-    Recall: 0.8561
+    Accuracy: 0.9778
+    F1-Score: 0.9781
+    Precision: 0.9796
+    Recall: 0.9778
   Test Performance:
-    Accuracy: 0.8170
-    F1-Score: 0.7763
-    Precision: 0.8414
-    Recall: 0.8170
+    Accuracy: 0.7571
+    F1-Score: 0.7631
+    Precision: 0.7708
+    Recall: 0.7571
   Computational Metrics:
-    Training Time: 479.04s
-    Memory Usage: 2.50%
-
-TABFLEX_LIGHTGBM:
-  Train Performance:
-    Accuracy: 0.9449
-    F1-Score: 0.9433
-    Precision: 0.9465
-    Recall: 0.9449
-  Test Performance:
-    Accuracy: 0.8407
-    F1-Score: 0.8200
-    Precision: 0.8392
-    Recall: 0.8407
-  Computational Metrics:
-    Training Time: 162.88s
-    Memory Usage: 1.40%
-
-NGBOOST_SOLO:
-  Train Performance:
-    Accuracy: 0.8089
-    F1-Score: 0.7660
-    Precision: 0.8238
-    Recall: 0.8089
-  Test Performance:
-    Accuracy: 0.8157
-    F1-Score: 0.7749
-    Precision: 0.8301
-    Recall: 0.8157
-  Computational Metrics:
-    Training Time: 20.38s
-    Memory Usage: 0.00%
-
-NGBOOST_ADVANCEDSVM:
-  Train Performance:
-    Accuracy: 0.8057
-    F1-Score: 0.7543
-    Precision: 0.8296
-    Recall: 0.8057
-  Test Performance:
-    Accuracy: 0.8075
-    F1-Score: 0.7563
-    Precision: 0.8341
-    Recall: 0.8075
-  Computational Metrics:
-    Training Time: 768.65s
-    Memory Usage: 4.60%
-
-NGBOOST_XGBOOST_CATBOOST:
-  Train Performance:
-    Accuracy: 0.8724
-    F1-Score: 0.8586
-    Precision: 0.8806
-    Recall: 0.8724
-  Test Performance:
-    Accuracy: 0.8400
-    F1-Score: 0.8171
-    Precision: 0.8411
-    Recall: 0.8400
-  Computational Metrics:
-    Training Time: 67.79s
+    Training Time: 103.18s
     Memory Usage: 1.60%
 
-NGBOOST_RANDOMFOREST:
+MIXTURE_OF_EXPERTS_LIGHTGBM_LINEAR_MODEL:
   Train Performance:
-    Accuracy: 0.8176
-    F1-Score: 0.7846
-    Precision: 0.8246
-    Recall: 0.8176
+    Accuracy: 0.9934
+    F1-Score: 0.9935
+    Precision: 0.9936
+    Recall: 0.9934
   Test Performance:
-    Accuracy: 0.8225
-    F1-Score: 0.7890
-    Precision: 0.8329
-    Recall: 0.8225
+    Accuracy: 0.7835
+    F1-Score: 0.7777
+    Precision: 0.7738
+    Recall: 0.7835
   Computational Metrics:
-    Training Time: 53.20s
+    Training Time: 183.63s
+    Memory Usage: 1.10%
+
+MIXTURE_OF_EXPERTS_XGBOOST_ADVANCEDSVM:
+  Train Performance:
+    Accuracy: 0.9925
+    F1-Score: 0.9925
+    Precision: 0.9926
+    Recall: 0.9925
+  Test Performance:
+    Accuracy: 0.8027
+    F1-Score: 0.7806
+    Precision: 0.7862
+    Recall: 0.8027
+  Computational Metrics:
+    Training Time: 1057.61s
     Memory Usage: 0.00%
 
-NGBOOST_RANDOMFOREST_NAIVEBAYES:
+MIXTURE_OF_EXPERTS_XGBOOST_NAIVEBAYES:
   Train Performance:
-    Accuracy: 0.2883
-    F1-Score: 0.2701
-    Precision: 0.7896
-    Recall: 0.2883
+    Accuracy: 0.9979
+    F1-Score: 0.9979
+    Precision: 0.9979
+    Recall: 0.9979
   Test Performance:
-    Accuracy: 0.2147
-    F1-Score: 0.2300
-    Precision: 0.6090
-    Recall: 0.2147
+    Accuracy: 0.7713
+    F1-Score: 0.7671
+    Precision: 0.7641
+    Recall: 0.7713
   Computational Metrics:
-    Training Time: 198.17s
-    Memory Usage: 0.40%
+    Training Time: 302.87s
+    Memory Usage: 5.50%
 
-NGBOOST_NEURALNETWORK:
+MIXTURE_OF_EXPERTS_XGBOOST_LINEAR_MODEL:
   Train Performance:
-    Accuracy: 0.8223
-    F1-Score: 0.7833
-    Precision: 0.8417
-    Recall: 0.8223
+    Accuracy: 0.9988
+    F1-Score: 0.9988
+    Precision: 0.9988
+    Recall: 0.9988
   Test Performance:
-    Accuracy: 0.8057
-    F1-Score: 0.7612
-    Precision: 0.8247
-    Recall: 0.8057
+    Accuracy: 0.7880
+    F1-Score: 0.7761
+    Precision: 0.7714
+    Recall: 0.7880
   Computational Metrics:
-    Training Time: 197.04s
-    Memory Usage: 0.60%
-
-NGBOOST_ADVANCEDSVM_RANDOMFOREST:
-  Train Performance:
-    Accuracy: 0.8132
-    F1-Score: 0.7688
-    Precision: 0.8332
-    Recall: 0.8132
-  Test Performance:
-    Accuracy: 0.8137
-    F1-Score: 0.7701
-    Precision: 0.8314
-    Recall: 0.8137
-  Computational Metrics:
-    Training Time: 1183.52s
+    Training Time: 117.03s
     Memory Usage: 0.00%
 
-NGBOOST_NEURALNETWORK_ADVANCEDSVM:
+STACKED_LIGHTGBM_XGBOOST_CATBOOST_RIDGE:
   Train Performance:
-    Accuracy: 0.8160
-    F1-Score: 0.7706
-    Precision: 0.8403
-    Recall: 0.8160
+    Accuracy: 0.9397
+    F1-Score: 0.9387
+    Precision: 0.9397
+    Recall: 0.9397
   Test Performance:
-    Accuracy: 0.8002
-    F1-Score: 0.7489
-    Precision: 0.8253
-    Recall: 0.8002
+    Accuracy: 0.8464
+    F1-Score: 0.8368
+    Precision: 0.8375
+    Recall: 0.8464
   Computational Metrics:
-    Training Time: 683.19s
-    Memory Usage: 0.00%
+    Training Time: 21.35s
+    Memory Usage: 3.30%
 
-NGBOOST_NEURALNETWORK_NAIVEBAYES:
+LIGHTGBM_PARAMETRIC_ENSEMBLE:
   Train Performance:
-    Accuracy: 0.8354
-    F1-Score: 0.8289
-    Precision: 0.8299
-    Recall: 0.8354
+    Accuracy: 0.5394
+    F1-Score: 0.5608
+    Precision: 0.7734
+    Recall: 0.5394
   Test Performance:
-    Accuracy: 0.7705
-    F1-Score: 0.7524
-    Precision: 0.7484
-    Recall: 0.7705
+    Accuracy: 0.4779
+    F1-Score: 0.5098
+    Precision: 0.6965
+    Recall: 0.4779
   Computational Metrics:
-    Training Time: 200.77s
+    Training Time: 6.78s
     Memory Usage: 0.00%
-
-NGBOOST_NEURALNETWORK_RANDOMFOREST:
-  Train Performance:
-    Accuracy: 0.8297
-    F1-Score: 0.7976
-    Precision: 0.8434
-    Recall: 0.8297
-  Test Performance:
-    Accuracy: 0.8125
-    F1-Score: 0.7742
-    Precision: 0.8227
-    Recall: 0.8125
-  Computational Metrics:
-    Training Time: 201.62s
-    Memory Usage: 0.60%

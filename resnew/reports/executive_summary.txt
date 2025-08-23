@@ -1,40 +1,40 @@
 EXECUTIVE SUMMARY - ML MODEL COMPARATIVE ANALYSIS
 ============================================================
-Analysis Date: 2025-08-23 00:00:41
-Total Models Evaluated: 13
-Successful Completions: 13
+Analysis Date: 2025-08-23 20:38:01
+Total Models Evaluated: 8
+Successful Completions: 8
 Failed Models: 0
 Early Stopped (Poor Performance): 0
 
 TOP 5 PERFORMING MODELS (by Weighted F1-Score):
 --------------------------------------------------
 
-1. tabflex_lightgbm
-   F1-Score: 0.8200
-   Accuracy: 0.8407
-   ROC-AUC: 0.8950
-   Training Time: 162.88s
+1. stacked_lightgbm_xgboost_catboost_ridge
+   F1-Score: 0.8368
+   Accuracy: 0.8464
+   ROC-AUC: 0.8968
+   Training Time: 21.35s
 
-2. ngboost_xgboost_catboost
-   F1-Score: 0.8171
-   Accuracy: 0.8400
-   ROC-AUC: 0.8894
-   Training Time: 67.79s
+2. mixture_of_experts_xgboost_advancedsvm
+   F1-Score: 0.7806
+   Accuracy: 0.8027
+   ROC-AUC: 0.8503
+   Training Time: 1057.61s
 
-3. ngboost_randomforest
-   F1-Score: 0.7890
-   Accuracy: 0.8225
-   ROC-AUC: 0.8516
-   Training Time: 53.20s
+3. mixture_of_experts_lightgbm_advancedsvm
+   F1-Score: 0.7798
+   Accuracy: 0.7960
+   ROC-AUC: 0.8585
+   Training Time: 611.97s
 
-4. tabflex_xgboost
-   F1-Score: 0.7763
-   Accuracy: 0.8170
-   ROC-AUC: 0.8943
-   Training Time: 479.04s
+4. mixture_of_experts_lightgbm_linear_model
+   F1-Score: 0.7777
+   Accuracy: 0.7835
+   ROC-AUC: 0.8429
+   Training Time: 183.63s
 
-5. ngboost_solo
-   F1-Score: 0.7749
-   Accuracy: 0.8157
-   ROC-AUC: 0.8526
-   Training Time: 20.38s
+5. mixture_of_experts_xgboost_linear_model
+   F1-Score: 0.7761
+   Accuracy: 0.7880
+   ROC-AUC: 0.8266
+   Training Time: 117.03s

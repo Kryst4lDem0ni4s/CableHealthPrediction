@@ -511,6 +511,10 @@ MODEL_CONFIGS = {
             'base_models': ['mixture_of_experts', 'xgboost', 'linear_model'],
             'ensemble_type': 'voting'
         },
+        'mixture_of_experts': {
+            'base_models': ['mixture_of_experts'],
+            'ensemble_type': 'none'
+        },
 
         # Stacked Ensemble with Ridge Meta-Learner
         'stacked_lightgbm_xgboost_catboost_ridge': {
