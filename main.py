@@ -110,8 +110,8 @@ class Config:
     PLOTS_DIR = 'resnew/plots'
 
     # Performance thresholds for early stopping
-    EARLY_STOP_ACCURACY = 0.15  # Further lowered for more lenient early stopping
-    EARLY_STOP_F1 = 0.10  # Further lowered for more lenient early stopping
+    EARLY_STOP_ACCURACY = 0  # Further lowered for more lenient early stopping
+    EARLY_STOP_F1 = 0  # Further lowered for more lenient early stopping
     COMPLEXITY_TIME_MULTIPLIER = 3.0
     COMPLEXITY_F1_IMPROVEMENT = 0.02
 

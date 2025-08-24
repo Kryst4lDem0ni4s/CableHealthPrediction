@@ -1,7 +1,40 @@
 EXECUTIVE SUMMARY - ML MODEL COMPARATIVE ANALYSIS
 ============================================================
-Analysis Date: 2025-08-24 23:12:51
-Total Models Evaluated: 0
-Successful Completions: 0
-Failed Models: 0
+Analysis Date: 2025-08-25 00:12:54
+Total Models Evaluated: 8
+Successful Completions: 6
+Failed Models: 2
 Early Stopped (Poor Performance): 0
+
+TOP 5 PERFORMING MODELS (by Weighted F1-Score):
+--------------------------------------------------
+
+1. xgboost_parametric
+   F1-Score: 0.8363
+   Accuracy: 0.8345
+   ROC-AUC: 0.8903
+   Training Time: 82.34s
+
+2. xgboost_cv
+   F1-Score: 0.8266
+   Accuracy: 0.8454
+   ROC-AUC: 0.8941
+   Training Time: 31.40s
+
+3. catboost_parametric
+   F1-Score: 0.8050
+   Accuracy: 0.7953
+   ROC-AUC: 0.8786
+   Training Time: 55.14s
+
+4. random_baseline_solo
+   F1-Score: 0.0448
+   Accuracy: 0.1613
+   ROC-AUC: 0.5000
+   Training Time: 0.00s
+
+5. uniform_baseline_solo
+   F1-Score: 0.0448
+   Accuracy: 0.1613
+   ROC-AUC: 0.5000
+   Training Time: 0.00s

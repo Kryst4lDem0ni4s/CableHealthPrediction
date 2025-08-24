@@ -95,14 +95,22 @@
     "linearsvm_solo",
     "linearmodel_solo",
     "majority_baseline_solo",
-    "majority_baseline"
-  ],
-  "failed_models": [],
-  "early_stopped_models": [
+    "majority_baseline",
+    "gradientboost_solo",
+    "gradientclassifier_solo",
+    "lightgbm_cv",
+    "lightgbm_parametric",
     "random_baseline_solo",
     "uniform_baseline_solo",
     "random_baseline",
-    "adaboost_solo"
+    "xgboost_cv",
+    "xgboost_parametric",
+    "catboost_parametric"
   ],
-  "timestamp": "2025-08-24T23:37:42.576901"
+  "failed_models": [
+    "adaboost_solo",
+    "catboost_cv"
+  ],
+  "early_stopped_models": [],
+  "timestamp": "2025-08-25T00:09:20.152737"
 }
