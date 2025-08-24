@@ -80,9 +80,29 @@
     "mixture_of_experts_xgboost_advancedsvm",
     "mixture_of_experts_xgboost_naivebayes",
     "mixture_of_experts_xgboost_linear_model",
-    "stacked_lightgbm_xgboost_catboost_ridge"
+    "stacked_lightgbm_xgboost_catboost_ridge",
+    "mixture_of_experts",
+    "lightgbm_parametric_ensemble",
+    "xgboost_parametric_ensemble",
+    "catboost_parametric_ensemble",
+    "ngboost_parametric_ensemble",
+    "deepgbm_parametric_ensemble",
+    "randomforest_parametric_ensemble",
+    "advancedsvm_parametric_ensemble",
+    "parametric_lightgbm_advancedsvm_randomforest",
+    "parametric_xgboost_advancedsvm_randomforest",
+    "parametric_catboost_advancedsvm_randomforest",
+    "linearsvm_solo",
+    "linearmodel_solo",
+    "majority_baseline_solo",
+    "majority_baseline"
   ],
   "failed_models": [],
-  "early_stopped_models": [],
-  "timestamp": "2025-08-23T19:35:16.912352"
+  "early_stopped_models": [
+    "random_baseline_solo",
+    "uniform_baseline_solo",
+    "random_baseline",
+    "adaboost_solo"
+  ],
+  "timestamp": "2025-08-24T23:37:42.576901"
 }

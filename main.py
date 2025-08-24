@@ -1403,153 +1403,175 @@ class BaseModelFactory:
         try:
             # Tree-based models
             if 'lightgbm' in model_name_clean or model_name_clean == 'lgb':
-                return lgb.LGBMClassifier(
-                    objective='multiclass',
-                    num_class=n_classes,
-                    n_estimators=200,  # Further reduced for faster training
-                    learning_rate=0.1,
-                    max_depth=6,
-                    num_leaves=31,
-                    subsample=0.8,
-                    colsample_bytree=0.8,
-                    class_weight='balanced',
-                    random_state=Config.RANDOM_STATE,
-                    n_jobs=Config.N_JOBS,
-                    verbosity=-1,
-                    **kwargs
-                )
+                defaults = {
+                    'objective': 'multiclass',
+                    'num_class': n_classes,
+                    'n_estimators': 200,  # Further reduced for faster training
+                    'learning_rate': 0.1,
+                    'max_depth': 6,
+                    'num_leaves': 31,
+                    'subsample': 0.8,
+                    'colsample_bytree': 0.8,
+                    'class_weight': 'balanced',
+                    'random_state': Config.RANDOM_STATE,
+                    'n_jobs': Config.N_JOBS,
+                    'verbosity': -1
+                }
+                merged_params = {**defaults, **kwargs}
+                return lgb.LGBMClassifier(**merged_params)
 
             elif 'xgboost' in model_name_clean or model_name_clean == 'xgb':
-                return xgb.XGBClassifier(
-                    objective='multi:softprob',
-                    n_estimators=200,  # Further reduced for faster training
-                    learning_rate=0.1,
-                    max_depth=6,
-                    subsample=0.8,
-                    colsample_bytree=0.8,
-                    use_label_encoder=False,
-                    eval_metric='mlogloss',
-                    random_state=Config.RANDOM_STATE,
-                    n_jobs=Config.N_JOBS,
-                    **kwargs
-                )
+                defaults = {
+                    'objective': 'multi:softprob',
+                    'n_estimators': 200,  # Further reduced for faster training
+                    'learning_rate': 0.1,
+                    'max_depth': 6,
+                    'subsample': 0.8,
+                    'colsample_bytree': 0.8,
+                    'use_label_encoder': False,
+                    'eval_metric': 'mlogloss',
+                    'random_state': Config.RANDOM_STATE,
+                    'n_jobs': Config.N_JOBS
+                }
+                merged_params = {**defaults, **kwargs}
+                return xgb.XGBClassifier(**merged_params)
 
             elif 'catboost' in model_name_clean or model_name_clean == 'cb':
-                return cb.CatBoostClassifier(
-                    loss_function='MultiClass',
-                    iterations=200,  # Further reduced for faster training
-                    learning_rate=0.1,
-                    depth=6,
-                    verbose=False,
-                    random_seed=Config.RANDOM_STATE,
-                    **kwargs
-                )
+                defaults = {
+                    'loss_function': 'MultiClass',
+                    'iterations': 200,  # Further reduced for faster training
+                    'learning_rate': 0.1,
+                    'depth': 6,
+                    'verbose': False,
+                    'random_seed': Config.RANDOM_STATE
+                }
+                merged_params = {**defaults, **kwargs}
+                return cb.CatBoostClassifier(**merged_params)
 
             elif 'randomforest' in model_name_clean or 'rf' == model_name_clean:
-                return RandomForestClassifier(
-                    n_estimators=100,
-                    max_depth=8,
-                    class_weight='balanced',
-                    random_state=Config.RANDOM_STATE,
-                    n_jobs=Config.N_JOBS,
-                    **kwargs
-                )
+                defaults = {
+                    'n_estimators': 100,
+                    'max_depth': 8,
+                    'class_weight': 'balanced',
+                    'random_state': Config.RANDOM_STATE,
+                    'n_jobs': Config.N_JOBS
+                }
+                merged_params = {**defaults, **kwargs}
+                return RandomForestClassifier(**merged_params)
 
             # SVM models
             elif 'advancedsvm' in model_name_clean or 'svmrbf' in model_name_clean:
-                base_svm = SVC(
-                    kernel='rbf',
-                    C=1.0,
-                    gamma='scale',
-                    class_weight='balanced',
-                    probability=False,
-                    random_state=Config.RANDOM_STATE,
-                    **kwargs
-                )
+                defaults = {
+                    'kernel': 'rbf',
+                    'C': 1.0,
+                    'gamma': 'scale',
+                    'class_weight': 'balanced',
+                    'probability': False,
+                    'random_state': Config.RANDOM_STATE
+                }
+                merged_params = {**defaults, **kwargs}
+                base_svm = SVC(**merged_params)
                 return CalibratedClassifierCV(base_svm, method='sigmoid', cv=3)
 
             elif 'linearsvm' in model_name_clean or 'sgd' in model_name_clean:
-                return SGDClassifier(
-                    loss='log_loss',
-                    learning_rate='adaptive',
-                    eta0=0.01,
-                    max_iter=1000,
-                    class_weight='balanced',
-                    random_state=Config.RANDOM_STATE,
-                    n_jobs=Config.N_JOBS,
-                    **kwargs
-                )
+                defaults = {
+                    'loss': 'log_loss',
+                    'learning_rate': 'adaptive',
+                    'eta0': 0.01,
+                    'max_iter': 1000,
+                    'class_weight': 'balanced',
+                    'random_state': Config.RANDOM_STATE,
+                    'n_jobs': Config.N_JOBS
+                }
+                merged_params = {**defaults, **kwargs}
+                return SGDClassifier(**merged_params)
 
             # Probabilistic models
             elif 'naivebayes' in model_name_clean or 'nb' == model_name_clean or 'gaussiannb' in model_name_clean:
-                return GaussianNB(**kwargs)
+                defaults = {}  # No defaults; pass kwargs directly
+                merged_params = {**defaults, **kwargs}
+                return GaussianNB(**merged_params)
 
             # Neural network
             elif 'neuralnetwork' in model_name_clean or 'mlp' in model_name_clean:
-                return MLPClassifier(
-                    hidden_layer_sizes=(50, 25),  # Reduced for faster training
-                    max_iter=100,  # Reduced for faster training
-                    early_stopping=True,
-                    validation_fraction=0.1,
-                    alpha=0.01,
-                    random_state=Config.RANDOM_STATE,
-                    **kwargs
-                )
+                defaults = {
+                    'hidden_layer_sizes': (50, 25),  # Reduced for faster training
+                    'max_iter': 100,  # Reduced for faster training
+                    'early_stopping': True,
+                    'validation_fraction': 0.1,
+                    'alpha': 0.01,
+                    'random_state': Config.RANDOM_STATE
+                }
+                merged_params = {**defaults, **kwargs}
+                return MLPClassifier(**merged_params)
 
             # Linear models
             elif 'logisticregression' in model_name_clean or 'lr' == model_name_clean:
-                return LogisticRegression(
-                    multi_class='multinomial',
-                    solver='lbfgs',
-                    class_weight='balanced',
-                    max_iter=1000,
-                    random_state=Config.RANDOM_STATE,
-                    n_jobs=Config.N_JOBS,
-                    **kwargs
-                )
+                defaults = {
+                    'multi_class': 'multinomial',
+                    'solver': 'lbfgs',
+                    'class_weight': 'balanced',
+                    'max_iter': 1000,
+                    'random_state': Config.RANDOM_STATE,
+                    'n_jobs': Config.N_JOBS
+                }
+                merged_params = {**defaults, **kwargs}
+                return LogisticRegression(**merged_params)
 
             elif 'knn' in model_name_clean:
-                return KNeighborsClassifier(
-                    n_neighbors=5,
-                    n_jobs=Config.N_JOBS,
-                    **kwargs
-                )
+                defaults = {
+                    'n_neighbors': 5,
+                    'n_jobs': Config.N_JOBS
+                }
+                merged_params = {**defaults, **kwargs}
+                return KNeighborsClassifier(**merged_params)
 
             elif 'ridge' in model_name_clean:
-                return LogisticRegression(
-                    penalty='l2',
-                    solver='lbfgs',
-                    multi_class='multinomial',
-                    class_weight='balanced',
-                    max_iter=1000,
-                    random_state=Config.RANDOM_STATE,
-                    **kwargs
-                )
+                defaults = {
+                    'penalty': 'l2',
+                    'solver': 'lbfgs',
+                    'multi_class': 'multinomial',
+                    'class_weight': 'balanced',
+                    'max_iter': 1000,
+                    'random_state': Config.RANDOM_STATE
+                }
+                merged_params = {**defaults, **kwargs}
+                return LogisticRegression(**merged_params)
 
             # Advanced models
             elif 'ngboost' in model_name_clean and NGBOOST_AVAILABLE:
-                return ngb.NGBClassifier(
-                    Dist=k_categorical(n_classes),
-                    n_estimators=100,  # Reduced for faster training
-                    learning_rate=0.01,
-                    verbose=False,
-                    random_state=Config.RANDOM_STATE,
-                    **kwargs
-                )
+                defaults = {
+                    'Dist': k_categorical(n_classes),
+                    'n_estimators': 100,  # Reduced for faster training
+                    'learning_rate': 0.01,
+                    'verbose': False,
+                    'random_state': Config.RANDOM_STATE
+                }
+                merged_params = {**defaults, **kwargs}
+                return ngb.NGBClassifier(**merged_params)
 
             # Add these to BaseModelFactory.create_model method after the NGBoost block:
             elif 'deepgbm' in model_name_clean:
                 # DeepGBM implementation (fallback to LightGBM with deeper trees if DeepGBM not available)
                 try:
-                    deepgbm_instance = DeepGBMWrapper(
-                        embedding_size=4, 
-                        h_depth=2, 
-                        deep_layers=[32, 32],
-                        task='classification', 
-                        epochs=50, batch_size=256,
-                        random_state=Config.RANDOM_STATE, 
-                        use_real_deepgbm=True
-                    )
+                    defaults = {
+                        'embedding_size': 4,
+                        'h_depth': 2,
+                        'deep_layers': [32, 32],
+                        'task': 'classification',
+                        'epochs': 50,
+                        'batch_size': 256,
+                        'learning_rate': 0.001,
+                        'num_trees': 10,
+                        'tree_max_depth': 4,
+                        'tree_layers': None,
+                        'random_state': Config.RANDOM_STATE,
+                        'use_real_deepgbm': True,
+                        'device': 'cuda' if torch.cuda.is_available() else 'cpu',
+                        'verbose': True
+                    }
+                    merged_params = {**defaults, **kwargs}
+                    deepgbm_instance = DeepGBMWrapper(**merged_params)
                     if hasattr(Config, 'GLOBAL_PREPROCESSOR') and Config.GLOBAL_PREPROCESSOR is not None:
                         deepgbm_instance.build_feature_metadata_from_transformer(Config.GLOBAL_PREPROCESSOR)
                     return deepgbm_instance
@@ -1559,41 +1581,48 @@ class BaseModelFactory:
             elif 'tabflex' in model_name_clean:
                 try:
                     # Import the TabFlex class and dependencies
-                    from ticl.models.encoders import Linear
-                    from ticl.models.linear_attention import get_linear_attention_layers
-                    from ticl.utils import SeqBN
+                    # from ticl.models.encoders import Linear
+                    # from ticl.models.linear_attention import get_linear_attention_layers
+                    # from ticl.utils import SeqBN
                     
+                    defaults = {
+                        'emsize': 128,
+                        'nhead': 8,
+                        'nhid_factor': 4,
+                        'nlayers': 6,
+                        'dropout': 0.1,
+                        'learning_rate': 0.001,
+                        'epochs': 50,  # Reduced for faster training
+                        'batch_size': 256,
+                        'random_state': Config.RANDOM_STATE
+                    }
+                    merged_params = {**defaults, **kwargs}
                     # Use the TabFlexClassifier wrapper
-                    return TabFlexClassifier(
-                        emsize=128,
-                        nhead=8,
-                        nhid_factor=4,
-                        nlayers=6,
-                        dropout=0.1,
-                        learning_rate=0.001,
-                        epochs=50,  # Reduced for faster training
-                        batch_size=256,
-                        random_state=Config.RANDOM_STATE,
-                        **kwargs
-                    )
+                    return TabFlexClassifier(**merged_params)
                 except ImportError as e:
                     print(f"TabFlex dependencies not available: {e}. Using TabNet fallback.") 
                     try:
                         # TabNet fallback
                         from pytorch_tabnet.tab_model import TabNetClassifier
-                        return TabNetClassifier(
-                            n_d=64, n_a=64, n_steps=5,
-                            gamma=1.5, seed=Config.RANDOM_STATE,
-                            verbose=0, **kwargs
-                        )
+                        defaults = {
+                            'n_d': 64,
+                            'n_a': 64,
+                            'n_steps': 5,
+                            'gamma': 1.5,
+                            'seed': Config.RANDOM_STATE,
+                            'verbose': 0
+                        }
+                        merged_params = {**defaults, **kwargs}
+                        return TabNetClassifier(**merged_params)
                     except ImportError:
                         print("TabNet also not available. Using MLP fallback.")  # Fixed: removed self.logger
-                        return MLPClassifier(
-                            hidden_layer_sizes=(256, 128, 64),
-                            max_iter=500,
-                            random_state=Config.RANDOM_STATE,
-                            **kwargs
-                        )
+                        defaults = {
+                            'hidden_layer_sizes': (256, 128, 64),
+                            'max_iter': 500,
+                            'random_state': Config.RANDOM_STATE
+                        }
+                        merged_params = {**defaults, **kwargs}
+                        return MLPClassifier(**merged_params)
 
             elif 'mixture' in model_name_clean or 'moe' in model_name_clean:
                 # Mixture-of-Experts implementation (fallback to ensemble-like MLP if MoE not available)
@@ -1660,89 +1689,110 @@ class BaseModelFactory:
                             proba = self.predict_proba(X)
                             return np.argmax(proba, axis=1)
 
-                    return MixtureOfExpertsClassifier(
-                        n_experts=3,
-                        random_state=Config.RANDOM_STATE
-                    )
+                    defaults = {
+                        'n_experts': 3,
+                        'random_state': Config.RANDOM_STATE
+                    }
+                    merged_params = {**defaults, **kwargs}
+                    return MixtureOfExpertsClassifier(**merged_params)
 
                 except Exception as e:
                     print(f"MoE implementation failed, using ensemble MLPClassifier for {model_name}: {e}")
-                    return MLPClassifier(
-                        hidden_layer_sizes=(150, 75),
-                        max_iter=250,
-                        early_stopping=True,
-                        validation_fraction=0.1,
-                        alpha=0.01,
-                        random_state=Config.RANDOM_STATE,
-                        **kwargs
-                    )
+                    defaults = {
+                        'hidden_layer_sizes': (150, 75),
+                        'max_iter': 250,
+                        'early_stopping': True,
+                        'validation_fraction': 0.1,
+                        'alpha': 0.01,
+                        'random_state': Config.RANDOM_STATE
+                    }
+                    merged_params = {**defaults, **kwargs}
+                    return MLPClassifier(**merged_params)
 
             # Also add support for svm_linear and linear_model that were in MODEL_COMPLEXITY but missing from factory:
             elif 'svmlinear' in model_name_clean or model_name_clean == 'svmlinear':
-                return SVC(
-                    kernel='linear',
-                    C=1.0,
-                    class_weight='balanced',
-                    probability=True,
-                    random_state=Config.RANDOM_STATE,
-                    **kwargs
-                )
+                defaults = {
+                    'kernel': 'linear',
+                    'C': 1.0,
+                    'class_weight': 'balanced',
+                    'probability': True,
+                    'random_state': Config.RANDOM_STATE
+                }
+                merged_params = {**defaults, **kwargs}
+                return SVC(**merged_params)
 
             elif 'linearmodel' in model_name_clean or model_name_clean == 'linearmodel':
-                return LogisticRegression(
-                    multi_class='multinomial',
-                    solver='lbfgs',
-                    class_weight='balanced',
-                    max_iter=1000,
-                    random_state=Config.RANDOM_STATE,
-                    n_jobs=Config.N_JOBS,
-                    **kwargs
-                )
+                defaults = {
+                    'multi_class': 'multinomial',
+                    'solver': 'lbfgs',
+                    'class_weight': 'balanced',
+                    'max_iter': 1000,
+                    'random_state': Config.RANDOM_STATE,
+                    'n_jobs': Config.N_JOBS
+                }
+                merged_params = {**defaults, **kwargs}
+                return LogisticRegression(**merged_params)
 
             elif 'adaboost' in model_name_clean or 'ada' in model_name_clean:
                 from sklearn.ensemble import AdaBoostClassifier
-                return AdaBoostClassifier(
-                    n_estimators=100,
-                    learning_rate=0.8,
-                    algorithm='SAMME.R',  # For probability estimates
-                    random_state=Config.RANDOM_STATE,
-                    **kwargs
-                )
+                defaults = {
+                    'n_estimators': 100,
+                    'learning_rate': 0.8,
+                    'algorithm': 'SAMME.R',  # For probability estimates
+                    'random_state': Config.RANDOM_STATE
+                }
+                merged_params = {**defaults, **kwargs}
+                return AdaBoostClassifier(**merged_params)
 
             elif 'gradientboost' in model_name_clean or 'gbm' in model_name_clean:
                 from sklearn.ensemble import GradientBoostingClassifier
-                return GradientBoostingClassifier(
-                    n_estimators=100,
-                    learning_rate=0.1,
-                    max_depth=6,
-                    random_state=Config.RANDOM_STATE,
-                    **kwargs
-                )
+                defaults = {
+                    'n_estimators': 100,
+                    'learning_rate': 0.1,
+                    'max_depth': 6,
+                    'random_state': Config.RANDOM_STATE
+                }
+                merged_params = {**defaults, **kwargs}
+                return GradientBoostingClassifier(**merged_params)
 
             elif 'random_classifier' in model_name_clean or model_name_clean == 'randomclassifier':
                 from sklearn.dummy import DummyClassifier
-                return DummyClassifier(strategy='uniform', random_state=Config.RANDOM_STATE)
+                defaults = {
+                    'strategy': 'uniform',
+                    'random_state': Config.RANDOM_STATE
+                }
+                merged_params = {**defaults, **kwargs}
+                return DummyClassifier(**merged_params)
 
             elif 'majority_classifier' in model_name_clean or model_name_clean == 'majorityclassifier':
                 from sklearn.dummy import DummyClassifier
-                return DummyClassifier(strategy='most_frequent')
+                defaults = {
+                    'strategy': 'most_frequent'
+                }
+                merged_params = {**defaults, **kwargs}
+                return DummyClassifier(**merged_params)
 
             elif 'uniform_classifier' in model_name_clean or model_name_clean == 'uniformclassifier':
                 from sklearn.dummy import DummyClassifier
-                return DummyClassifier(strategy='uniform', random_state=Config.RANDOM_STATE)
-
+                defaults = {
+                    'strategy': 'uniform',
+                    'random_state': Config.RANDOM_STATE
+                }
+                merged_params = {**defaults, **kwargs}
+                return DummyClassifier(**merged_params)
 
             else:
                 # Default to logistic regression for unknown models
                 print(f"Warning: Unknown model '{model_name}', defaulting to LogisticRegression")
-                return LogisticRegression(
-                    multi_class='multinomial',
-                    solver='lbfgs',
-                    class_weight='balanced',
-                    max_iter=1000,
-                    random_state=Config.RANDOM_STATE,
-                    **kwargs
-                )
+                defaults = {
+                    'multi_class': 'multinomial',
+                    'solver': 'lbfgs',
+                    'class_weight': 'balanced',
+                    'max_iter': 1000,
+                    'random_state': Config.RANDOM_STATE
+                }
+                merged_params = {**defaults, **kwargs}
+                return LogisticRegression(**merged_params)
 
         except Exception as e:
             print(f"Error creating model '{model_name}': {str(e)}")
@@ -5218,7 +5268,22 @@ def main():
             return None
       
         # FIXED: Generate updated configurations first
+        # FIXED: Generate updated configurations first
         UPDATED_MODEL_CONFIGS = update_model_configs_systematically()
+
+        # Use the updated configs for analysis
+        print(f"\nPipeline Configuration (from TARGET_MODELS):")
+        tier1_count = len(UPDATED_MODEL_CONFIGS.get('tier1', {}))
+        tier2_count = len(UPDATED_MODEL_CONFIGS.get('tier2', {}))
+        total_models = tier1_count + tier2_count
+        print(f"- Tier 1 Models: {tier1_count}")
+        print(f"- Tier 2 Models: {tier2_count}")
+        print(f"- Total Models: {total_models}")
+
+        # Start analysis with the updated configs
+        print(f"\nStarting analysis pipeline with TARGET_MODELS configurations...")
+        print("="*50)
+
         
         current_configs = UPDATED_MODEL_CONFIGS
         
@@ -5240,8 +5305,9 @@ def main():
         # Start analysis
         print(f"\nStarting analysis pipeline...")
         print("="*50)
-
-        results = pipeline.run_analysis(MODEL_CONFIGS)
+        
+        results = pipeline.run_analysis(UPDATED_MODEL_CONFIGS)
+        # results = pipeline.run_analysis(MODEL_CONFIGS)
         if results is None:
             print("\nERROR: Analysis pipeline returned None!")
             print("Check the logs above for specific errors.")
