@@ -1734,7 +1734,6 @@ class BaseModelFactory:
                 return LogisticRegression(**merged_params)
 
             elif 'adaboost' in model_name_clean or 'ada' in model_name_clean:
-                from sklearn.ensemble import AdaBoostClassifier
                 defaults = {
                     'n_estimators': 100,
                     'learning_rate': 0.8,
@@ -2156,13 +2155,21 @@ class CVEnsemble:
                         'random_state': Config.RANDOM_STATE + fold
                     }
                     # Model-specific depth parameter
-                    if 'catboost' or 'adaboost' in self.base_model_name.lower():
+                    if 'catboost' in self.base_model_name.lower():
                         hp_variation['depth'] = 5 + (fold % 3)
+                    elif 'adaboost' in self.base_model_name.lower():
+                        hp_variation.update({
+                            'n_estimators': 50 + (fold * 25),  # 50, 75, 100
+                            'learning_rate': 0.5 + (fold * 0.3)  # 0.5, 0.8, 1.1
+                        })
                     else:
                         hp_variation['max_depth'] = 5 + (fold % 3)
 
                     if 'randomforest' in self.base_model_name.lower():
-                        continue
+                        hp_variation.update({
+                            'n_estimators': 50 + (fold * 25),  # 50, 75, 100
+                            'max_depth': 5 + (fold * 2)  # 5, 7, 9
+                        })
                     else:
                         hp_variation['learning_rate'] = 0.05 + (fold * 0.02)
 

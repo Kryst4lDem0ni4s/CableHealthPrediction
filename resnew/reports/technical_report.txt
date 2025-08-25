@@ -1,38 +1,38 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-25 14:52:08
+Generated: 2025-08-25 16:23:40
 
 DETAILED MODEL PERFORMANCE:
 ----------------------------------------
 
-CATBOOST_CV:
+ADABOOST_SOLO:
   Train Performance:
-    Accuracy: 0.8415
-    F1-Score: 0.8220
-    Precision: 0.8436
-    Recall: 0.8415
+    Accuracy: 0.8033
+    F1-Score: 0.7689
+    Precision: 0.7982
+    Recall: 0.8033
   Test Performance:
-    Accuracy: 0.8320
-    F1-Score: 0.8094
-    Precision: 0.8283
-    Recall: 0.8320
+    Accuracy: 0.8047
+    F1-Score: 0.7690
+    Precision: 0.8005
+    Recall: 0.8047
   Computational Metrics:
-    Training Time: 18.91s
-    Memory Usage: 0.00%
+    Training Time: 5.65s
+    Memory Usage: 0.50%
 
-CATBOOST_PARAMETRIC:
+RANDOMFOREST_CV:
   Train Performance:
-    Accuracy: 0.8161
-    F1-Score: 0.8252
-    Precision: 0.8454
-    Recall: 0.8161
+    Accuracy: 0.5673
+    F1-Score: 0.5970
+    Precision: 0.7342
+    Recall: 0.5673
   Test Performance:
-    Accuracy: 0.7948
-    F1-Score: 0.8042
-    Precision: 0.8223
-    Recall: 0.7948
+    Accuracy: 0.5648
+    F1-Score: 0.5935
+    Precision: 0.7357
+    Recall: 0.5648
   Computational Metrics:
-    Training Time: 52.63s
+    Training Time: 3.69s
     Memory Usage: 0.00%
 
 RANDOMFOREST_PARAMETRIC:
@@ -47,5 +47,35 @@ RANDOMFOREST_PARAMETRIC:
     Precision: 0.7545
     Recall: 0.6549
   Computational Metrics:
-    Training Time: 9.41s
+    Training Time: 10.69s
+    Memory Usage: 0.00%
+
+ADABOOST_CV:
+  Train Performance:
+    Accuracy: 0.7352
+    F1-Score: 0.6230
+    Precision: 0.5405
+    Recall: 0.7352
+  Test Performance:
+    Accuracy: 0.7351
+    F1-Score: 0.6228
+    Precision: 0.5403
+    Recall: 0.7351
+  Computational Metrics:
+    Training Time: 7.84s
+    Memory Usage: 0.00%
+
+ADABOOST_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.4034
+    F1-Score: 0.4188
+    Precision: 0.7399
+    Recall: 0.4034
+  Test Performance:
+    Accuracy: 0.4240
+    F1-Score: 0.4390
+    Precision: 0.7660
+    Recall: 0.4240
+  Computational Metrics:
+    Training Time: 40.59s
     Memory Usage: 0.00%

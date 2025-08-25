@@ -1,28 +1,40 @@
 EXECUTIVE SUMMARY - ML MODEL COMPARATIVE ANALYSIS
 ============================================================
-Analysis Date: 2025-08-25 14:52:08
-Total Models Evaluated: 4
-Successful Completions: 3
-Failed Models: 1
+Analysis Date: 2025-08-25 16:23:40
+Total Models Evaluated: 5
+Successful Completions: 5
+Failed Models: 0
 Early Stopped (Poor Performance): 0
 
 TOP 5 PERFORMING MODELS (by Weighted F1-Score):
 --------------------------------------------------
 
-1. catboost_cv
-   F1-Score: 0.8094
-   Accuracy: 0.8320
-   ROC-AUC: 0.8782
-   Training Time: 18.91s
+1. adaboost_solo
+   F1-Score: 0.7690
+   Accuracy: 0.8047
+   ROC-AUC: 0.8347
+   Training Time: 5.65s
 
-2. catboost_parametric
-   F1-Score: 0.8042
-   Accuracy: 0.7948
-   ROC-AUC: 0.8773
-   Training Time: 52.63s
-
-3. randomforest_parametric
+2. randomforest_parametric
    F1-Score: 0.6800
    Accuracy: 0.6549
    ROC-AUC: 0.8028
-   Training Time: 9.41s
+   Training Time: 10.69s
+
+3. adaboost_cv
+   F1-Score: 0.6228
+   Accuracy: 0.7351
+   ROC-AUC: 0.7983
+   Training Time: 7.84s
+
+4. randomforest_cv
+   F1-Score: 0.5935
+   Accuracy: 0.5648
+   ROC-AUC: 0.8014
+   Training Time: 3.69s
+
+5. adaboost_parametric
+   F1-Score: 0.4390
+   Accuracy: 0.4240
+   ROC-AUC: 0.8197
+   Training Time: 40.59s
