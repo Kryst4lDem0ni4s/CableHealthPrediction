@@ -31,8 +31,8 @@ warnings.filterwarnings('ignore')
 import lightgbm as lgb
 import xgboost as xgb
 import sys
-sys.path.append('C:/Users/KHWAISH/Documents/GitHub/CableHealthPrediction/DeepGBM')
-sys.path.append('C:/Users/KHWAISH/Documents/GitHub/CableHealthPrediction')
+sys.path.append('C:/Users/Khwaish/.vscode/CableHealthExp/DeepGBM')
+sys.path.append('C:/Users/Khwaish/.vscode/CableHealthExp')
 # Then try to import
 try:
     try:

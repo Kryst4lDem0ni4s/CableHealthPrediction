@@ -1,81 +1,66 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-25 16:23:40
+Generated: 2025-08-26 00:04:48
 
 DETAILED MODEL PERFORMANCE:
 ----------------------------------------
 
-ADABOOST_SOLO:
+GRADIENTBOOST_PARAMETRIC:
   Train Performance:
-    Accuracy: 0.8033
-    F1-Score: 0.7689
-    Precision: 0.7982
-    Recall: 0.8033
+    Accuracy: 0.9059
+    F1-Score: 0.9096
+    Precision: 0.9228
+    Recall: 0.9059
   Test Performance:
-    Accuracy: 0.8047
-    F1-Score: 0.7690
-    Precision: 0.8005
-    Recall: 0.8047
+    Accuracy: 0.8220
+    F1-Score: 0.8275
+    Precision: 0.8363
+    Recall: 0.8220
   Computational Metrics:
-    Training Time: 5.65s
-    Memory Usage: 0.50%
-
-RANDOMFOREST_CV:
-  Train Performance:
-    Accuracy: 0.5673
-    F1-Score: 0.5970
-    Precision: 0.7342
-    Recall: 0.5673
-  Test Performance:
-    Accuracy: 0.5648
-    F1-Score: 0.5935
-    Precision: 0.7357
-    Recall: 0.5648
-  Computational Metrics:
-    Training Time: 3.69s
+    Training Time: 533.50s
     Memory Usage: 0.00%
 
-RANDOMFOREST_PARAMETRIC:
+LOGISTICREGRESSION_CV:
   Train Performance:
-    Accuracy: 0.6567
-    F1-Score: 0.6818
-    Precision: 0.7555
-    Recall: 0.6567
+    Accuracy: 0.6530
+    F1-Score: 0.6780
+    Precision: 0.7764
+    Recall: 0.6530
   Test Performance:
-    Accuracy: 0.6549
-    F1-Score: 0.6800
-    Precision: 0.7545
-    Recall: 0.6549
+    Accuracy: 0.5733
+    F1-Score: 0.6040
+    Precision: 0.6961
+    Recall: 0.5733
   Computational Metrics:
-    Training Time: 10.69s
+    Training Time: 0.71s
     Memory Usage: 0.00%
 
-ADABOOST_CV:
+LOGISTICREGRESSION_PARAMETRIC:
   Train Performance:
-    Accuracy: 0.7352
-    F1-Score: 0.6230
-    Precision: 0.5405
-    Recall: 0.7352
+    Accuracy: 0.5394
+    F1-Score: 0.5608
+    Precision: 0.7734
+    Recall: 0.5394
   Test Performance:
-    Accuracy: 0.7351
-    F1-Score: 0.6228
-    Precision: 0.5403
-    Recall: 0.7351
+    Accuracy: 0.4779
+    F1-Score: 0.5098
+    Precision: 0.6965
+    Recall: 0.4779
   Computational Metrics:
-    Training Time: 7.84s
-    Memory Usage: 0.00%
+    Training Time: 2.51s
+    Memory Usage: 0.90%
 
-ADABOOST_PARAMETRIC:
+RIDGE_CV:
   Train Performance:
-    Accuracy: 0.4034
-    F1-Score: 0.4188
-    Precision: 0.7399
-    Recall: 0.4034
+    Accuracy: 0.6530
+    F1-Score: 0.6780
+    Precision: 0.7764
+    Recall: 0.6530
   Test Performance:
-    Accuracy: 0.4240
-    F1-Score: 0.4390
-    Precision: 0.7660
-    Recall: 0.4240
+    Accuracy: 0.5733
+    F1-Score: 0.6040
+    Precision: 0.6961
+    Recall: 0.5733
   Computational Metrics:
-    Training Time: 40.59s
+    Training Time: 0.57s
     Memory Usage: 0.00%

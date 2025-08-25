@@ -112,9 +112,10 @@
     "randomforest_cv",
     "randomforest_parametric",
     "adaboost_cv",
-    "adaboost_parametric"
+    "adaboost_parametric",
+    "gradientboost_parametric"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-25T16:08:23.000216"
+  "timestamp": "2025-08-26T00:04:41.313741"
 }
