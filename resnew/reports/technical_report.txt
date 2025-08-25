@@ -1,96 +1,51 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-25 00:12:54
+Generated: 2025-08-25 14:52:08
 
 DETAILED MODEL PERFORMANCE:
 ----------------------------------------
 
-RANDOM_BASELINE_SOLO:
+CATBOOST_CV:
   Train Performance:
-    Accuracy: 0.1613
-    F1-Score: 0.0448
-    Precision: 0.0260
-    Recall: 0.1613
+    Accuracy: 0.8415
+    F1-Score: 0.8220
+    Precision: 0.8436
+    Recall: 0.8415
   Test Performance:
-    Accuracy: 0.1613
-    F1-Score: 0.0448
-    Precision: 0.0260
-    Recall: 0.1613
+    Accuracy: 0.8320
+    F1-Score: 0.8094
+    Precision: 0.8283
+    Recall: 0.8320
   Computational Metrics:
-    Training Time: 0.00s
-    Memory Usage: 0.00%
-
-UNIFORM_BASELINE_SOLO:
-  Train Performance:
-    Accuracy: 0.1613
-    F1-Score: 0.0448
-    Precision: 0.0260
-    Recall: 0.1613
-  Test Performance:
-    Accuracy: 0.1613
-    F1-Score: 0.0448
-    Precision: 0.0260
-    Recall: 0.1613
-  Computational Metrics:
-    Training Time: 0.00s
-    Memory Usage: 0.00%
-
-RANDOM_BASELINE:
-  Train Performance:
-    Accuracy: 0.1613
-    F1-Score: 0.0448
-    Precision: 0.0260
-    Recall: 0.1613
-  Test Performance:
-    Accuracy: 0.1613
-    F1-Score: 0.0448
-    Precision: 0.0260
-    Recall: 0.1613
-  Computational Metrics:
-    Training Time: 0.00s
-    Memory Usage: 0.00%
-
-XGBOOST_CV:
-  Train Performance:
-    Accuracy: 0.9241
-    F1-Score: 0.9201
-    Precision: 0.9270
-    Recall: 0.9241
-  Test Performance:
-    Accuracy: 0.8454
-    F1-Score: 0.8266
-    Precision: 0.8420
-    Recall: 0.8454
-  Computational Metrics:
-    Training Time: 31.40s
-    Memory Usage: 0.10%
-
-XGBOOST_PARAMETRIC:
-  Train Performance:
-    Accuracy: 0.9620
-    F1-Score: 0.9628
-    Precision: 0.9668
-    Recall: 0.9620
-  Test Performance:
-    Accuracy: 0.8345
-    F1-Score: 0.8363
-    Precision: 0.8390
-    Recall: 0.8345
-  Computational Metrics:
-    Training Time: 82.34s
+    Training Time: 18.91s
     Memory Usage: 0.00%
 
 CATBOOST_PARAMETRIC:
   Train Performance:
-    Accuracy: 0.8163
+    Accuracy: 0.8161
     F1-Score: 0.8252
-    Precision: 0.8447
-    Recall: 0.8163
+    Precision: 0.8454
+    Recall: 0.8161
   Test Performance:
-    Accuracy: 0.7953
-    F1-Score: 0.8050
-    Precision: 0.8245
-    Recall: 0.7953
+    Accuracy: 0.7948
+    F1-Score: 0.8042
+    Precision: 0.8223
+    Recall: 0.7948
   Computational Metrics:
-    Training Time: 55.14s
-    Memory Usage: 0.40%
+    Training Time: 52.63s
+    Memory Usage: 0.00%
+
+RANDOMFOREST_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.6567
+    F1-Score: 0.6818
+    Precision: 0.7555
+    Recall: 0.6567
+  Test Performance:
+    Accuracy: 0.6549
+    F1-Score: 0.6800
+    Precision: 0.7545
+    Recall: 0.6549
+  Computational Metrics:
+    Training Time: 9.41s
+    Memory Usage: 0.00%

@@ -1,4 +1,6 @@
 /.venv
+/venv
 /cable_health_sample_ordinal_encoded_20000.csv
 /DeepGBM
 /ticl
+venv/Lib/site-packages/_kernel_lib.cp311-win_amd64.pyd

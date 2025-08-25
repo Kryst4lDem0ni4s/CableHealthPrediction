@@ -31,8 +31,8 @@ warnings.filterwarnings('ignore')
 import lightgbm as lgb
 import xgboost as xgb
 import sys
-sys.path.append(r'C:\Users\Khwaish\.vscode\CableHealthExp\DeepGBM')
-sys.path.append(r'C:\Users\Khwaish\.vscode\CableHealthExp')
+sys.path.append('C:/Users/KHWAISH/Documents/GitHub/CableHealthPrediction/DeepGBM')
+sys.path.append('C:/Users/KHWAISH/Documents/GitHub/CableHealthPrediction')
 # Then try to import
 try:
     try:
@@ -1443,7 +1443,7 @@ class BaseModelFactory:
                     'learning_rate': 0.1,
                     'depth': 6,
                     'verbose': False,
-                    'random_seed': Config.RANDOM_STATE
+                    # 'random_seed': Config.RANDOM_STATE
                 }
                 merged_params = {**defaults, **kwargs}
                 return cb.CatBoostClassifier(**merged_params)
@@ -1738,7 +1738,6 @@ class BaseModelFactory:
                 defaults = {
                     'n_estimators': 100,
                     'learning_rate': 0.8,
-                    'algorithm': 'SAMME.R',  # For probability estimates
                     'random_state': Config.RANDOM_STATE
                 }
                 merged_params = {**defaults, **kwargs}
@@ -2150,14 +2149,25 @@ class CVEnsemble:
             y_array = np.array(y) if not isinstance(y, np.ndarray) else y
 
             for fold, (train_idx, _) in enumerate(skf.split(X_model_format, y_array)):
+                
                 try:
                     hp_variation = {
-                        'learning_rate': 0.05 + (fold * 0.02),
-                        'max_depth': 5 + (fold % 3),
+                        # 'learning_rate': 0.05 + (fold * 0.02),
                         'random_state': Config.RANDOM_STATE + fold
                     }
+                    # Model-specific depth parameter
+                    if 'catboost' or 'adaboost' in self.base_model_name.lower():
+                        hp_variation['depth'] = 5 + (fold % 3)
+                    else:
+                        hp_variation['max_depth'] = 5 + (fold % 3)
+
+                    if 'randomforest' in self.base_model_name.lower():
+                        continue
+                    else:
+                        hp_variation['learning_rate'] = 0.05 + (fold * 0.02)
 
                     model = BaseModelFactory.create_model(self.base_model_name, self.n_classes, **hp_variation)
+
                     X_train_fold = safe_array_indexing(X_model_format, train_idx)
                     y_train_fold = y_array[train_idx]
 
@@ -2263,7 +2273,7 @@ class ParametricEnsemble:
         # CatBoost parameter variations
         elif 'catboost' in model_name_clean:
             variations = [
-                {'learning_rate': 0.05, 'depth': 4, 'iterations': 150},
+                {'learning_rate': 0.05, 'depth': 4, 'iterations': 150},  # Use 'depth' here
                 {'learning_rate': 0.1, 'depth': 6, 'iterations': 200},
                 {'learning_rate': 0.15, 'depth': 8, 'iterations': 250}
             ]
@@ -2291,9 +2301,9 @@ class ParametricEnsemble:
         else:
             # Default variations for other models
             variations = [
-                {'random_state': Config.RANDOM_STATE + version},
-                {'random_state': Config.RANDOM_STATE + version + 100},
-                {'random_state': Config.RANDOM_STATE + version + 200}
+                {'learning_rate': 0.05},
+                {'learning_rate': 0.1},
+                {'learning_rate': 0.15}
             ]
 
         return variations[version % len(variations)]

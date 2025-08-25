@@ -105,12 +105,15 @@
     "random_baseline",
     "xgboost_cv",
     "xgboost_parametric",
-    "catboost_parametric"
+    "adaboost_solo",
+    "catboost_cv",
+    "catboost_parametric",
+    "randomforest_parametric",
+    "adaboost_cv"
   ],
   "failed_models": [
-    "adaboost_solo",
-    "catboost_cv"
+    "randomforest_cv"
   ],
   "early_stopped_models": [],
-  "timestamp": "2025-08-25T00:09:20.152737"
+  "timestamp": "2025-08-25T14:53:47.763107"
 }
