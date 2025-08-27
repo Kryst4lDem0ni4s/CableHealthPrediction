@@ -2162,15 +2162,15 @@ class CVEnsemble:
                             'n_estimators': 50 + (fold * 25),  # 50, 75, 100
                             'learning_rate': 0.5 + (fold * 0.3)  # 0.5, 0.8, 1.1
                         })
-                    else:
-                        hp_variation['max_depth'] = 5 + (fold % 3)
-
-                    if 'randomforest' in self.base_model_name.lower():
+                    elif 'randomforest' in self.base_model_name.lower():
                         hp_variation.update({
                             'n_estimators': 50 + (fold * 25),  # 50, 75, 100
                             'max_depth': 5 + (fold * 2)  # 5, 7, 9
                         })
+                    elif 'logisticregression' or 'ridge' in self.base_model_name.lower():
+                        print('no specific configs for logisticregression CV models')
                     else:
+                        hp_variation['max_depth'] = 5 + (fold % 3)
                         hp_variation['learning_rate'] = 0.05 + (fold * 0.02)
 
                     model = BaseModelFactory.create_model(self.base_model_name, self.n_classes, **hp_variation)
@@ -2304,6 +2304,12 @@ class ParametricEnsemble:
                 {'C': 0.1, 'gamma': 'scale'},
                 {'C': 1.0, 'gamma': 'scale'},
                 {'C': 10.0, 'gamma': 'auto'}
+            ]
+        elif 'logisticregression' or 'ridge' in model_name_clean:
+            variations = [
+                {'random_state': 27},
+                {'random_state': Config.RANDOM_STATE},
+                {'random_state': 78}
             ]
         else:
             # Default variations for other models

@@ -1,34 +1,28 @@
 EXECUTIVE SUMMARY - ML MODEL COMPARATIVE ANALYSIS
 ============================================================
-Analysis Date: 2025-08-26 00:04:48
-Total Models Evaluated: 4
-Successful Completions: 4
+Analysis Date: 2025-08-26 23:38:37
+Total Models Evaluated: 3
+Successful Completions: 3
 Failed Models: 0
 Early Stopped (Poor Performance): 0
 
 TOP 5 PERFORMING MODELS (by Weighted F1-Score):
 --------------------------------------------------
 
-1. gradientboost_parametric
-   F1-Score: 0.8275
-   Accuracy: 0.8220
-   ROC-AUC: 0.8886
-   Training Time: 533.50s
-
-2. logisticregression_cv
+1. logisticregression_cv
    F1-Score: 0.6040
    Accuracy: 0.5733
    ROC-AUC: 0.6991
-   Training Time: 0.71s
+   Training Time: 0.56s
 
-3. ridge_cv
+2. ridge_cv
    F1-Score: 0.6040
    Accuracy: 0.5733
    ROC-AUC: 0.6991
-   Training Time: 0.57s
+   Training Time: 0.54s
 
-4. logisticregression_parametric
+3. logisticregression_parametric
    F1-Score: 0.5098
    Accuracy: 0.4779
    ROC-AUC: 0.6951
-   Training Time: 2.51s
+   Training Time: 2.40s

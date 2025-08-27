@@ -113,9 +113,19 @@
     "randomforest_parametric",
     "adaboost_cv",
     "adaboost_parametric",
-    "gradientboost_parametric"
+    "gradientboost_parametric",
+    "logisticregression_cv",
+    "logisticregression_parametric",
+    "ridge_cv",
+    "ridge_parametric",
+    "sgd_cv",
+    "sgd_parametric",
+    "linearsvm_cv",
+    "linearsvm_parametric",
+    "linearmodel_cv",
+    "linearmodel_parametric"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-26T00:04:41.313741"
+  "timestamp": "2025-08-27T08:30:11.904588"
 }
