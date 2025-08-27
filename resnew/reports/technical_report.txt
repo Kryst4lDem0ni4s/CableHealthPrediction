@@ -1,36 +1,21 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-27 20:34:15
+Generated: 2025-08-27 20:59:38
 
 DETAILED MODEL PERFORMANCE:
 ----------------------------------------
 
-KNN_CV:
+DEEPGBM_CV:
   Train Performance:
-    Accuracy: 0.7896
-    F1-Score: 0.7472
-    Precision: 0.7898
-    Recall: 0.7896
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
   Test Performance:
-    Accuracy: 0.7413
-    F1-Score: 0.6860
-    Precision: 0.6968
-    Recall: 0.7413
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
   Computational Metrics:
-    Training Time: 0.01s
-    Memory Usage: 0.00%
-
-KNN_PARAMETRIC:
-  Train Performance:
-    Accuracy: 0.5243
-    F1-Score: 0.5354
-    Precision: 0.8258
-    Recall: 0.5243
-  Test Performance:
-    Accuracy: 0.4005
-    F1-Score: 0.4221
-    Precision: 0.6737
-    Recall: 0.4005
-  Computational Metrics:
-    Training Time: 38.64s
-    Memory Usage: 2.20%
+    Training Time: 0.16s
+    Memory Usage: 1.50%

@@ -1417,7 +1417,19 @@ class BaseModelFactory:
                     'n_jobs': Config.N_JOBS,
                     'verbosity': -1
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['objective',
+                    'num_class',
+                    'n_estimators',  # Further reduced for faster training
+                    'learning_rate',
+                    'max_depth',
+                    'num_leaves',
+                    'subsample',
+                    'colsample_bytree',
+                    'class_weight',
+                    'random_state',
+                    'n_jobs',
+                    'verbosity']}
+                merged_params = {**defaults, **supported_kwargs}
                 return lgb.LGBMClassifier(**merged_params)
 
             elif 'xgboost' in model_name_clean or model_name_clean == 'xgb':
@@ -1433,7 +1445,17 @@ class BaseModelFactory:
                     'random_state': Config.RANDOM_STATE,
                     'n_jobs': Config.N_JOBS
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['objective',
+                    'n_estimators',  # Further reduced for faster training
+                    'learning_rate',
+                    'max_depth',
+                    'subsample',
+                    'colsample_bytree',
+                    'use_label_encoder',
+                    'eval_metric',
+                    'random_state',
+                    'n_jobs']}
+                merged_params = {**defaults, **supported_kwargs}
                 return xgb.XGBClassifier(**merged_params)
 
             elif 'catboost' in model_name_clean or model_name_clean == 'cb':
@@ -1442,10 +1464,15 @@ class BaseModelFactory:
                     'iterations': 200,  # Further reduced for faster training
                     'learning_rate': 0.1,
                     'depth': 6,
-                    'verbose': False,
+                    'verbose': False
                     # 'random_seed': Config.RANDOM_STATE
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['loss_function',
+                    'iterations',  # Further reduced for faster training
+                    'learning_rate',
+                    'depth',
+                    'verbose']}
+                merged_params = {**defaults, **supported_kwargs}
                 return cb.CatBoostClassifier(**merged_params)
 
             elif 'randomforest' in model_name_clean or 'rf' == model_name_clean:
@@ -1456,7 +1483,12 @@ class BaseModelFactory:
                     'random_state': Config.RANDOM_STATE,
                     'n_jobs': Config.N_JOBS
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['n_estimators',
+                    'max_depth',
+                    'class_weight',
+                    'random_state',
+                    'n_jobs']}
+                merged_params = {**defaults, **supported_kwargs}
                 return RandomForestClassifier(**merged_params)
 
             # SVM models
@@ -1469,7 +1501,13 @@ class BaseModelFactory:
                     'probability': False,
                     'random_state': Config.RANDOM_STATE
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['kernel',
+                    'C',
+                    'gamma',
+                    'class_weight',
+                    'probability',
+                    'random_state']}
+                merged_params = {**defaults, **supported_kwargs}
                 base_svm = SVC(**merged_params)
                 return CalibratedClassifierCV(base_svm, method='sigmoid', cv=3)
 
@@ -1483,7 +1521,14 @@ class BaseModelFactory:
                     'random_state': Config.RANDOM_STATE,
                     'n_jobs': Config.N_JOBS
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['loss',
+                    'learning_rate',
+                    'eta0',
+                    'max_iter',
+                    'class_weight',
+                    'random_state',
+                    'n_jobs']}
+                merged_params = {**defaults, **supported_kwargs}
                 return SGDClassifier(**merged_params)
 
             # Probabilistic models
@@ -1517,7 +1562,13 @@ class BaseModelFactory:
                     'random_state': Config.RANDOM_STATE,
                     'n_jobs': Config.N_JOBS
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['multi_class',
+                    'solver',
+                    'class_weight',
+                    'max_iter',
+                    'random_state',
+                    'n_jobs']}
+                merged_params = {**defaults, **supported_kwargs}
                 return LogisticRegression(**merged_params)
 
             elif 'knn' in model_name_clean:
@@ -1538,7 +1589,13 @@ class BaseModelFactory:
                     'max_iter': 1000,
                     'random_state': Config.RANDOM_STATE
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['penalty',
+                    'solver',
+                    'multi_class',
+                    'class_weight',
+                    'max_iter',
+                    'random_state']}
+                merged_params = {**defaults, **supported_kwargs}
                 return LogisticRegression(**merged_params)
 
             # Advanced models
@@ -1550,7 +1607,12 @@ class BaseModelFactory:
                     'verbose': False,
                     'random_state': Config.RANDOM_STATE
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['Dist',
+                    'n_estimators',  # Reduced for faster training
+                    'learning_rate',
+                    'verbose',
+                    'random_state']}
+                merged_params = {**defaults, **supported_kwargs}
                 return ngb.NGBClassifier(**merged_params)
 
             # Add these to BaseModelFactory.create_model method after the NGBoost block:
@@ -1573,7 +1635,21 @@ class BaseModelFactory:
                         'device': 'cuda' if torch.cuda.is_available() else 'cpu',
                         'verbose': True
                     }
-                    merged_params = {**defaults, **kwargs}
+                    supported_kwargs = {k: v for k, v in kwargs.items() if k in ['embedding_size',
+                        'h_depth',
+                        'deep_layers',
+                        'task',
+                        'epochs',
+                        'batch_size',
+                        'learning_rate',
+                        'num_trees',
+                        'tree_max_depth',
+                        'tree_layers',
+                        'random_state',
+                        'use_real_deepgbm',
+                        'device',
+                        'verbose']}
+                    merged_params = {**defaults, **supported_kwargs}
                     deepgbm_instance = DeepGBMWrapper(**merged_params)
                     if hasattr(Config, 'GLOBAL_PREPROCESSOR') and Config.GLOBAL_PREPROCESSOR is not None:
                         deepgbm_instance.build_feature_metadata_from_transformer(Config.GLOBAL_PREPROCESSOR)
@@ -1599,7 +1675,16 @@ class BaseModelFactory:
                         'batch_size': 256,
                         'random_state': Config.RANDOM_STATE
                     }
-                    merged_params = {**defaults, **kwargs}
+                    supported_kwargs = {k: v for k, v in kwargs.items() if k in ['emsize',
+                        'nhead'
+                        'nhid_factor',
+                        'nlayers',
+                        'dropout',
+                        'learning_rate',
+                        'epochs',  # Reduced for faster training
+                        'batch_size',
+                        'random_state']}
+                    merged_params = {**defaults, **supported_kwargs}
                     # Use the TabFlexClassifier wrapper
                     return TabFlexClassifier(**merged_params)
                 except ImportError as e:
@@ -1615,7 +1700,13 @@ class BaseModelFactory:
                             'seed': Config.RANDOM_STATE,
                             'verbose': 0
                         }
-                        merged_params = {**defaults, **kwargs}
+                        supported_kwargs = {k: v for k, v in kwargs.items() if k in ['n_d',
+                            'n_a',
+                            'n_steps',
+                            'gamma',
+                            'seed',
+                            'verbose']}
+                        merged_params = {**defaults, **supported_kwargs}
                         return TabNetClassifier(**merged_params)
                     except ImportError:
                         print("TabNet also not available. Using MLP fallback.")  # Fixed: removed self.logger
@@ -1624,6 +1715,8 @@ class BaseModelFactory:
                             'max_iter': 500,
                             'random_state': Config.RANDOM_STATE
                         }
+                        supported_kwargs = {k: v for k, v in kwargs.items() if k in []}
+                        merged_params = {**defaults, **supported_kwargs}
                         merged_params = {**defaults, **kwargs}
                         return MLPClassifier(**merged_params)
 
@@ -1696,7 +1789,9 @@ class BaseModelFactory:
                         'n_experts': 3,
                         'random_state': Config.RANDOM_STATE
                     }
-                    merged_params = {**defaults, **kwargs}
+                    supported_kwargs = {k: v for k, v in kwargs.items() if k in ['n_experts',
+                        'random_state']}
+                    merged_params = {**defaults, **supported_kwargs}
                     return MixtureOfExpertsClassifier(**merged_params)
 
                 except Exception as e:
@@ -1709,7 +1804,13 @@ class BaseModelFactory:
                         'alpha': 0.01,
                         'random_state': Config.RANDOM_STATE
                     }
-                    merged_params = {**defaults, **kwargs}
+                    supported_kwargs = {k: v for k, v in kwargs.items() if k in ['hidden_layer_sizes',
+                        'max_iter',
+                        'early_stopping',
+                        'validation_fraction',
+                        'alpha',
+                        'random_state']}
+                    merged_params = {**defaults, **supported_kwargs}
                     return MLPClassifier(**merged_params)
 
             # Also add support for svm_linear and linear_model that were in MODEL_COMPLEXITY but missing from factory:
@@ -1721,7 +1822,12 @@ class BaseModelFactory:
                     'probability': True,
                     'random_state': Config.RANDOM_STATE
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in [ 'kernel',
+                    'C',
+                    'class_weight',
+                    'probability',
+                    'random_state']}
+                merged_params = {**defaults, **supported_kwargs}
                 return SVC(**merged_params)
 
             elif 'linearmodel' in model_name_clean or model_name_clean == 'linearmodel':
@@ -1733,7 +1839,13 @@ class BaseModelFactory:
                     'random_state': Config.RANDOM_STATE,
                     'n_jobs': Config.N_JOBS
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['multi_class',
+                    'solver',
+                    'class_weight',
+                    'max_iter',
+                    'random_state',
+                    'n_jobs']}
+                merged_params = {**defaults, **supported_kwargs}
                 return LogisticRegression(**merged_params)
 
             elif 'adaboost' in model_name_clean or 'ada' in model_name_clean:
@@ -1742,6 +1854,10 @@ class BaseModelFactory:
                     'learning_rate': 0.8,
                     'random_state': Config.RANDOM_STATE
                 }
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['n_estimators',
+                    'learning_rate',
+                    'random_state']}
+                merged_params = {**defaults, **supported_kwargs}
                 merged_params = {**defaults, **kwargs}
                 return AdaBoostClassifier(**merged_params)
 
@@ -1753,7 +1869,11 @@ class BaseModelFactory:
                     'max_depth': 6,
                     'random_state': Config.RANDOM_STATE
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['n_estimators',
+                    'learning_rate',
+                    'max_depth',
+                    'random_state']}
+                merged_params = {**defaults, **supported_kwargs}
                 return GradientBoostingClassifier(**merged_params)
 
             elif 'random_classifier' in model_name_clean or model_name_clean == 'randomclassifier':
@@ -1762,7 +1882,9 @@ class BaseModelFactory:
                     'strategy': 'uniform',
                     'random_state': Config.RANDOM_STATE
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['strategy',
+                    'random_state']}
+                merged_params = {**defaults, **supported_kwargs}
                 return DummyClassifier(**merged_params)
 
             elif 'majority_classifier' in model_name_clean or model_name_clean == 'majorityclassifier':
@@ -1770,7 +1892,8 @@ class BaseModelFactory:
                 defaults = {
                     'strategy': 'most_frequent'
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['strategy']}
+                merged_params = {**defaults, **supported_kwargs}
                 return DummyClassifier(**merged_params)
 
             elif 'uniform_classifier' in model_name_clean or model_name_clean == 'uniformclassifier':
@@ -1779,7 +1902,9 @@ class BaseModelFactory:
                     'strategy': 'uniform',
                     'random_state': Config.RANDOM_STATE
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['strategy',
+                    'random_state']}
+                merged_params = {**defaults, **supported_kwargs}
                 return DummyClassifier(**merged_params)
 
             else:
@@ -1792,7 +1917,12 @@ class BaseModelFactory:
                     'max_iter': 1000,
                     'random_state': Config.RANDOM_STATE
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['multi_class',
+                    'solver',
+                    'class_weight',
+                    'max_iter',
+                    'random_state']}
+                merged_params = {**defaults, **supported_kwargs}
                 return LogisticRegression(**merged_params)
 
         except Exception as e:
@@ -2181,9 +2311,16 @@ class CVEnsemble:
                         })
                     elif 'logisticregression' or 'ridge' or 'naivebayes' in self.base_model_name.lower():
                         print('no specific configs for logisticregression, ridge and naivebayes CV models')
+                    elif 'deepgbm' in self.base_model_name.lower():
+                        hp_variation.update({
+                            'learning_rate': 0.001 + (fold * 0.001),  # 0.001, 0.002, 0.003
+                            'epochs': 30 + (fold * 10),  # 30, 40, 50
+                            'batch_size': 128 * (fold + 1)  # 128, 256, 384
+                        })
                     else:
                         hp_variation['max_depth'] = 5 + (fold % 3)
                         hp_variation['learning_rate'] = 0.05 + (fold * 0.02)
+                        
                         
 
                     model = BaseModelFactory.create_model(self.base_model_name, self.n_classes, **hp_variation)
@@ -2329,6 +2466,12 @@ class ParametricEnsemble:
                 {'var_smoothing': 1e-9 + (4 * 1e-10)},
                 {'var_smoothing': 1e-9 + (6 * 1e-10)},
                 {'var_smoothing': 1e-9 + (8 * 1e-10)}
+            ]
+        elif 'deepgbm' in model_name_clean:
+            variations = [
+                {'learning_rate': 0.001, 'epochs': 30, 'batch_size': 128},
+                {'learning_rate': 0.01, 'epochs': 50, 'batch_size': 256},
+                {'learning_rate': 0.005, 'epochs': 40, 'batch_size': 192}
             ]
         else:
             # Default variations for other models

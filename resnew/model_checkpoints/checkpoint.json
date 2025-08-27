@@ -130,9 +130,9 @@
     "naivebayes_parametric",
     "knn_cv",
     "knn_parametric",
-    "neuralnetwork_cv"
-  ],
+    "neuralnetwork_cv",
+    "neuralnetwork_parametric"  ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-27T20:43:13.966092"
+  "timestamp": "2025-08-27T20:59:20.041319"
 }

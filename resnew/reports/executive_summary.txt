@@ -1,22 +1,16 @@
 EXECUTIVE SUMMARY - ML MODEL COMPARATIVE ANALYSIS
 ============================================================
-Analysis Date: 2025-08-27 20:34:15
-Total Models Evaluated: 2
-Successful Completions: 2
+Analysis Date: 2025-08-27 20:59:38
+Total Models Evaluated: 1
+Successful Completions: 1
 Failed Models: 0
 Early Stopped (Poor Performance): 0
 
 TOP 5 PERFORMING MODELS (by Weighted F1-Score):
 --------------------------------------------------
 
-1. knn_cv
-   F1-Score: 0.6860
-   Accuracy: 0.7413
-   ROC-AUC: 0.6715
-   Training Time: 0.01s
-
-2. knn_parametric
-   F1-Score: 0.4221
-   Accuracy: 0.4005
-   ROC-AUC: 0.6521
-   Training Time: 38.64s
+1. deepgbm_cv
+   F1-Score: 0.0448
+   Accuracy: 0.1613
+   ROC-AUC: 0.5000
+   Training Time: 0.16s
