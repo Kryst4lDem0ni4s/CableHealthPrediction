@@ -123,9 +123,16 @@
     "linearsvm_cv",
     "linearsvm_parametric",
     "linearmodel_cv",
-    "linearmodel_parametric"
+    "linearmodel_parametric",
+    "advancedsvm_cv",
+    "advancedsvm_parametric",
+    "naivebayes_cv",
+    "naivebayes_parametric",
+    "knn_cv",
+    "knn_parametric",
+    "neuralnetwork_cv"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-27T08:30:11.904588"
+  "timestamp": "2025-08-27T20:43:13.966092"
 }

@@ -1489,7 +1489,8 @@ class BaseModelFactory:
             # Probabilistic models
             elif 'naivebayes' in model_name_clean or 'nb' == model_name_clean or 'gaussiannb' in model_name_clean:
                 defaults = {}  # No defaults; pass kwargs directly
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['priors', 'var_smoothing']}
+                merged_params = {**defaults, **supported_kwargs}
                 return GaussianNB(**merged_params)
 
             # Neural network
@@ -1502,7 +1503,8 @@ class BaseModelFactory:
                     'alpha': 0.01,
                     'random_state': Config.RANDOM_STATE
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['hidden_layer_sizes', 'max_iter', 'early_stopping', 'validation_fraction', 'alpha', 'random_state']}
+                merged_params = {**defaults, **supported_kwargs}
                 return MLPClassifier(**merged_params)
 
             # Linear models
@@ -1523,7 +1525,8 @@ class BaseModelFactory:
                     'n_neighbors': 5,
                     'n_jobs': Config.N_JOBS
                 }
-                merged_params = {**defaults, **kwargs}
+                supported_kwargs = {k: v for k, v in kwargs.items() if k in ['n_neighbors', 'n_jobs']}
+                merged_params = {**defaults, **supported_kwargs}
                 return KNeighborsClassifier(**merged_params)
 
             elif 'ridge' in model_name_clean:
@@ -2148,12 +2151,21 @@ class CVEnsemble:
             y_array = np.array(y) if not isinstance(y, np.ndarray) else y
 
             for fold, (train_idx, _) in enumerate(skf.split(X_model_format, y_array)):
-                
+                hp_variation = {} 
                 try:
-                    hp_variation = {
-                        # 'learning_rate': 0.05 + (fold * 0.02),
-                        'random_state': Config.RANDOM_STATE + fold
-                    }
+                    if 'naivebayes' or 'naive' or 'nb' in self.base_model_name.lower():
+                        hp_variation['var_smoothing'] = 1e-9 + (fold * 1e-10)
+                    elif 'knn' in self.base_model_name.lower():
+                        hp_variation = {
+                        'n_neighbors': fold + 1,
+                        'n_jobs': Config.N_JOBS 
+                        }
+                    else:
+                        hp_variation = {
+                            # 'learning_rate': 0.05 + (fold * 0.02),
+                            'random_state': Config.RANDOM_STATE + fold
+                        }
+                        
                     # Model-specific depth parameter
                     if 'catboost' in self.base_model_name.lower():
                         hp_variation['depth'] = 5 + (fold % 3)
@@ -2167,11 +2179,12 @@ class CVEnsemble:
                             'n_estimators': 50 + (fold * 25),  # 50, 75, 100
                             'max_depth': 5 + (fold * 2)  # 5, 7, 9
                         })
-                    elif 'logisticregression' or 'ridge' in self.base_model_name.lower():
-                        print('no specific configs for logisticregression CV models')
+                    elif 'logisticregression' or 'ridge' or 'naivebayes' in self.base_model_name.lower():
+                        print('no specific configs for logisticregression, ridge and naivebayes CV models')
                     else:
                         hp_variation['max_depth'] = 5 + (fold % 3)
                         hp_variation['learning_rate'] = 0.05 + (fold * 0.02)
+                        
 
                     model = BaseModelFactory.create_model(self.base_model_name, self.n_classes, **hp_variation)
 
@@ -2310,6 +2323,12 @@ class ParametricEnsemble:
                 {'random_state': 27},
                 {'random_state': Config.RANDOM_STATE},
                 {'random_state': 78}
+            ]
+        elif 'naivebayes' in model_name_clean:
+            variations = [
+                {'var_smoothing': 1e-9 + (4 * 1e-10)},
+                {'var_smoothing': 1e-9 + (6 * 1e-10)},
+                {'var_smoothing': 1e-9 + (8 * 1e-10)}
             ]
         else:
             # Default variations for other models

@@ -1,51 +1,36 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-26 23:38:37
+Generated: 2025-08-27 20:34:15
 
 DETAILED MODEL PERFORMANCE:
 ----------------------------------------
 
-LOGISTICREGRESSION_CV:
+KNN_CV:
   Train Performance:
-    Accuracy: 0.6530
-    F1-Score: 0.6780
-    Precision: 0.7764
-    Recall: 0.6530
+    Accuracy: 0.7896
+    F1-Score: 0.7472
+    Precision: 0.7898
+    Recall: 0.7896
   Test Performance:
-    Accuracy: 0.5733
-    F1-Score: 0.6040
-    Precision: 0.6961
-    Recall: 0.5733
+    Accuracy: 0.7413
+    F1-Score: 0.6860
+    Precision: 0.6968
+    Recall: 0.7413
   Computational Metrics:
-    Training Time: 0.56s
+    Training Time: 0.01s
     Memory Usage: 0.00%
 
-LOGISTICREGRESSION_PARAMETRIC:
+KNN_PARAMETRIC:
   Train Performance:
-    Accuracy: 0.5394
-    F1-Score: 0.5608
-    Precision: 0.7734
-    Recall: 0.5394
+    Accuracy: 0.5243
+    F1-Score: 0.5354
+    Precision: 0.8258
+    Recall: 0.5243
   Test Performance:
-    Accuracy: 0.4779
-    F1-Score: 0.5098
-    Precision: 0.6965
-    Recall: 0.4779
+    Accuracy: 0.4005
+    F1-Score: 0.4221
+    Precision: 0.6737
+    Recall: 0.4005
   Computational Metrics:
-    Training Time: 2.40s
-    Memory Usage: 0.00%
-
-RIDGE_CV:
-  Train Performance:
-    Accuracy: 0.6530
-    F1-Score: 0.6780
-    Precision: 0.7764
-    Recall: 0.6530
-  Test Performance:
-    Accuracy: 0.5733
-    F1-Score: 0.6040
-    Precision: 0.6961
-    Recall: 0.5733
-  Computational Metrics:
-    Training Time: 0.54s
-    Memory Usage: 0.00%
+    Training Time: 38.64s
+    Memory Usage: 2.20%

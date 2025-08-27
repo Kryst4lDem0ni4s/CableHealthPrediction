@@ -1,28 +1,22 @@
 EXECUTIVE SUMMARY - ML MODEL COMPARATIVE ANALYSIS
 ============================================================
-Analysis Date: 2025-08-26 23:38:37
-Total Models Evaluated: 3
-Successful Completions: 3
+Analysis Date: 2025-08-27 20:34:15
+Total Models Evaluated: 2
+Successful Completions: 2
 Failed Models: 0
 Early Stopped (Poor Performance): 0
 
 TOP 5 PERFORMING MODELS (by Weighted F1-Score):
 --------------------------------------------------
 
-1. logisticregression_cv
-   F1-Score: 0.6040
-   Accuracy: 0.5733
-   ROC-AUC: 0.6991
-   Training Time: 0.56s
+1. knn_cv
+   F1-Score: 0.6860
+   Accuracy: 0.7413
+   ROC-AUC: 0.6715
+   Training Time: 0.01s
 
-2. ridge_cv
-   F1-Score: 0.6040
-   Accuracy: 0.5733
-   ROC-AUC: 0.6991
-   Training Time: 0.54s
-
-3. logisticregression_parametric
-   F1-Score: 0.5098
-   Accuracy: 0.4779
-   ROC-AUC: 0.6951
-   Training Time: 2.40s
+2. knn_parametric
+   F1-Score: 0.4221
+   Accuracy: 0.4005
+   ROC-AUC: 0.6521
+   Training Time: 38.64s
