@@ -131,8 +131,15 @@
     "knn_cv",
     "knn_parametric",
     "neuralnetwork_cv",
-    "neuralnetwork_parametric"  ],
+    "neuralnetwork_parametric",
+    "deepgbm_cv",
+    "deepgbm_parametric",
+    "ngboost_cv",
+    "ngboost_parametric",
+    "tabflex_cv",
+    "tabflex_parametric"
+  ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-27T20:59:20.041319"
+  "timestamp": "2025-08-28T15:48:13.580205"
 }
