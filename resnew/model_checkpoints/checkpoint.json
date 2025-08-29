@@ -218,9 +218,25 @@
     "lightgbm_randomforest_stacking",
     "lightgbm_randomforest_parametric",
     "xgboost_randomforest_stacking",
-    "xgboost_randomforest_parametric"
+    "xgboost_randomforest_parametric",
+    "lightgbm_advancedsvm_voting",
+    "lightgbm_advancedsvm_weighted",
+    "lightgbm_advancedsvm_stacking",
+    "lightgbm_advancedsvm_parametric",
+    "lightgbm_advancedsvm_randomforest_voting",
+    "lightgbm_advancedsvm_randomforest_weighted",
+    "lightgbm_advancedsvm_randomforest_stacking_ridge",
+    "xgboost_advancedsvm_randomforest_voting",
+    "xgboost_advancedsvm_randomforest_weighted",
+    "xgboost_advancedsvm_randomforest_stacking_ridge",
+    "xgboost_lightgbm_naivebayes_stacking",
+    "xgboost_catboost_lightgbm_voting",
+    "xgboost_catboost_lightgbm_weighted",
+    "xgboost_catboost_lightgbm_stacking",
+    "xgboost_catboost_lightgbm_stacking_ridge",
+    "xgboost_advancedsvm_2model_voting"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-28T22:56:53.322525"
+  "timestamp": "2025-08-29T23:41:23.650808"
 }
