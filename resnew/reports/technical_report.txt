@@ -1,11 +1,86 @@
 TECHNICAL ANALYSIS REPORT
 ============================================================
-Generated: 2025-08-27 20:59:38
+Generated: 2025-08-30 15:37:32
 
 DETAILED MODEL PERFORMANCE:
 ----------------------------------------
 
 DEEPGBM_CV:
+  Train Performance:
+    Accuracy: 0.8642
+    F1-Score: 0.8422
+    Precision: 0.8779
+    Recall: 0.8642
+  Test Performance:
+    Accuracy: 0.7875
+    F1-Score: 0.7540
+    Precision: 0.7703
+    Recall: 0.7875
+  Computational Metrics:
+    Training Time: 833.00s
+    Memory Usage: 1.20%
+
+DEEPGBM_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.9019
+    F1-Score: 0.8944
+    Precision: 0.9032
+    Recall: 0.9019
+  Test Performance:
+    Accuracy: 0.7733
+    F1-Score: 0.7644
+    Precision: 0.7592
+    Recall: 0.7733
+  Computational Metrics:
+    Training Time: 30382.04s
+    Memory Usage: 2.50%
+
+NGBOOST_CV:
+  Train Performance:
+    Accuracy: 0.8077
+    F1-Score: 0.7635
+    Precision: 0.8237
+    Recall: 0.8077
+  Test Performance:
+    Accuracy: 0.8145
+    F1-Score: 0.7722
+    Precision: 0.8288
+    Recall: 0.8145
+  Computational Metrics:
+    Training Time: 40.95s
+    Memory Usage: 0.00%
+
+NGBOOST_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.7478
+    F1-Score: 0.7658
+    Precision: 0.7989
+    Recall: 0.7478
+  Test Performance:
+    Accuracy: 0.7551
+    F1-Score: 0.7724
+    Precision: 0.8020
+    Recall: 0.7551
+  Computational Metrics:
+    Training Time: 184.45s
+    Memory Usage: 0.00%
+
+TABFLEX_CV:
+  Train Performance:
+    Accuracy: 0.7352
+    F1-Score: 0.6230
+    Precision: 0.5405
+    Recall: 0.7352
+  Test Performance:
+    Accuracy: 0.7351
+    F1-Score: 0.6228
+    Precision: 0.5403
+    Recall: 0.7351
+  Computational Metrics:
+    Training Time: 297.33s
+    Memory Usage: 1.30%
+
+TABFLEX_PARAMETRIC:
   Train Performance:
     Accuracy: 0.1613
     F1-Score: 0.0448
@@ -17,5 +92,1520 @@ DEEPGBM_CV:
     Precision: 0.0260
     Recall: 0.1613
   Computational Metrics:
-    Training Time: 0.16s
-    Memory Usage: 1.50%
+    Training Time: 15013.78s
+    Memory Usage: 4.40%
+
+MIXTURE_OF_EXPERTS_SOLO:
+  Train Performance:
+    Accuracy: 1.0000
+    F1-Score: 1.0000
+    Precision: 1.0000
+    Recall: 1.0000
+  Test Performance:
+    Accuracy: 0.7598
+    F1-Score: 0.7477
+    Precision: 0.7415
+    Recall: 0.7598
+  Computational Metrics:
+    Training Time: 83.97s
+    Memory Usage: 0.00%
+
+MIXTURE_OF_EXPERTS_CV:
+  Train Performance:
+    Accuracy: 1.0000
+    F1-Score: 1.0000
+    Precision: 1.0000
+    Recall: 1.0000
+  Test Performance:
+    Accuracy: 0.7650
+    F1-Score: 0.7491
+    Precision: 0.7430
+    Recall: 0.7650
+  Computational Metrics:
+    Training Time: 217.73s
+    Memory Usage: 0.00%
+
+MIXTURE_OF_EXPERTS_PARAMETRIC:
+  Train Performance:
+    Accuracy: 1.0000
+    F1-Score: 1.0000
+    Precision: 1.0000
+    Recall: 1.0000
+  Test Performance:
+    Accuracy: 0.7238
+    F1-Score: 0.7274
+    Precision: 0.7316
+    Recall: 0.7238
+  Computational Metrics:
+    Training Time: 1652.19s
+    Memory Usage: 0.00%
+
+RANDOM_BASELINE_CV:
+  Train Performance:
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
+  Test Performance:
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
+  Computational Metrics:
+    Training Time: 0.01s
+    Memory Usage: 0.10%
+
+RANDOM_BASELINE_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
+  Test Performance:
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
+  Computational Metrics:
+    Training Time: 0.06s
+    Memory Usage: 0.10%
+
+MAJORITY_BASELINE_CV:
+  Train Performance:
+    Accuracy: 0.7352
+    F1-Score: 0.6230
+    Precision: 0.5405
+    Recall: 0.7352
+  Test Performance:
+    Accuracy: 0.7351
+    F1-Score: 0.6228
+    Precision: 0.5403
+    Recall: 0.7351
+  Computational Metrics:
+    Training Time: 0.01s
+    Memory Usage: 0.10%
+
+MAJORITY_BASELINE_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
+  Test Performance:
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
+  Computational Metrics:
+    Training Time: 0.05s
+    Memory Usage: 0.00%
+
+UNIFORM_BASELINE_CV:
+  Train Performance:
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
+  Test Performance:
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
+  Computational Metrics:
+    Training Time: 0.01s
+    Memory Usage: 0.00%
+
+UNIFORM_BASELINE_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
+  Test Performance:
+    Accuracy: 0.1613
+    F1-Score: 0.0448
+    Precision: 0.0260
+    Recall: 0.1613
+  Computational Metrics:
+    Training Time: 0.05s
+    Memory Usage: 0.00%
+
+GRADIENTCLASSIFIER_CV:
+  Train Performance:
+    Accuracy: 0.8825
+    F1-Score: 0.8738
+    Precision: 0.8841
+    Recall: 0.8825
+  Test Performance:
+    Accuracy: 0.8464
+    F1-Score: 0.8316
+    Precision: 0.8390
+    Recall: 0.8464
+  Computational Metrics:
+    Training Time: 109.45s
+    Memory Usage: 5.30%
+
+GRADIENTCLASSIFIER_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.9060
+    F1-Score: 0.9096
+    Precision: 0.9217
+    Recall: 0.9060
+  Test Performance:
+    Accuracy: 0.8210
+    F1-Score: 0.8267
+    Precision: 0.8359
+    Recall: 0.8210
+  Computational Metrics:
+    Training Time: 509.43s
+    Memory Usage: 0.00%
+
+LOGISTICREGRESSION_RIDGE_SGD_VOTING:
+  Train Performance:
+    Accuracy: 0.6805
+    F1-Score: 0.7028
+    Precision: 0.7772
+    Recall: 0.6805
+  Test Performance:
+    Accuracy: 0.6022
+    F1-Score: 0.6302
+    Precision: 0.6979
+    Recall: 0.6022
+  Computational Metrics:
+    Training Time: 1.34s
+    Memory Usage: 0.00%
+
+LOGISTICREGRESSION_RIDGE_SGD_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.6805
+    F1-Score: 0.7028
+    Precision: 0.7772
+    Recall: 0.6805
+  Test Performance:
+    Accuracy: 0.6022
+    F1-Score: 0.6302
+    Precision: 0.6979
+    Recall: 0.6022
+  Computational Metrics:
+    Training Time: 1.48s
+    Memory Usage: 0.00%
+
+LOGISTICREGRESSION_LINEARSVM_RIDGE_VOTING:
+  Train Performance:
+    Accuracy: 0.6805
+    F1-Score: 0.7028
+    Precision: 0.7772
+    Recall: 0.6805
+  Test Performance:
+    Accuracy: 0.6022
+    F1-Score: 0.6302
+    Precision: 0.6979
+    Recall: 0.6022
+  Computational Metrics:
+    Training Time: 1.45s
+    Memory Usage: 0.00%
+
+LOGISTICREGRESSION_LINEARSVM_RIDGE_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.6805
+    F1-Score: 0.7028
+    Precision: 0.7772
+    Recall: 0.6805
+  Test Performance:
+    Accuracy: 0.6022
+    F1-Score: 0.6302
+    Precision: 0.6979
+    Recall: 0.6022
+  Computational Metrics:
+    Training Time: 1.50s
+    Memory Usage: 0.00%
+
+LOGISTICREGRESSION_NAIVEBAYES_KNN_VOTING:
+  Train Performance:
+    Accuracy: 0.5860
+    F1-Score: 0.6223
+    Precision: 0.8276
+    Recall: 0.5860
+  Test Performance:
+    Accuracy: 0.4459
+    F1-Score: 0.4959
+    Precision: 0.6577
+    Recall: 0.4459
+  Computational Metrics:
+    Training Time: 4.44s
+    Memory Usage: 2.30%
+
+LOGISTICREGRESSION_NAIVEBAYES_KNN_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.5860
+    F1-Score: 0.6223
+    Precision: 0.8276
+    Recall: 0.5860
+  Test Performance:
+    Accuracy: 0.4459
+    F1-Score: 0.4959
+    Precision: 0.6577
+    Recall: 0.4459
+  Computational Metrics:
+    Training Time: 4.60s
+    Memory Usage: 3.50%
+
+KNN_NAIVEBAYES_LOGISTICREGRESSION_VOTING:
+  Train Performance:
+    Accuracy: 0.5860
+    F1-Score: 0.6223
+    Precision: 0.8276
+    Recall: 0.5860
+  Test Performance:
+    Accuracy: 0.4459
+    F1-Score: 0.4959
+    Precision: 0.6577
+    Recall: 0.4459
+  Computational Metrics:
+    Training Time: 4.61s
+    Memory Usage: 3.50%
+
+KNN_NAIVEBAYES_LOGISTICREGRESSION_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.5860
+    F1-Score: 0.6223
+    Precision: 0.8276
+    Recall: 0.5860
+  Test Performance:
+    Accuracy: 0.4459
+    F1-Score: 0.4959
+    Precision: 0.6577
+    Recall: 0.4459
+  Computational Metrics:
+    Training Time: 4.47s
+    Memory Usage: 2.90%
+
+LIGHTGBM_XGBOOST_VOTING:
+  Train Performance:
+    Accuracy: 0.9707
+    F1-Score: 0.9708
+    Precision: 0.9711
+    Recall: 0.9707
+  Test Performance:
+    Accuracy: 0.8462
+    F1-Score: 0.8401
+    Precision: 0.8387
+    Recall: 0.8462
+  Computational Metrics:
+    Training Time: 6.69s
+    Memory Usage: 0.10%
+
+LIGHTGBM_XGBOOST_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9707
+    F1-Score: 0.9708
+    Precision: 0.9711
+    Recall: 0.9707
+  Test Performance:
+    Accuracy: 0.8462
+    F1-Score: 0.8401
+    Precision: 0.8387
+    Recall: 0.8462
+  Computational Metrics:
+    Training Time: 6.32s
+    Memory Usage: 0.00%
+
+LIGHTGBM_RANDOMFOREST_VOTING:
+  Train Performance:
+    Accuracy: 0.9436
+    F1-Score: 0.9452
+    Precision: 0.9529
+    Recall: 0.9436
+  Test Performance:
+    Accuracy: 0.8165
+    F1-Score: 0.8212
+    Precision: 0.8293
+    Recall: 0.8165
+  Computational Metrics:
+    Training Time: 2.17s
+    Memory Usage: 0.00%
+
+LIGHTGBM_RANDOMFOREST_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9436
+    F1-Score: 0.9452
+    Precision: 0.9529
+    Recall: 0.9436
+  Test Performance:
+    Accuracy: 0.8165
+    F1-Score: 0.8212
+    Precision: 0.8293
+    Recall: 0.8165
+  Computational Metrics:
+    Training Time: 2.19s
+    Memory Usage: 0.00%
+
+XGBOOST_RANDOMFOREST_VOTING:
+  Train Performance:
+    Accuracy: 0.9536
+    F1-Score: 0.9526
+    Precision: 0.9542
+    Recall: 0.9536
+  Test Performance:
+    Accuracy: 0.8454
+    F1-Score: 0.8312
+    Precision: 0.8362
+    Recall: 0.8454
+  Computational Metrics:
+    Training Time: 4.41s
+    Memory Usage: 0.00%
+
+XGBOOST_RANDOMFOREST_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9536
+    F1-Score: 0.9526
+    Precision: 0.9542
+    Recall: 0.9536
+  Test Performance:
+    Accuracy: 0.8454
+    F1-Score: 0.8312
+    Precision: 0.8362
+    Recall: 0.8454
+  Computational Metrics:
+    Training Time: 4.42s
+    Memory Usage: 0.20%
+
+XGBOOST_LIGHTGBM_NAIVEBAYES_VOTING:
+  Train Performance:
+    Accuracy: 0.9368
+    F1-Score: 0.9391
+    Precision: 0.9485
+    Recall: 0.9368
+  Test Performance:
+    Accuracy: 0.7965
+    F1-Score: 0.8037
+    Precision: 0.8138
+    Recall: 0.7965
+  Computational Metrics:
+    Training Time: 38.72s
+    Memory Usage: 0.00%
+
+XGBOOST_LIGHTGBM_NAIVEBAYES_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9368
+    F1-Score: 0.9391
+    Precision: 0.9485
+    Recall: 0.9368
+  Test Performance:
+    Accuracy: 0.7965
+    F1-Score: 0.8037
+    Precision: 0.8138
+    Recall: 0.7965
+  Computational Metrics:
+    Training Time: 38.68s
+    Memory Usage: 1.60%
+
+XGBOOST_LIGHTGBM_NAIVEBAYES_STACKING_RIDGE:
+  Train Performance:
+    Accuracy: 0.9368
+    F1-Score: 0.9391
+    Precision: 0.9485
+    Recall: 0.9368
+  Test Performance:
+    Accuracy: 0.7965
+    F1-Score: 0.8037
+    Precision: 0.8138
+    Recall: 0.7965
+  Computational Metrics:
+    Training Time: 38.49s
+    Memory Usage: 2.30%
+
+LIGHTGBM_LOGISTICREGRESSION_VOTING:
+  Train Performance:
+    Accuracy: 0.9117
+    F1-Score: 0.9154
+    Precision: 0.9333
+    Recall: 0.9117
+  Test Performance:
+    Accuracy: 0.7780
+    F1-Score: 0.7865
+    Precision: 0.8021
+    Recall: 0.7780
+  Computational Metrics:
+    Training Time: 1.58s
+    Memory Usage: 0.00%
+
+LIGHTGBM_LOGISTICREGRESSION_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9117
+    F1-Score: 0.9154
+    Precision: 0.9333
+    Recall: 0.9117
+  Test Performance:
+    Accuracy: 0.7780
+    F1-Score: 0.7865
+    Precision: 0.8021
+    Recall: 0.7780
+  Computational Metrics:
+    Training Time: 1.63s
+    Memory Usage: 0.00%
+
+XGBOOST_LOGISTICREGRESSION_VOTING:
+  Train Performance:
+    Accuracy: 0.9416
+    F1-Score: 0.9414
+    Precision: 0.9413
+    Recall: 0.9416
+  Test Performance:
+    Accuracy: 0.8210
+    F1-Score: 0.8131
+    Precision: 0.8096
+    Recall: 0.8210
+  Computational Metrics:
+    Training Time: 3.97s
+    Memory Usage: 0.00%
+
+XGBOOST_LOGISTICREGRESSION_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9416
+    F1-Score: 0.9414
+    Precision: 0.9413
+    Recall: 0.9416
+  Test Performance:
+    Accuracy: 0.8210
+    F1-Score: 0.8131
+    Precision: 0.8096
+    Recall: 0.8210
+  Computational Metrics:
+    Training Time: 3.92s
+    Memory Usage: 0.00%
+
+RANDOMFOREST_LOGISTICREGRESSION_VOTING:
+  Train Performance:
+    Accuracy: 0.6426
+    F1-Score: 0.6679
+    Precision: 0.7909
+    Recall: 0.6426
+  Test Performance:
+    Accuracy: 0.5613
+    F1-Score: 0.5938
+    Precision: 0.7053
+    Recall: 0.5613
+  Computational Metrics:
+    Training Time: 1.01s
+    Memory Usage: 0.00%
+
+RANDOMFOREST_LOGISTICREGRESSION_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.6426
+    F1-Score: 0.6679
+    Precision: 0.7909
+    Recall: 0.6426
+  Test Performance:
+    Accuracy: 0.5613
+    F1-Score: 0.5938
+    Precision: 0.7053
+    Recall: 0.5613
+  Computational Metrics:
+    Training Time: 1.05s
+    Memory Usage: 0.00%
+
+ADABOOST_LOGISTICREGRESSION_VOTING:
+  Train Performance:
+    Accuracy: 0.6596
+    F1-Score: 0.6839
+    Precision: 0.7880
+    Recall: 0.6596
+  Test Performance:
+    Accuracy: 0.5680
+    F1-Score: 0.6001
+    Precision: 0.6941
+    Recall: 0.5680
+  Computational Metrics:
+    Training Time: 3.59s
+    Memory Usage: 1.20%
+
+ADABOOST_LOGISTICREGRESSION_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.6596
+    F1-Score: 0.6839
+    Precision: 0.7880
+    Recall: 0.6596
+  Test Performance:
+    Accuracy: 0.5680
+    F1-Score: 0.6001
+    Precision: 0.6941
+    Recall: 0.5680
+  Computational Metrics:
+    Training Time: 3.56s
+    Memory Usage: 0.00%
+
+GRADIENTBOOST_LOGISTICREGRESSION_VOTING:
+  Train Performance:
+    Accuracy: 0.8948
+    F1-Score: 0.8932
+    Precision: 0.8925
+    Recall: 0.8948
+  Test Performance:
+    Accuracy: 0.8167
+    F1-Score: 0.8096
+    Precision: 0.8060
+    Recall: 0.8167
+  Computational Metrics:
+    Training Time: 51.04s
+    Memory Usage: 0.00%
+
+GRADIENTBOOST_LOGISTICREGRESSION_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.8948
+    F1-Score: 0.8932
+    Precision: 0.8925
+    Recall: 0.8948
+  Test Performance:
+    Accuracy: 0.8167
+    F1-Score: 0.8096
+    Precision: 0.8060
+    Recall: 0.8167
+  Computational Metrics:
+    Training Time: 51.45s
+    Memory Usage: 0.10%
+
+RANDOMFOREST_KNN_NAIVEBAYES_VOTING:
+  Train Performance:
+    Accuracy: 0.4750
+    F1-Score: 0.5149
+    Precision: 0.8121
+    Recall: 0.4750
+  Test Performance:
+    Accuracy: 0.3588
+    F1-Score: 0.4166
+    Precision: 0.6522
+    Recall: 0.3588
+  Computational Metrics:
+    Training Time: 3.67s
+    Memory Usage: 1.10%
+
+RANDOMFOREST_KNN_NAIVEBAYES_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.4750
+    F1-Score: 0.5149
+    Precision: 0.8121
+    Recall: 0.4750
+  Test Performance:
+    Accuracy: 0.3588
+    F1-Score: 0.4166
+    Precision: 0.6522
+    Recall: 0.3588
+  Computational Metrics:
+    Training Time: 3.74s
+    Memory Usage: 1.40%
+
+LIGHTGBM_NAIVEBAYES_VOTING:
+  Train Performance:
+    Accuracy: 0.2637
+    F1-Score: 0.2301
+    Precision: 0.7911
+    Recall: 0.2637
+  Test Performance:
+    Accuracy: 0.1928
+    F1-Score: 0.1958
+    Precision: 0.5811
+    Recall: 0.1928
+  Computational Metrics:
+    Training Time: 1.84s
+    Memory Usage: 1.60%
+
+LIGHTGBM_NAIVEBAYES_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.2637
+    F1-Score: 0.2301
+    Precision: 0.7911
+    Recall: 0.2637
+  Test Performance:
+    Accuracy: 0.1928
+    F1-Score: 0.1958
+    Precision: 0.5811
+    Recall: 0.1928
+  Computational Metrics:
+    Training Time: 1.83s
+    Memory Usage: 1.40%
+
+XGBOOST_NAIVEBAYES_VOTING:
+  Train Performance:
+    Accuracy: 0.2637
+    F1-Score: 0.2301
+    Precision: 0.7911
+    Recall: 0.2637
+  Test Performance:
+    Accuracy: 0.1928
+    F1-Score: 0.1958
+    Precision: 0.5811
+    Recall: 0.1928
+  Computational Metrics:
+    Training Time: 42.17s
+    Memory Usage: 4.60%
+
+XGBOOST_NAIVEBAYES_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.2637
+    F1-Score: 0.2301
+    Precision: 0.7911
+    Recall: 0.2637
+  Test Performance:
+    Accuracy: 0.1928
+    F1-Score: 0.1958
+    Precision: 0.5811
+    Recall: 0.1928
+  Computational Metrics:
+    Training Time: 41.99s
+    Memory Usage: 1.00%
+
+RANDOMFOREST_NAIVEBAYES_VOTING:
+  Train Performance:
+    Accuracy: 0.2637
+    F1-Score: 0.2301
+    Precision: 0.7911
+    Recall: 0.2637
+  Test Performance:
+    Accuracy: 0.1928
+    F1-Score: 0.1958
+    Precision: 0.5811
+    Recall: 0.1928
+  Computational Metrics:
+    Training Time: 4.68s
+    Memory Usage: 1.40%
+
+RANDOMFOREST_NAIVEBAYES_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.2637
+    F1-Score: 0.2301
+    Precision: 0.7911
+    Recall: 0.2637
+  Test Performance:
+    Accuracy: 0.1928
+    F1-Score: 0.1958
+    Precision: 0.5811
+    Recall: 0.1928
+  Computational Metrics:
+    Training Time: 4.57s
+    Memory Usage: 1.20%
+
+ADABOOST_NAIVEBAYES_VOTING:
+  Train Performance:
+    Accuracy: 0.2637
+    F1-Score: 0.2301
+    Precision: 0.7911
+    Recall: 0.2637
+  Test Performance:
+    Accuracy: 0.1928
+    F1-Score: 0.1958
+    Precision: 0.5811
+    Recall: 0.1928
+  Computational Metrics:
+    Training Time: 42.35s
+    Memory Usage: 0.10%
+
+ADABOOST_NAIVEBAYES_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.2637
+    F1-Score: 0.2301
+    Precision: 0.7911
+    Recall: 0.2637
+  Test Performance:
+    Accuracy: 0.1928
+    F1-Score: 0.1958
+    Precision: 0.5811
+    Recall: 0.1928
+  Computational Metrics:
+    Training Time: 42.53s
+    Memory Usage: 2.30%
+
+GRADIENTBOOST_NAIVEBAYES_VOTING:
+  Train Performance:
+    Accuracy: 0.2637
+    F1-Score: 0.2301
+    Precision: 0.7911
+    Recall: 0.2637
+  Test Performance:
+    Accuracy: 0.1928
+    F1-Score: 0.1958
+    Precision: 0.5811
+    Recall: 0.1928
+  Computational Metrics:
+    Training Time: 472.34s
+    Memory Usage: 0.90%
+
+GRADIENTBOOST_NAIVEBAYES_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.2637
+    F1-Score: 0.2301
+    Precision: 0.7911
+    Recall: 0.2637
+  Test Performance:
+    Accuracy: 0.1928
+    F1-Score: 0.1958
+    Precision: 0.5811
+    Recall: 0.1928
+  Computational Metrics:
+    Training Time: 1639.61s
+    Memory Usage: 1.70%
+
+LIGHTGBM_RANDOMFOREST_NAIVEBAYES_VOTING:
+  Train Performance:
+    Accuracy: 0.4678
+    F1-Score: 0.4825
+    Precision: 0.8230
+    Recall: 0.4678
+  Test Performance:
+    Accuracy: 0.3853
+    F1-Score: 0.4150
+    Precision: 0.7384
+    Recall: 0.3853
+  Computational Metrics:
+    Training Time: 10.35s
+    Memory Usage: 1.20%
+
+LIGHTGBM_RANDOMFOREST_NAIVEBAYES_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.4678
+    F1-Score: 0.4825
+    Precision: 0.8230
+    Recall: 0.4678
+  Test Performance:
+    Accuracy: 0.3853
+    F1-Score: 0.4150
+    Precision: 0.7384
+    Recall: 0.3853
+  Computational Metrics:
+    Training Time: 10.31s
+    Memory Usage: 1.40%
+
+LIGHTGBM_RANDOMFOREST_NAIVEBAYES_STACKING_RIDGE:
+  Train Performance:
+    Accuracy: 0.4678
+    F1-Score: 0.4825
+    Precision: 0.8230
+    Recall: 0.4678
+  Test Performance:
+    Accuracy: 0.3853
+    F1-Score: 0.4150
+    Precision: 0.7384
+    Recall: 0.3853
+  Computational Metrics:
+    Training Time: 10.32s
+    Memory Usage: 1.30%
+
+XGBOOST_RANDOMFOREST_NAIVEBAYES_VOTING:
+  Train Performance:
+    Accuracy: 0.5748
+    F1-Score: 0.6105
+    Precision: 0.8350
+    Recall: 0.5748
+  Test Performance:
+    Accuracy: 0.4717
+    F1-Score: 0.5235
+    Precision: 0.7429
+    Recall: 0.4717
+  Computational Metrics:
+    Training Time: 94.08s
+    Memory Usage: 1.60%
+
+XGBOOST_RANDOMFOREST_NAIVEBAYES_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.5748
+    F1-Score: 0.6105
+    Precision: 0.8350
+    Recall: 0.5748
+  Test Performance:
+    Accuracy: 0.4717
+    F1-Score: 0.5235
+    Precision: 0.7429
+    Recall: 0.4717
+  Computational Metrics:
+    Training Time: 87.76s
+    Memory Usage: 0.90%
+
+XGBOOST_RANDOMFOREST_NAIVEBAYES_STACKING_RIDGE:
+  Train Performance:
+    Accuracy: 0.5748
+    F1-Score: 0.6105
+    Precision: 0.8350
+    Recall: 0.5748
+  Test Performance:
+    Accuracy: 0.4717
+    F1-Score: 0.5235
+    Precision: 0.7429
+    Recall: 0.4717
+  Computational Metrics:
+    Training Time: 41.49s
+    Memory Usage: 2.60%
+
+LIGHTGBM_KNN_VOTING:
+  Train Performance:
+    Accuracy: 0.9661
+    F1-Score: 0.9661
+    Precision: 0.9661
+    Recall: 0.9661
+  Test Performance:
+    Accuracy: 0.8170
+    F1-Score: 0.8020
+    Precision: 0.8024
+    Recall: 0.8170
+  Computational Metrics:
+    Training Time: 1.39s
+    Memory Usage: 0.20%
+
+LIGHTGBM_KNN_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9661
+    F1-Score: 0.9661
+    Precision: 0.9661
+    Recall: 0.9661
+  Test Performance:
+    Accuracy: 0.8170
+    F1-Score: 0.8020
+    Precision: 0.8024
+    Recall: 0.8170
+  Computational Metrics:
+    Training Time: 1.35s
+    Memory Usage: 0.00%
+
+XGBOOST_KNN_VOTING:
+  Train Performance:
+    Accuracy: 0.9172
+    F1-Score: 0.9113
+    Precision: 0.9235
+    Recall: 0.9172
+  Test Performance:
+    Accuracy: 0.8232
+    F1-Score: 0.7928
+    Precision: 0.8229
+    Recall: 0.8232
+  Computational Metrics:
+    Training Time: 3.67s
+    Memory Usage: 0.00%
+
+XGBOOST_KNN_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9172
+    F1-Score: 0.9113
+    Precision: 0.9235
+    Recall: 0.9172
+  Test Performance:
+    Accuracy: 0.8232
+    F1-Score: 0.7928
+    Precision: 0.8229
+    Recall: 0.8232
+  Computational Metrics:
+    Training Time: 3.65s
+    Memory Usage: 0.40%
+
+RANDOMFOREST_KNN_VOTING:
+  Train Performance:
+    Accuracy: 0.8215
+    F1-Score: 0.8011
+    Precision: 0.8148
+    Recall: 0.8215
+  Test Performance:
+    Accuracy: 0.7398
+    F1-Score: 0.7072
+    Precision: 0.7008
+    Recall: 0.7398
+  Computational Metrics:
+    Training Time: 0.79s
+    Memory Usage: 0.10%
+
+RANDOMFOREST_KNN_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.8215
+    F1-Score: 0.8011
+    Precision: 0.8148
+    Recall: 0.8215
+  Test Performance:
+    Accuracy: 0.7398
+    F1-Score: 0.7072
+    Precision: 0.7008
+    Recall: 0.7398
+  Computational Metrics:
+    Training Time: 0.86s
+    Memory Usage: 0.00%
+
+ADABOOST_RANDOMFOREST_VOTING:
+  Train Performance:
+    Accuracy: 0.6953
+    F1-Score: 0.7150
+    Precision: 0.7627
+    Recall: 0.6953
+  Test Performance:
+    Accuracy: 0.6901
+    F1-Score: 0.7100
+    Precision: 0.7580
+    Recall: 0.6901
+  Computational Metrics:
+    Training Time: 4.12s
+    Memory Usage: 0.10%
+
+ADABOOST_RANDOMFOREST_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.6953
+    F1-Score: 0.7150
+    Precision: 0.7627
+    Recall: 0.6953
+  Test Performance:
+    Accuracy: 0.6901
+    F1-Score: 0.7100
+    Precision: 0.7580
+    Recall: 0.6901
+  Computational Metrics:
+    Training Time: 4.75s
+    Memory Usage: 1.60%
+
+GRADIENTBOOST_RANDOMFOREST_VOTING:
+  Train Performance:
+    Accuracy: 0.8931
+    F1-Score: 0.8873
+    Precision: 0.8926
+    Recall: 0.8931
+  Test Performance:
+    Accuracy: 0.8427
+    F1-Score: 0.8300
+    Precision: 0.8320
+    Recall: 0.8427
+  Computational Metrics:
+    Training Time: 50.83s
+    Memory Usage: 0.00%
+
+GRADIENTBOOST_RANDOMFOREST_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.8931
+    F1-Score: 0.8873
+    Precision: 0.8926
+    Recall: 0.8931
+  Test Performance:
+    Accuracy: 0.8427
+    F1-Score: 0.8300
+    Precision: 0.8320
+    Recall: 0.8427
+  Computational Metrics:
+    Training Time: 51.23s
+    Memory Usage: 1.40%
+
+ADABOOST_GRADIENTBOOST_VOTING:
+  Train Performance:
+    Accuracy: 0.8931
+    F1-Score: 0.8862
+    Precision: 0.8943
+    Recall: 0.8931
+  Test Performance:
+    Accuracy: 0.8437
+    F1-Score: 0.8294
+    Precision: 0.8341
+    Recall: 0.8437
+  Computational Metrics:
+    Training Time: 53.77s
+    Memory Usage: 0.00%
+
+ADABOOST_GRADIENTBOOST_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.8931
+    F1-Score: 0.8862
+    Precision: 0.8943
+    Recall: 0.8931
+  Test Performance:
+    Accuracy: 0.8437
+    F1-Score: 0.8294
+    Precision: 0.8341
+    Recall: 0.8437
+  Computational Metrics:
+    Training Time: 53.68s
+    Memory Usage: 0.30%
+
+LIGHTGBM_ADABOOST_GRADIENTBOOST_VOTING:
+  Train Performance:
+    Accuracy: 0.9512
+    F1-Score: 0.9515
+    Precision: 0.9520
+    Recall: 0.9512
+  Test Performance:
+    Accuracy: 0.8459
+    F1-Score: 0.8405
+    Precision: 0.8391
+    Recall: 0.8459
+  Computational Metrics:
+    Training Time: 59.48s
+    Memory Usage: 3.20%
+
+LIGHTGBM_ADABOOST_GRADIENTBOOST_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9512
+    F1-Score: 0.9515
+    Precision: 0.9520
+    Recall: 0.9512
+  Test Performance:
+    Accuracy: 0.8459
+    F1-Score: 0.8405
+    Precision: 0.8391
+    Recall: 0.8459
+  Computational Metrics:
+    Training Time: 60.30s
+    Memory Usage: 0.00%
+
+LIGHTGBM_ADABOOST_GRADIENTBOOST_STACKING_RIDGE:
+  Train Performance:
+    Accuracy: 0.9512
+    F1-Score: 0.9515
+    Precision: 0.9520
+    Recall: 0.9512
+  Test Performance:
+    Accuracy: 0.8459
+    F1-Score: 0.8405
+    Precision: 0.8391
+    Recall: 0.8459
+  Computational Metrics:
+    Training Time: 54.67s
+    Memory Usage: 0.80%
+
+LIGHTGBM_XGBOOST_RANDOMFOREST_ABLATION_VOTING:
+  Train Performance:
+    Accuracy: 0.9675
+    F1-Score: 0.9677
+    Precision: 0.9681
+    Recall: 0.9675
+  Test Performance:
+    Accuracy: 0.8452
+    F1-Score: 0.8395
+    Precision: 0.8379
+    Recall: 0.8452
+  Computational Metrics:
+    Training Time: 5.84s
+    Memory Usage: 0.00%
+
+LIGHTGBM_XGBOOST_RANDOMFOREST_ABLATION_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9675
+    F1-Score: 0.9677
+    Precision: 0.9681
+    Recall: 0.9675
+  Test Performance:
+    Accuracy: 0.8452
+    F1-Score: 0.8395
+    Precision: 0.8379
+    Recall: 0.8452
+  Computational Metrics:
+    Training Time: 5.78s
+    Memory Usage: 0.00%
+
+LIGHTGBM_XGBOOST_RANDOMFOREST_ABLATION_STACKING_RIDGE:
+  Train Performance:
+    Accuracy: 0.9675
+    F1-Score: 0.9677
+    Precision: 0.9681
+    Recall: 0.9675
+  Test Performance:
+    Accuracy: 0.8452
+    F1-Score: 0.8395
+    Precision: 0.8379
+    Recall: 0.8452
+  Computational Metrics:
+    Training Time: 5.82s
+    Memory Usage: 0.10%
+
+ABLATION_VOTING_VS_STACKING:
+  Train Performance:
+    Accuracy: 0.9675
+    F1-Score: 0.9677
+    Precision: 0.9681
+    Recall: 0.9675
+  Test Performance:
+    Accuracy: 0.8452
+    F1-Score: 0.8395
+    Precision: 0.8379
+    Recall: 0.8452
+  Computational Metrics:
+    Training Time: 5.80s
+    Memory Usage: 0.00%
+
+LIGHTGBM_XGBOOST_STACKING:
+  Train Performance:
+    Accuracy: 0.9707
+    F1-Score: 0.9708
+    Precision: 0.9711
+    Recall: 0.9707
+  Test Performance:
+    Accuracy: 0.8462
+    F1-Score: 0.8401
+    Precision: 0.8387
+    Recall: 0.8462
+  Computational Metrics:
+    Training Time: 5.01s
+    Memory Usage: 0.00%
+
+LIGHTGBM_XGBOOST_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.9707
+    F1-Score: 0.9708
+    Precision: 0.9711
+    Recall: 0.9707
+  Test Performance:
+    Accuracy: 0.8462
+    F1-Score: 0.8401
+    Precision: 0.8387
+    Recall: 0.8462
+  Computational Metrics:
+    Training Time: 5.05s
+    Memory Usage: 0.00%
+
+LIGHTGBM_RANDOMFOREST_STACKING:
+  Train Performance:
+    Accuracy: 0.9436
+    F1-Score: 0.9452
+    Precision: 0.9529
+    Recall: 0.9436
+  Test Performance:
+    Accuracy: 0.8165
+    F1-Score: 0.8212
+    Precision: 0.8293
+    Recall: 0.8165
+  Computational Metrics:
+    Training Time: 2.16s
+    Memory Usage: 1.00%
+
+LIGHTGBM_RANDOMFOREST_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.9436
+    F1-Score: 0.9452
+    Precision: 0.9529
+    Recall: 0.9436
+  Test Performance:
+    Accuracy: 0.8165
+    F1-Score: 0.8212
+    Precision: 0.8293
+    Recall: 0.8165
+  Computational Metrics:
+    Training Time: 2.18s
+    Memory Usage: 0.00%
+
+XGBOOST_RANDOMFOREST_STACKING:
+  Train Performance:
+    Accuracy: 0.9536
+    F1-Score: 0.9526
+    Precision: 0.9542
+    Recall: 0.9536
+  Test Performance:
+    Accuracy: 0.8454
+    F1-Score: 0.8312
+    Precision: 0.8362
+    Recall: 0.8454
+  Computational Metrics:
+    Training Time: 4.44s
+    Memory Usage: 0.00%
+
+XGBOOST_RANDOMFOREST_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.9536
+    F1-Score: 0.9526
+    Precision: 0.9542
+    Recall: 0.9536
+  Test Performance:
+    Accuracy: 0.8454
+    F1-Score: 0.8312
+    Precision: 0.8362
+    Recall: 0.8454
+  Computational Metrics:
+    Training Time: 4.46s
+    Memory Usage: 0.00%
+
+LIGHTGBM_ADVANCEDSVM_VOTING:
+  Train Performance:
+    Accuracy: 0.9614
+    F1-Score: 0.9615
+    Precision: 0.9617
+    Recall: 0.9614
+  Test Performance:
+    Accuracy: 0.8422
+    F1-Score: 0.8315
+    Precision: 0.8318
+    Recall: 0.8422
+  Computational Metrics:
+    Training Time: 716.63s
+    Memory Usage: 4.40%
+
+LIGHTGBM_ADVANCEDSVM_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9614
+    F1-Score: 0.9615
+    Precision: 0.9617
+    Recall: 0.9614
+  Test Performance:
+    Accuracy: 0.8422
+    F1-Score: 0.8315
+    Precision: 0.8318
+    Recall: 0.8422
+  Computational Metrics:
+    Training Time: 425.19s
+    Memory Usage: 1.40%
+
+LIGHTGBM_ADVANCEDSVM_STACKING:
+  Train Performance:
+    Accuracy: 0.9614
+    F1-Score: 0.9615
+    Precision: 0.9617
+    Recall: 0.9614
+  Test Performance:
+    Accuracy: 0.8422
+    F1-Score: 0.8315
+    Precision: 0.8318
+    Recall: 0.8422
+  Computational Metrics:
+    Training Time: 420.51s
+    Memory Usage: 2.80%
+
+LIGHTGBM_ADVANCEDSVM_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.9614
+    F1-Score: 0.9615
+    Precision: 0.9617
+    Recall: 0.9614
+  Test Performance:
+    Accuracy: 0.8422
+    F1-Score: 0.8315
+    Precision: 0.8318
+    Recall: 0.8422
+  Computational Metrics:
+    Training Time: 800.44s
+    Memory Usage: 4.90%
+
+LIGHTGBM_ADVANCEDSVM_RANDOMFOREST_VOTING:
+  Train Performance:
+    Accuracy: 0.9551
+    F1-Score: 0.9553
+    Precision: 0.9556
+    Recall: 0.9551
+  Test Performance:
+    Accuracy: 0.8375
+    F1-Score: 0.8289
+    Precision: 0.8275
+    Recall: 0.8375
+  Computational Metrics:
+    Training Time: 510.31s
+    Memory Usage: 1.90%
+
+LIGHTGBM_ADVANCEDSVM_RANDOMFOREST_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9551
+    F1-Score: 0.9553
+    Precision: 0.9556
+    Recall: 0.9551
+  Test Performance:
+    Accuracy: 0.8375
+    F1-Score: 0.8289
+    Precision: 0.8275
+    Recall: 0.8375
+  Computational Metrics:
+    Training Time: 573.16s
+    Memory Usage: 4.70%
+
+LIGHTGBM_ADVANCEDSVM_RANDOMFOREST_STACKING_RIDGE:
+  Train Performance:
+    Accuracy: 0.9551
+    F1-Score: 0.9553
+    Precision: 0.9556
+    Recall: 0.9551
+  Test Performance:
+    Accuracy: 0.8375
+    F1-Score: 0.8289
+    Precision: 0.8275
+    Recall: 0.8375
+  Computational Metrics:
+    Training Time: 474.81s
+    Memory Usage: 0.00%
+
+XGBOOST_ADVANCEDSVM_RANDOMFOREST_VOTING:
+  Train Performance:
+    Accuracy: 0.9214
+    F1-Score: 0.9168
+    Precision: 0.9256
+    Recall: 0.9214
+  Test Performance:
+    Accuracy: 0.8397
+    F1-Score: 0.8176
+    Precision: 0.8362
+    Recall: 0.8397
+  Computational Metrics:
+    Training Time: 448.59s
+    Memory Usage: 4.60%
+
+XGBOOST_ADVANCEDSVM_RANDOMFOREST_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9214
+    F1-Score: 0.9168
+    Precision: 0.9256
+    Recall: 0.9214
+  Test Performance:
+    Accuracy: 0.8397
+    F1-Score: 0.8176
+    Precision: 0.8362
+    Recall: 0.8397
+  Computational Metrics:
+    Training Time: 870.34s
+    Memory Usage: 1.60%
+
+XGBOOST_ADVANCEDSVM_RANDOMFOREST_STACKING_RIDGE:
+  Train Performance:
+    Accuracy: 0.9214
+    F1-Score: 0.9168
+    Precision: 0.9256
+    Recall: 0.9214
+  Test Performance:
+    Accuracy: 0.8397
+    F1-Score: 0.8176
+    Precision: 0.8362
+    Recall: 0.8397
+  Computational Metrics:
+    Training Time: 474.38s
+    Memory Usage: 0.00%
+
+XGBOOST_LIGHTGBM_NAIVEBAYES_STACKING:
+  Train Performance:
+    Accuracy: 0.9368
+    F1-Score: 0.9391
+    Precision: 0.9485
+    Recall: 0.9368
+  Test Performance:
+    Accuracy: 0.7965
+    F1-Score: 0.8037
+    Precision: 0.8138
+    Recall: 0.7965
+  Computational Metrics:
+    Training Time: 42.66s
+    Memory Usage: 2.00%
+
+XGBOOST_CATBOOST_LIGHTGBM_VOTING:
+  Train Performance:
+    Accuracy: 0.9396
+    F1-Score: 0.9385
+    Precision: 0.9396
+    Recall: 0.9396
+  Test Performance:
+    Accuracy: 0.8459
+    F1-Score: 0.8364
+    Precision: 0.8373
+    Recall: 0.8459
+  Computational Metrics:
+    Training Time: 9.21s
+    Memory Usage: 0.00%
+
+XGBOOST_CATBOOST_LIGHTGBM_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9396
+    F1-Score: 0.9385
+    Precision: 0.9396
+    Recall: 0.9396
+  Test Performance:
+    Accuracy: 0.8459
+    F1-Score: 0.8364
+    Precision: 0.8373
+    Recall: 0.8459
+  Computational Metrics:
+    Training Time: 8.97s
+    Memory Usage: 0.00%
+
+XGBOOST_CATBOOST_LIGHTGBM_STACKING:
+  Train Performance:
+    Accuracy: 0.9396
+    F1-Score: 0.9385
+    Precision: 0.9396
+    Recall: 0.9396
+  Test Performance:
+    Accuracy: 0.8459
+    F1-Score: 0.8364
+    Precision: 0.8373
+    Recall: 0.8459
+  Computational Metrics:
+    Training Time: 9.19s
+    Memory Usage: 0.00%
+
+XGBOOST_CATBOOST_LIGHTGBM_STACKING_RIDGE:
+  Train Performance:
+    Accuracy: 0.9396
+    F1-Score: 0.9385
+    Precision: 0.9396
+    Recall: 0.9396
+  Test Performance:
+    Accuracy: 0.8459
+    F1-Score: 0.8364
+    Precision: 0.8373
+    Recall: 0.8459
+  Computational Metrics:
+    Training Time: 9.07s
+    Memory Usage: 0.00%
+
+XGBOOST_ADVANCEDSVM_2MODEL_VOTING:
+  Train Performance:
+    Accuracy: 0.9221
+    F1-Score: 0.9172
+    Precision: 0.9274
+    Recall: 0.9221
+  Test Performance:
+    Accuracy: 0.8392
+    F1-Score: 0.8144
+    Precision: 0.8401
+    Recall: 0.8392
+  Computational Metrics:
+    Training Time: 447.76s
+    Memory Usage: 5.10%
+
+XGBOOST_ADVANCEDSVM_2MODEL_WEIGHTED:
+  Train Performance:
+    Accuracy: 0.9221
+    F1-Score: 0.9172
+    Precision: 0.9274
+    Recall: 0.9221
+  Test Performance:
+    Accuracy: 0.8392
+    F1-Score: 0.8144
+    Precision: 0.8401
+    Recall: 0.8392
+  Computational Metrics:
+    Training Time: 38881.07s
+    Memory Usage: 16.80%
+
+XGBOOST_ADVANCEDSVM_2MODEL_STACKING:
+  Train Performance:
+    Accuracy: 0.9221
+    F1-Score: 0.9172
+    Precision: 0.9274
+    Recall: 0.9221
+  Test Performance:
+    Accuracy: 0.8392
+    F1-Score: 0.8144
+    Precision: 0.8401
+    Recall: 0.8392
+  Computational Metrics:
+    Training Time: 502.36s
+    Memory Usage: 10.90%
+
+XGBOOST_ADVANCEDSVM_2MODEL_PARAMETRIC:
+  Train Performance:
+    Accuracy: 0.9221
+    F1-Score: 0.9172
+    Precision: 0.9274
+    Recall: 0.9221
+  Test Performance:
+    Accuracy: 0.8392
+    F1-Score: 0.8144
+    Precision: 0.8401
+    Recall: 0.8392
+  Computational Metrics:
+    Training Time: 810.86s
+    Memory Usage: 0.00%
+
+XGBOOST_LIGHTGBM_RANDOMFOREST_LINEARSVM_VOTING:
+  Train Performance:
+    Accuracy: 0.9620
+    F1-Score: 0.9620
+    Precision: 0.9622
+    Recall: 0.9620
+  Test Performance:
+    Accuracy: 0.8400
+    F1-Score: 0.8310
+    Precision: 0.8298
+    Recall: 0.8400
+  Computational Metrics:
+    Training Time: 6.79s
+    Memory Usage: 0.30%

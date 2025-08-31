@@ -234,9 +234,20 @@
     "xgboost_catboost_lightgbm_weighted",
     "xgboost_catboost_lightgbm_stacking",
     "xgboost_catboost_lightgbm_stacking_ridge",
-    "xgboost_advancedsvm_2model_voting"
+    "xgboost_advancedsvm_2model_voting",
+    "xgboost_advancedsvm_2model_weighted",
+    "xgboost_advancedsvm_2model_stacking",
+    "xgboost_advancedsvm_2model_parametric",
+    "xgboost_lightgbm_randomforest_linearsvm_voting",
+    "xgboost_lightgbm_randomforest_linearsvm_stacking",
+    "xgboost_lightgbm_randomforest_linearsvm_stacking_ridge",
+    "lightgbm_catboost_naivebayes_voting",
+    "lightgbm_catboost_naivebayes_weighted",
+    "lightgbm_catboost_naivebayes_stacking",
+    "lightgbm_catboost_naivebayes_stacking_ridge",
+    "lightgbm_catboost_advancedsvm_voting"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-29T23:41:23.650808"
+  "timestamp": "2025-08-30T20:54:26.324356"
 }
