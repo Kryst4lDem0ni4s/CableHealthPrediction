@@ -245,9 +245,12 @@
     "lightgbm_catboost_naivebayes_weighted",
     "lightgbm_catboost_naivebayes_stacking",
     "lightgbm_catboost_naivebayes_stacking_ridge",
-    "lightgbm_catboost_advancedsvm_voting"
+    "lightgbm_catboost_advancedsvm_voting",
+    "lightgbm_catboost_advancedsvm_weighted",
+    "lightgbm_catboost_advancedsvm_stacking_ridge",
+    "xgboost_catboost_advancedsvm_voting"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-08-30T20:54:26.324356"
+  "timestamp": "2025-09-03T22:27:43.417992"
 }
