@@ -258,9 +258,12 @@
     "deepgbm_lightgbm_randomforest_voting",
     "deepgbm_lightgbm_randomforest_weighted",
     "deepgbm_lightgbm_randomforest_stacking_ridge",
-    "deepgbm_advancedsvm_voting"
+    "deepgbm_advancedsvm_voting",
+    "deepgbm_advancedsvm_weighted",
+    "deepgbm_advancedsvm_stacking",
+    "deepgbm_advancedsvm_parametric"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-04T21:52:04.230104"
+  "timestamp": "2025-09-05T14:13:11.829193"
 }
