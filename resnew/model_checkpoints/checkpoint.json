@@ -302,9 +302,31 @@
     "ngboost_randomforest_parametric",
     "ngboost_randomforest_naivebayes_voting",
     "ngboost_randomforest_naivebayes_weighted",
-    "ngboost_advancedsvm_randomforest_voting"
+    "ngboost_advancedsvm_randomforest_voting",
+    "ngboost_advancedsvm_randomforest_weighted",
+    "lightgbm_neuralnetwork_voting",
+    "lightgbm_neuralnetwork_weighted",
+    "lightgbm_neuralnetwork_stacking",
+    "lightgbm_neuralnetwork_parametric",
+    "xgboost_neuralnetwork_voting",
+    "xgboost_neuralnetwork_weighted",
+    "xgboost_neuralnetwork_stacking",
+    "xgboost_neuralnetwork_parametric",
+    "catboost_neuralnetwork_voting",
+    "catboost_neuralnetwork_weighted",
+    "catboost_neuralnetwork_stacking",
+    "catboost_neuralnetwork_parametric",
+    "ngboost_neuralnetwork_voting",
+    "ngboost_neuralnetwork_weighted",
+    "ngboost_neuralnetwork_stacking",
+    "ngboost_neuralnetwork_parametric",
+    "xgboost_neuralnetwork_naivebayes_voting",
+    "xgboost_neuralnetwork_naivebayes_weighted",
+    "lightgbm_neuralnetwork_naivebayes_voting",
+    "lightgbm_neuralnetwork_naivebayes_weighted",
+    "xgboost_neuralnetwork_randomforest_voting"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-07T18:59:49.048105"
+  "timestamp": "2025-09-07T23:11:41.003848"
 }
