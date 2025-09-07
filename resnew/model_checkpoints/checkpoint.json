@@ -324,9 +324,19 @@
     "xgboost_neuralnetwork_naivebayes_weighted",
     "lightgbm_neuralnetwork_naivebayes_voting",
     "lightgbm_neuralnetwork_naivebayes_weighted",
-    "xgboost_neuralnetwork_randomforest_voting"
+    "xgboost_neuralnetwork_randomforest_voting",
+    "xgboost_neuralnetwork_randomforest_weighted",
+    "xgboost_neuralnetwork_randomforest_stacking_ridge",
+    "lightgbm_neuralnetwork_randomforest_voting",
+    "lightgbm_neuralnetwork_randomforest_weighted",
+    "lightgbm_neuralnetwork_randomforest_stacking_ridge",
+    "catboost_neuralnetwork_naivebayes_voting",
+    "catboost_neuralnetwork_naivebayes_weighted",
+    "ngboost_neuralnetwork_naivebayes_voting",
+    "ngboost_neuralnetwork_naivebayes_weighted",
+    "catboost_neuralnetwork_randomforest_voting"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-07T23:11:41.003848"
+  "timestamp": "2025-09-07T23:43:41.967915"
 }
