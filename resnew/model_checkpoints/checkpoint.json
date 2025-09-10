@@ -341,9 +341,25 @@
     "ngboost_neuralnetwork_randomforest_weighted",
     "lightgbm_neuralnetwork_advancedsvm_voting",
     "lightgbm_neuralnetwork_advancedsvm_weighted",
-    "xgboost_neuralnetwork_advancedsvm_voting"
+    "xgboost_neuralnetwork_advancedsvm_voting",
+    "xgboost_neuralnetwork_advancedsvm_weighted",
+    "catboost_neuralnetwork_advancedsvm_voting",
+    "catboost_neuralnetwork_advancedsvm_weighted",
+    "ngboost_neuralnetwork_advancedsvm_voting",
+    "ngboost_neuralnetwork_advancedsvm_weighted",
+    "logisticregression_ridge_sgd_stacking",
+    "logisticregression_linearsvm_ridge_stacking",
+    "lightgbm_logisticregression_stacking",
+    "lightgbm_logisticregression_parametric",
+    "xgboost_logisticregression_stacking",
+    "xgboost_logisticregression_parametric",
+    "catboost_logisticregression_voting",
+    "catboost_logisticregression_weighted",
+    "catboost_logisticregression_stacking",
+    "catboost_logisticregression_parametric",
+    "randomforest_logisticregression_stacking"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-08T22:42:16.602418"
+  "timestamp": "2025-09-10T19:56:54.791562"
 }

@@ -1,40 +1,40 @@
 EXECUTIVE SUMMARY - ML MODEL COMPARATIVE ANALYSIS
 ============================================================
-Analysis Date: 2025-09-06 09:45:34
-Total Models Evaluated: 38
-Successful Completions: 38
+Analysis Date: 2025-09-09 08:27:12
+Total Models Evaluated: 26
+Successful Completions: 26
 Failed Models: 0
 Early Stopped (Poor Performance): 0
 
 TOP 5 PERFORMING MODELS (by Weighted F1-Score):
 --------------------------------------------------
 
-1. xgboost_lightgbm_randomforest_linearsvm_stacking
-   F1-Score: 0.8310
-   Accuracy: 0.8400
-   ROC-AUC: 0.8900
-   Training Time: 7.97s
+1. lightgbm_neuralnetwork_randomforest_voting
+   F1-Score: 0.8218
+   Accuracy: 0.8337
+   ROC-AUC: 0.8798
+   Training Time: 8.15s
 
-2. xgboost_lightgbm_randomforest_linearsvm_stacking_ridge
-   F1-Score: 0.8310
-   Accuracy: 0.8400
-   ROC-AUC: 0.8900
-   Training Time: 7.75s
+2. lightgbm_neuralnetwork_randomforest_weighted
+   F1-Score: 0.8218
+   Accuracy: 0.8337
+   ROC-AUC: 0.8798
+   Training Time: 8.18s
 
-3. lightgbm_catboost_advancedsvm_voting
-   F1-Score: 0.8305
-   Accuracy: 0.8449
-   ROC-AUC: 0.8876
-   Training Time: 439.69s
+3. lightgbm_neuralnetwork_randomforest_stacking_ridge
+   F1-Score: 0.8218
+   Accuracy: 0.8337
+   ROC-AUC: 0.8798
+   Training Time: 8.16s
 
-4. lightgbm_catboost_advancedsvm_weighted
-   F1-Score: 0.8305
-   Accuracy: 0.8449
-   ROC-AUC: 0.8876
-   Training Time: 469.67s
+4. xgboost_neuralnetwork_randomforest_voting
+   F1-Score: 0.8082
+   Accuracy: 0.8325
+   ROC-AUC: 0.8702
+   Training Time: 42.64s
 
-5. lightgbm_catboost_advancedsvm_stacking_ridge
-   F1-Score: 0.8305
-   Accuracy: 0.8449
-   ROC-AUC: 0.8876
-   Training Time: 488.37s
+5. xgboost_neuralnetwork_randomforest_weighted
+   F1-Score: 0.8082
+   Accuracy: 0.8325
+   ROC-AUC: 0.8702
+   Training Time: 54.85s
