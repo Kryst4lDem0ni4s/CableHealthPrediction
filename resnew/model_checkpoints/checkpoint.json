@@ -357,9 +357,15 @@
     "catboost_logisticregression_weighted",
     "catboost_logisticregression_stacking",
     "catboost_logisticregression_parametric",
-    "randomforest_logisticregression_stacking"
+    "randomforest_logisticregression_stacking",
+    "randomforest_logisticregression_parametric",
+    "adaboost_logisticregression_stacking",
+    "adaboost_logisticregression_parametric",
+    "gradientboost_logisticregression_stacking",
+    "gradientboost_logisticregression_parametric",
+    "logisticregression_naivebayes_knn_stacking"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-10T19:56:54.791562"
+  "timestamp": "2025-09-10T23:34:53.259274"
 }
