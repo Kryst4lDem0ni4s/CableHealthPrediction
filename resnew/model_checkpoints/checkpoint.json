@@ -363,9 +363,22 @@
     "adaboost_logisticregression_parametric",
     "gradientboost_logisticregression_stacking",
     "gradientboost_logisticregression_parametric",
-    "logisticregression_naivebayes_knn_stacking"
+    "logisticregression_naivebayes_knn_stacking",
+    "ridge_advancedsvm_naivebayes_voting",
+    "ridge_advancedsvm_naivebayes_weighted",
+    "randomforest_knn_naivebayes_stacking",
+    "lightgbm_advancedsvm_naivebayes_voting",
+    "lightgbm_advancedsvm_naivebayes_weighted",
+    "mixture_of_experts_lightgbm_advancedsvm_voting",
+    "mixture_of_experts_lightgbm_advancedsvm_weighted",
+    "mixture_of_experts_lightgbm_naivebayes_voting",
+    "mixture_of_experts_lightgbm_naivebayes_weighted",
+    "mixture_of_experts_lightgbm_naivebayes_stacking",
+    "mixture_of_experts_lightgbm_linearmodel_voting",
+    "mixture_of_experts_lightgbm_linearmodel_weighted",
+    "mixture_of_experts_lightgbm_linearmodel_stacking"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-10T23:34:53.259274"
+  "timestamp": "2025-09-11T22:12:07.792880"
 }
