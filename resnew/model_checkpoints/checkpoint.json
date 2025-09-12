@@ -398,9 +398,15 @@
     "tabflex_lightgbm_stacking",
     "tabflex_lightgbm_parametric",
     "tabflex_catboost_voting",
-    "tabflex_catboost_weighted"
+    "tabflex_catboost_weighted",
+    "tabflex_catboost_stacking",
+    "tabflex_catboost_parametric",
+    "tabflex_randomforest_voting",
+    "tabflex_randomforest_weighted",
+    "tabflex_randomforest_stacking",
+    "tabflex_randomforest_parametric"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-12T15:52:45.660693"
+  "timestamp": "2025-09-12T18:29:19.498912"
 }
