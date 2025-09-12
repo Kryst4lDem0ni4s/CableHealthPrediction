@@ -376,9 +376,31 @@
     "mixture_of_experts_lightgbm_naivebayes_stacking",
     "mixture_of_experts_lightgbm_linearmodel_voting",
     "mixture_of_experts_lightgbm_linearmodel_weighted",
-    "mixture_of_experts_lightgbm_linearmodel_stacking"
+    "mixture_of_experts_lightgbm_linearmodel_stacking",
+    "mixture_of_experts_xgboost_advancedsvm_voting",
+    "mixture_of_experts_xgboost_advancedsvm_weighted",
+    "mixture_of_experts_xgboost_naivebayes_voting",
+    "mixture_of_experts_xgboost_naivebayes_weighted",
+    "mixture_of_experts_xgboost_naivebayes_stacking",
+    "mixture_of_experts_xgboost_linearmodel_voting",
+    "mixture_of_experts_xgboost_linearmodel_weighted",
+    "mixture_of_experts_xgboost_linearmodel_stacking",
+    "mixture_of_experts_lightgbm_voting",
+    "mixture_of_experts_lightgbm_weighted",
+    "mixture_of_experts_lightgbm_stacking",
+    "mixture_of_experts_lightgbm_parametric",
+    "tabflex_xgboost_voting",
+    "tabflex_xgboost_weighted",
+    "tabflex_xgboost_stacking",
+    "tabflex_xgboost_parametric",
+    "tabflex_lightgbm_voting",
+    "tabflex_lightgbm_weighted",
+    "tabflex_lightgbm_stacking",
+    "tabflex_lightgbm_parametric",
+    "tabflex_catboost_voting",
+    "tabflex_catboost_weighted"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-11T22:12:07.792880"
+  "timestamp": "2025-09-12T15:52:45.660693"
 }
