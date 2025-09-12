@@ -404,9 +404,11 @@
     "tabflex_randomforest_voting",
     "tabflex_randomforest_weighted",
     "tabflex_randomforest_stacking",
-    "tabflex_randomforest_parametric"
+    "tabflex_randomforest_parametric",
+    "tabflex_advancedsvm_voting",
+    "tabflex_advancedsvm_weighted"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-12T18:29:19.498912"
+  "timestamp": "2025-09-12T22:04:35.489692"
 }
