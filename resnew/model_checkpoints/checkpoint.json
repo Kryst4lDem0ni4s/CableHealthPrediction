@@ -406,9 +406,25 @@
     "tabflex_randomforest_stacking",
     "tabflex_randomforest_parametric",
     "tabflex_advancedsvm_voting",
-    "tabflex_advancedsvm_weighted"
+    "tabflex_advancedsvm_weighted",
+    "tabflex_advancedsvm_stacking",
+    "tabflex_advancedsvm_parametric",
+    "lightgbm_naivebayes_stacking",
+    "lightgbm_naivebayes_parametric",
+    "xgboost_naivebayes_stacking",
+    "xgboost_naivebayes_parametric",
+    "catboost_naivebayes_voting",
+    "catboost_naivebayes_weighted",
+    "catboost_naivebayes_stacking",
+    "catboost_naivebayes_parametric",
+    "randomforest_naivebayes_stacking",
+    "randomforest_naivebayes_parametric",
+    "advancedsvm_naivebayes_voting",
+    "advancedsvm_naivebayes_weighted",
+    "advancedsvm_naivebayes_stacking",
+    "advancedsvm_naivebayes_parametric"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-12T22:04:35.489692"
+  "timestamp": "2025-09-13T22:20:45.134587"
 }
