@@ -447,9 +447,30 @@
     "adaboost_randomforest_stacking",
     "adaboost_randomforest_parametric",
     "gradientboost_randomforest_stacking",
-    "gradientboost_randomforest_parametric"
+    "gradientboost_randomforest_parametric",
+    "adaboost_advancedsvm_voting",
+    "adaboost_advancedsvm_weighted",
+    "adaboost_advancedsvm_stacking",
+    "adaboost_advancedsvm_parametric",
+    "gradientboost_advancedsvm_voting",
+    "gradientboost_advancedsvm_weighted",
+    "gradientboost_advancedsvm_stacking",
+    "gradientboost_advancedsvm_parametric",
+    "adaboost_gradientboost_stacking",
+    "adaboost_gradientboost_parametric",
+    "lightgbm_adaboost_gradientboost_stacking",
+    "xgboost_randomforest_neuralnetwork_voting",
+    "xgboost_randomforest_neuralnetwork_weighted",
+    "xgboost_randomforest_neuralnetwork_stacking_ridge",
+    "lightgbm_xgboost_catboost_ridge_voting",
+    "lightgbm_xgboost_catboost_ridge_weighted",
+    "lightgbm_xgboost_catboost_ridge_stacking",
+    "lightgbm_xgboost_catboost_ridge_stacking_ridge",
+    "lightgbm_xgboost_randomforest_ablation_stacking",
+    "deepgbm_neuralnetwork_voting",
+    "deepgbm_neuralnetwork_weighted"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-14T18:41:54.678231"
+  "timestamp": "2025-09-15T19:14:33.151633"
 }
