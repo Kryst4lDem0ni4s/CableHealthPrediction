@@ -1,40 +1,40 @@
 EXECUTIVE SUMMARY - ML MODEL COMPARATIVE ANALYSIS
 ============================================================
-Analysis Date: 2025-09-13 23:21:50
-Total Models Evaluated: 16
-Successful Completions: 16
+Analysis Date: 2025-09-15 21:32:43
+Total Models Evaluated: 65
+Successful Completions: 65
 Failed Models: 0
 Early Stopped (Poor Performance): 0
 
 TOP 5 PERFORMING MODELS (by Weighted F1-Score):
 --------------------------------------------------
 
-1. tabflex_advancedsvm_stacking
-   F1-Score: 0.6228
-   Accuracy: 0.7351
-   ROC-AUC: 0.7792
-   Training Time: 626.79s
+1. lightgbm_adaboost_gradientboost_stacking
+   F1-Score: 0.8405
+   Accuracy: 0.8459
+   ROC-AUC: 0.8985
+   Training Time: 62.43s
 
-2. tabflex_advancedsvm_parametric
-   F1-Score: 0.6228
-   Accuracy: 0.7351
-   ROC-AUC: 0.7792
-   Training Time: 1584.81s
+2. lightgbm_xgboost_randomforest_ablation_stacking
+   F1-Score: 0.8395
+   Accuracy: 0.8452
+   ROC-AUC: 0.8976
+   Training Time: 17.16s
 
-3. lightgbm_naivebayes_stacking
-   F1-Score: 0.1958
-   Accuracy: 0.1928
-   ROC-AUC: 0.7874
-   Training Time: 1.82s
+3. all_boosting_ensemble_voting
+   F1-Score: 0.8365
+   Accuracy: 0.8479
+   ROC-AUC: 0.8974
+   Training Time: 69.00s
 
-4. lightgbm_naivebayes_parametric
-   F1-Score: 0.1958
-   Accuracy: 0.1928
-   ROC-AUC: 0.7874
-   Training Time: 1.88s
+4. all_boosting_ensemble_stacking
+   F1-Score: 0.8365
+   Accuracy: 0.8479
+   ROC-AUC: 0.8974
+   Training Time: 71.77s
 
-5. xgboost_naivebayes_stacking
-   F1-Score: 0.1958
-   Accuracy: 0.1928
-   ROC-AUC: 0.7870
-   Training Time: 37.34s
+5. all_boosting_ensemble_stacking_ridge
+   F1-Score: 0.8365
+   Accuracy: 0.8479
+   ROC-AUC: 0.8974
+   Training Time: 72.12s

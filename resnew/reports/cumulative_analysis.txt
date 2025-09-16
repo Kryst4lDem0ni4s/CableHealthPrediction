@@ -1,7 +1,7 @@
-CUMULATIVE ANALYSIS REPORT - Updated: 2025-09-15 19:14:33
+CUMULATIVE ANALYSIS REPORT - Updated: 2025-09-15 21:32:38
 ================================================================================
-Total Models Processed: 579
-Successful Models: 518
+Total Models Processed: 598
+Successful Models: 537
 Failed Models: 38
 Early Stopped Models: 23
 

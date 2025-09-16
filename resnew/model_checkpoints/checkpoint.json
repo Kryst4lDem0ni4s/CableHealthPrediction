@@ -468,9 +468,28 @@
     "lightgbm_xgboost_catboost_ridge_stacking_ridge",
     "lightgbm_xgboost_randomforest_ablation_stacking",
     "deepgbm_neuralnetwork_voting",
-    "deepgbm_neuralnetwork_weighted"
+    "deepgbm_neuralnetwork_weighted",
+    "deepgbm_neuralnetwork_stacking",
+    "deepgbm_neuralnetwork_parametric",
+    "tabflex_naivebayes_voting",
+    "tabflex_naivebayes_weighted",
+    "tabflex_naivebayes_stacking",
+    "tabflex_naivebayes_parametric",
+    "mixture_of_experts_catboost_voting",
+    "mixture_of_experts_catboost_weighted",
+    "mixture_of_experts_catboost_stacking",
+    "mixture_of_experts_catboost_parametric",
+    "ngboost_catboost_voting",
+    "ngboost_catboost_weighted",
+    "ngboost_catboost_stacking",
+    "ngboost_catboost_parametric",
+    "all_boosting_ensemble_voting",
+    "all_boosting_ensemble_stacking",
+    "all_boosting_ensemble_stacking_ridge",
+    "all_linear_ensemble_voting",
+    "all_linear_ensemble_stacking"
   ],
   "failed_models": [],
   "early_stopped_models": [],
-  "timestamp": "2025-09-15T19:14:33.151633"
+  "timestamp": "2025-09-15T21:32:38.569478"
 }
