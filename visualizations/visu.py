@@ -517,9 +517,6 @@ def sensitivity_analysis(wide: pd.DataFrame, overfit_thresholds=[0.05, 0.1, 0.15
 # Parallel visualization with profiling (enhanced)
 def generate_plot_parallel(func, args):
     mem = psutil.virtual_memory()
-    if mem.percent > 90:
-        print("High memory usage; skipping plot")
-        return
     pr = cProfile.Profile()
     pr.enable()
     try:
